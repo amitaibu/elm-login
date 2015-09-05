@@ -59,7 +59,7 @@ update action model =
         d = Debug.log "result" result
       in
         case result of
-          Ok data -> ({newModel | user <- LoggedIn data}, Effects.none)
+          -- Ok (id, name) -> ({newModel | user <- LoggedIn name}, Effects.none)
           Err msg -> (newModel, Effects.none)
 
 -- VIEW
@@ -89,10 +89,9 @@ getJson url accessToken =
     |> Effects.task
 
 
-decodeData : Json.Decoder String
+decodeData : Json.Decoder (Id, String)
 decodeData =
-  Json.at ["data", "0", "label"]
-    <| Json.string
-    -- <| Json.object2 (,)
-      -- ("id" := Json.int)
-      -- ("label" := Json.string)
+  Json.at ["data", "0"]
+    <| Json.object2 (,)
+      ("id" := Json.int)
+      ("label" := Json.string)
