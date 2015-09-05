@@ -29,7 +29,7 @@ type alias Model =
 init : (Model, Effects Action)
 init =
   ( Model Anonymous 0 False
-  , Effects.none
+  , getJson "http://localhost/d7_dev/api/users/1" "EcBTcskWJYMSS--WqY8lbrVB9Yrl40_OfdcN0lnRaIc"
   )
 
 
@@ -49,16 +49,17 @@ update action model =
         -- @todo: Use /api/me
         url = "http://localhost/d7_dev/api/users/1"
       in
-      ( { model | isFetching <- True}
-      , getJson url
-      )
+        ( { model | isFetching <- True}
+        , getJson url "EcBTcskWJYMSS--WqY8lbrVB9Yrl40_OfdcN0lnRaIc"
+        )
 
     UpdateDataFromServer result ->
       let
         newModel  = { model | isFetching <- False}
+        d = Debug.log "result" result
       in
         case result of
-          Ok (id, name) -> ({newModel | id <- id, user: name}, Effects.none)
+          Ok data -> ({newModel | user <- LoggedIn data}, Effects.none)
           Err msg -> (newModel, Effects.none)
 
 -- VIEW
@@ -68,7 +69,7 @@ update action model =
 view : Signal.Address Action -> Model -> Html
 view address model =
   div [class "container"]
-    [ div [] [text ("ID: " ++ model.id)]
+    [ div [] [text ("User: " ++ toString(model.user))]
     ]
 
 -- EFFECTS
@@ -82,15 +83,16 @@ getJson url accessToken =
     , url = url
     , body = Http.empty
     }
-    |> Http.fromJson decodeAccessToken
+    |> Http.fromJson decodeData
     |> Task.toResult
     |> Task.map UpdateDataFromServer
     |> Effects.task
 
 
-decodeAccessToken : Json.Decoder (Id, String)
-decodeAccessToken =
-  Json.at ["data", "0"]
-    <| Json.map2 Json.string
-      ("id" := Json.id)
-      ("label" := Json.string)
+decodeData : Json.Decoder String
+decodeData =
+  Json.at ["data", "0", "label"]
+    <| Json.string
+    -- <| Json.object2 (,)
+      -- ("id" := Json.int)
+      -- ("label" := Json.string)
