@@ -21,7 +21,7 @@ type alias AccessToken = String
 type User = Anonymous | LoggedIn String
 
 type alias Model =
-  { user : User
+  { name : User
   , id : Id
   , isFetching : Bool
   }
@@ -29,7 +29,7 @@ type alias Model =
 init : (Model, Effects Action)
 init =
   ( Model Anonymous 0 False
-  , getJson "http://localhost/d7_dev/api/users/1" "EcBTcskWJYMSS--WqY8lbrVB9Yrl40_OfdcN0lnRaIc"
+  , Effects.none
   )
 
 
@@ -69,7 +69,7 @@ update action model =
 view : Signal.Address Action -> Model -> Html
 view address model =
   div [class "container"]
-    [ div [] [text ("User: " ++ toString(model.user))]
+    [ div [] [text ("User: " ++ toString(model.name))]
     ]
 
 -- EFFECTS
