@@ -37,7 +37,7 @@ init =
 
 type Action
   = GetDataFromServer
-  | UpdateDataFromServer (Result Http.Error AccessToken)
+  | UpdateDataFromServer (Result Http.Error (Id, String))
 
 
 update : Action -> Model -> (Model, Effects Action)
@@ -79,7 +79,7 @@ getJson : String -> String -> Effects Action
 getJson url accessToken =
   Http.send Http.defaultSettings
     { verb = "GET"
-    , headers = [("access-token", accessToken)]
+    , headers = [("X-Access-Token", accessToken)]
     , url = url
     , body = Http.empty
     }
