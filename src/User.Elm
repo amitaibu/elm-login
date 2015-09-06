@@ -6,6 +6,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (on, onClick, targetValue)
 import Http
 import Json.Decode as Json exposing ((:=))
+import Login exposing (..)
 import String exposing (length)
 import Task
 
@@ -38,6 +39,7 @@ init =
 type Action
   = GetDataFromServer
   | UpdateDataFromServer (Result Http.Error (Id, String))
+  | ChildAction Login.Action
 
 
 update : Action -> Model -> (Model, Effects Action)
@@ -68,6 +70,17 @@ update action model =
 
 view : Signal.Address Action -> Model -> Html
 view address model =
+  if model.name == Anonymous
+    then
+      let
+        loginModel =
+          Login.Model Nothing (LoginForm "admin" "admin") False
+
+        childAddress =
+            Signal.forwardTo address ChildAction
+      in
+        Login.view childAddress loginModel
+    else
   div [class "container"]
     [ div [] [text ("User: " ++ toString(model.name))]
     ]
