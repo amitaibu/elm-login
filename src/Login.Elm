@@ -29,9 +29,14 @@ type alias Model =
   , isFetching : Bool
   }
 
+initialModel : Model
+initialModel =
+  Model Nothing (LoginForm "admin" "admin") False
+
+
 init : (Model, Effects Action)
 init =
-  ( Model Nothing (LoginForm "admin" "admin") False
+  ( initialModel
   , Effects.none
   )
 
@@ -66,10 +71,19 @@ update action model =
     GetAccessTokenFromServer result ->
       let
         newModel  = { model | isFetching <- False}
+        d = Debug.log "result" result
       in
         case result of
-          Ok accessToken -> ({newModel | accessToken <- Just accessToken}, Effects.none)
-          Err msg -> (newModel, Effects.none)
+          Ok accessToken ->
+            let
+              d = Debug.log "ok" accessToken
+            in
+            ({newModel | accessToken <- Just accessToken}, Effects.none)
+          Err msg ->
+            let
+              d = Debug.log "err" msg
+            in
+            (newModel, Effects.none)
 
 
 

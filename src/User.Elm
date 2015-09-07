@@ -25,11 +25,19 @@ type alias Model =
   { name : User
   , id : Id
   , isFetching : Bool
+
+  -- Child components
+  , loginModel : Login.Model
   }
+
+
+initialModel : Model
+initialModel =
+  Model Anonymous 0 False (Login.initialModel)
 
 init : (Model, Effects Action)
 init =
-  ( Model Anonymous 0 False
+  ( initialModel
   , Effects.none
   )
 
@@ -61,8 +69,19 @@ update action model =
         d = Debug.log "result" result
       in
         case result of
-          -- Ok (id, name) -> ({newModel | user <- LoggedIn name}, Effects.none)
+          Ok (id, name) -> ({newModel | name <- LoggedIn name}, Effects.none)
           Err msg -> (newModel, Effects.none)
+
+    ChildAction act ->
+      let
+        (updatedLoginModel, _) = Login.update act model.loginModel
+        d = Debug.log "loginModel" updatedLoginModel
+      in
+      ( {model | loginModel <- updatedLoginModel}
+      , Effects.none
+      )
+
+
 
 -- VIEW
 
@@ -73,13 +92,10 @@ view address model =
   if model.name == Anonymous
     then
       let
-        loginModel =
-          Login.Model Nothing (LoginForm "admin" "admin") False
-
         childAddress =
             Signal.forwardTo address ChildAction
       in
-        Login.view childAddress loginModel
+        Login.view childAddress model.loginModel
     else
   div [class "container"]
     [ div [] [text ("User: " ++ toString(model.name))]
