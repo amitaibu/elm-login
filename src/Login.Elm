@@ -23,15 +23,20 @@ type alias LoginForm =
   ,  pass : String
   }
 
+type Status =
+  Init
+  | HttpError Http.Error
+
 type alias Model =
   { accessToken: (Maybe AccessToken)
   , loginForm : LoginForm
   , isFetching : Bool
+  , status : Status
   }
 
 initialModel : Model
 initialModel =
-  Model Nothing (LoginForm "admin" "admin") False
+  Model Nothing (LoginForm "admin" "admin") False Init
 
 
 init : (Model, Effects Action)
@@ -71,19 +76,14 @@ update action model =
     GetAccessTokenFromServer result ->
       let
         newModel  = { model | isFetching <- False}
-        d = Debug.log "result" result
       in
         case result of
           Ok accessToken ->
-            let
-              d = Debug.log "ok" accessToken
-            in
             ({newModel | accessToken <- Just accessToken}, Effects.none)
           Err msg ->
-            let
-              d = Debug.log "err" msg
-            in
-            (newModel, Effects.none)
+            (
+            {newModel | status <- HttpError msg }
+            , Effects.none)
 
 
 

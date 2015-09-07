@@ -75,7 +75,6 @@ update action model =
     ChildAction act ->
       let
         (updatedLoginModel, _) = Login.update act model.loginModel
-        d = Debug.log "loginModel" updatedLoginModel
       in
       ( {model | loginModel <- updatedLoginModel}
       , Effects.none
