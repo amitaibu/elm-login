@@ -27,16 +27,8 @@ port tasks =
 
 -- Interactions with localStorage to save the access token.
 
-signalAccessToken : Signal String
-signalAccessToken =
-  let
-    getValue model = .accessToken model
-  in
-  Signal.map getValue app.model
-
-
--- port getStorage : Maybe String
+port getStorage : Maybe String
 
 port setStorage : Signal String
 port setStorage =
-  signalAccessToken
+  App.signalAccessToken app.model
