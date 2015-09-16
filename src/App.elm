@@ -8,6 +8,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Task exposing (..)
 import User exposing (..)
+import Json.Encode as JE
 
 import Debug
 
@@ -19,6 +20,35 @@ type alias Model =
   , events : Event.Model
   , accessToken : AccessToken
   }
+
+encodeModel : Model -> JE.Value
+encodeModel model =
+    JE.object
+        [ ("user", encodeUserModel model.user)
+        ]
+
+
+encodeUserModel : User.Model -> JE.Value
+encodeUserModel user =
+    JE.object
+        [ ("name", encodeUser user.name)
+        ]
+
+encodeUser : User.User -> JE.Value
+encodeUser user =
+    case user of
+        Anonymous ->
+            JE.object
+                [ ("ctor", JE.string "Anonymous")
+                ]
+
+        LoggedIn username ->
+            JE.object
+                [ ("ctor", JE.string "LoggedIn")
+                , ("username", JE.string username)
+                ]
+
+
 
 initialModel : Model
 initialModel =
