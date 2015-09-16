@@ -1,0 +1,24 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Elm • Hedlet</title>
+  <script type="text/javascript" src="elm.js"></script>
+</head>
+
+<body>
+</body>
+
+<script type="text/javascript">
+var storedState = localStorage.getItem('access_token');
+
+var elmApp = Elm.fullscreen(Elm.Main, {getStorage: storedState});
+
+elmApp.ports.setStorage.subscribe(function(accessToken) {
+  localStorage.setItem('access_token', accessToken);
+});
+
+</script>
+
+</html>
