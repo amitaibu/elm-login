@@ -56,7 +56,7 @@ update action model =
             [ Effects.map ChildUserAction childEffects
             -- @todo: Where to move this so it's invoked on time?
             , Task.succeed (ChildEventAction Event.GetDataFromServer) |> Effects.task
-            , Task.succeed (setAccessTokenStorage model.user.accessToken) |> Effects.task
+            -- , Task.succeed (setAccessTokenStorage model.user.accessToken) |> Effects.task
             ]
         )
 
