@@ -4,8 +4,10 @@
     "repository": "https://github.com/USER/PROJECT.git",
     "license": "BSD3",
     "source-directories": [
-        "src"
+        "src",
+        "vendor/elm-storage/src"
     ],
+    "native-modules": true,
     "exposed-modules": [],
     "dependencies": {
         "elm-lang/core": "2.1.0 <= v < 3.0.0",

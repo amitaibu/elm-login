@@ -1,9 +1,10 @@
 module App where
 
-
 import Company exposing (..)
 import Effects exposing (Effects, Never)
 import Event exposing (..)
+import Json.Encode as JE exposing (string)
+import Storage exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Task exposing (..)
@@ -55,6 +56,7 @@ update action model =
             [ Effects.map ChildUserAction childEffects
             -- @todo: Where to move this so it's invoked on time?
             , Task.succeed (ChildEventAction Event.GetDataFromServer) |> Effects.task
+            -- , Task.succeed (setAccessTokenStorage model.user.accessToken) |> Effects.task
             ]
         )
 
@@ -65,6 +67,10 @@ update action model =
         ( {model | events <- childModel }
         , Effects.map ChildEventAction childEffects
         )
+
+setAccessTokenStorage : String -> Task String ()
+setAccessTokenStorage =
+  Storage.setItem "foo" << JE.string
 
 -- VIEW
 
