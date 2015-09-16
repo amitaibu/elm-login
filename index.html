@@ -12,12 +12,10 @@
 
 <script type="text/javascript">
 var storedState = localStorage.getItem('access_token');
-var startingState = storedState ? JSON.parse(storedState) : null;
 
-var elmApp = Elm.fullscreen(Elm.Main, {getStorage: startingState});
+var elmApp = Elm.fullscreen(Elm.Main, {getStorage: storedState});
 
 elmApp.ports.setStorage.subscribe(function(accessToken) {
-  console.log(accessToken);
   localStorage.setItem('access_token', accessToken);
 });
 
