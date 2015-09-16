@@ -1,6 +1,7 @@
 module Event where
 
 import Config exposing (backendUrl)
+import Dict exposing (empty, insert, update, get)
 import Effects exposing (Effects, Never)
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -142,18 +143,41 @@ view address model =
     ]
 
 
+viewListEventsGroupByAuthor : Signal.Address Action -> Model -> Html
+viewListEventsGroupByAuthor address model =
+  let
+    buildDict = Dict.empty
+    buildDict event =
+      case Dict.get event.author.id dict of
+        Just val
+          -- Update the existing record
+          Dict.update event.id event.author.name buildDict
+          ->
+        Nothing ->
+          -- New record
+          Dict.insert event.id event.author.name buildDict
+
+
+    viewDict item =
+      li [] [ text (item.name ++ " (" ++ (toString item.count) ++ ")" ]
+  in
+    Dict.map viewDict dict
+
 viewListEvents : (Signal.Address Action, Maybe Int) -> Event -> Html
 viewListEvents (address, selected) event =
+  let
+    nonSelected = li [] [ a [ href "#", onClick address (Select event.id) ] [text event.label] ]
+  in
   case selected of
     Just val ->
       if event.id == val
         then
           li [ class "selected" ] [text ("Selected: " ++ event.label)]
         else
-          li [] [ a [ href "#", onClick address (Select event.id) ] [text event.label] ]
+          nonSelected
 
     Nothing ->
-      li [] [ a [ href "#", onClick address (Select event.id) ] [text event.label] ]
+      nonSelected
 
 
 viewEventInfo : Model -> Html
