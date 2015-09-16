@@ -29,6 +29,11 @@ port tasks =
 
 port getStorage : Maybe String
 
+
+signalAccessToken : Signal App.Model -> Signal String
+signalAccessToken model =
+  Signal.map (.user >> .accessToken) model
+
 port setStorage : Signal String
 port setStorage =
-  App.signalAccessToken app.model
+  signalAccessToken app.model

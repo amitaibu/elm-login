@@ -127,12 +127,3 @@ myStyle =
     , ("margin", "50px")
     , ("font-size", "2em")
     ]
-
--- SIGNALS
-
-signalAccessToken : Signal Model -> Signal String
-signalAccessToken model =
-  -- let
-  --   getValue model = .accessToken model
-  -- in
-  Signal.map .accessToken model
