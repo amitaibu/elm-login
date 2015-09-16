@@ -1,9 +1,9 @@
 module App where
 
-
 import Company exposing (..)
 import Effects exposing (Effects, Never)
 import Event exposing (..)
+import Storage exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Task exposing (..)
