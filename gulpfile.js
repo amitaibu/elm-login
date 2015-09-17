@@ -165,7 +165,7 @@ gulp.task("serve:prod", function () {
 gulp.task("default", ["clean:dev", "serve:dev", "watch"]);
 
 // Builds the site but doesnt serve it to you
-gulp.task("build", ["styles", "elm", "copy:dev"], function () {});
+gulp.task("build", ["copy:dev", "elm", "styles"], function () {});
 
 // Builds your site with the "build" command and then runs all the optimizations on
 // it and outputs it to "./dist"
