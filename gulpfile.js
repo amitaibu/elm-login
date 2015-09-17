@@ -15,6 +15,9 @@ var elm  = require('gulp-elm');
 // merge is used to merge the output from two different streams into the same stream
 var merge = require("merge-stream");
 // Need a command for reloading webpages using BrowserSync
+
+var plumber = require("gulp-plumber");
+
 var reload = browserSync.reload;
 // And define a variable that BrowserSync uses in its function
 var bs;
@@ -30,6 +33,7 @@ gulp.task("clean:prod", del.bind(null, ["dist"]));
 gulp.task("styles", function () {
   // Looks at the style.scss file for what to include and creates a style.css file
   return gulp.src("src/assets/scss/style.scss")
+    .pipe(plumber())
     .pipe($.sass())
     // AutoPrefix your CSS so it works between browsers
     .pipe($.autoprefixer("last 1 version", { cascade: true }))
@@ -123,6 +127,7 @@ gulp.task("deploy", ["publish"], function () {
 gulp.task('elm-init', elm.init);
 gulp.task('elm', ['elm-init'], function(){
   return gulp.src('src/elm/Main.elm')
+    .pipe(plumber())
     .pipe(elm())
     .pipe(gulp.dest('serve'));
 });
