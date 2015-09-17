@@ -23,7 +23,7 @@ var bs;
 gulp.task("clean:dev", del.bind(null, ["serve"]));
 
 // Deletes the directory that the optimized site is output to
-gulp.task("clean:prod", del.bind(null, ["site"]));
+gulp.task("clean:prod", del.bind(null, ["dist"]));
 
 
 // Compiles the SASS files and moves them into the "assets/stylesheets" directory
@@ -45,34 +45,34 @@ gulp.task("styles", function () {
 // Optimizes the images that exists
 gulp.task("images", function () {
   return gulp.src("src/assets/images/**")
-    .pipe($.changed("site/assets/images"))
+    .pipe($.changed("dist/assets/images"))
     .pipe($.imagemin({
       // Lossless conversion to progressive JPGs
       progressive: true,
       // Interlace GIFs for progressive rendering
       interlaced: true
     }))
-    .pipe(gulp.dest("site/assets/images"))
+    .pipe(gulp.dest("dist/assets/images"))
     .pipe($.size({title: "images"}));
 });
 
-// Copy over fonts to the "site" directory
+// Copy over fonts to the "dist" directory
 gulp.task("fonts", function () {
   return gulp.src("src/assets/fonts/**")
-    .pipe(gulp.dest("site/assets/fonts"))
+    .pipe(gulp.dest("dist/assets/fonts"))
     .pipe($.size({ title: "fonts" }));
 });
 
-// Copy index.html files to the "serve" directory
+// Copy index.html and CNAME files to the "serve" directory
 gulp.task("copy:dev", function () {
-  return gulp.src(["index.html"])
+  return gulp.src(["index.html", "CNAME"])
     .pipe(gulp.dest("serve"))
-    .pipe($.size({ title: "index.html" }))
+    .pipe($.size({ title: "index.html & CNAME" }))
 });
 
 gulp.task("cname", function () {
   return gulp.src(["serve/CNAME"])
-    .pipe(gulp.dest("site"))
+    .pipe(gulp.dest("dist"))
     .pipe($.size({ title: "CNAME" }))
 });
 
@@ -105,7 +105,7 @@ gulp.task("minify", ["styles"], function () {
       removeRedundantAttributes: true
     })))
     // Send the output to the correct folder
-    .pipe(gulp.dest("site"))
+    .pipe(gulp.dest("dist"))
     .pipe($.size({title: "optimizations"}));
 });
 
@@ -113,7 +113,7 @@ gulp.task("minify", ["styles"], function () {
 // Task to upload your site to your personal GH Pages repo
 gulp.task("deploy", ["publish"], function () {
   // Deploys your optimized site, you can change the settings in the html task if you want to
-  return gulp.src("./site/**/*")
+  return gulp.src("./dist/**/*")
     .pipe($.ghPages({
       // Currently only personal GitHub Pages are supported so it will upload to the master
       // branch and automatically overwrite anything that is in the directory
@@ -156,19 +156,19 @@ gulp.task("serve:prod", function () {
     notify: false,
     // tunnel: true,
     server: {
-      baseDir: "site"
+      baseDir: "dist"
     }
   });
 });
 
 // Default task, run when just writing "gulp" in the terminal
-gulp.task("default", ["serve:dev", "watch"]);
+gulp.task("default", ["clean:dev", "serve:dev", "watch"]);
 
 // Builds the site but doesnt serve it to you
-gulp.task("build", ["styles", "elm"], function () {});
+gulp.task("build", ["styles", "elm", "copy:dev"], function () {});
 
 // Builds your site with the "build" command and then runs all the optimizations on
-// it and outputs it to "./site"
-gulp.task("publish", ["build"], function () {
+// it and outputs it to "./dist"
+gulp.task("publish", ["clean:prod", "build"], function () {
   gulp.start("minify", "cname", "images", "fonts");
 });
