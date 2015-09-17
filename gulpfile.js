@@ -63,10 +63,10 @@ gulp.task("fonts", function () {
     .pipe($.size({ title: "fonts" }));
 });
 
-// Copy xml and txt files to the "site" directory
-gulp.task("copy", function () {
+// Copy index.html files to the "serve" directory
+gulp.task("copy:dev", function () {
   return gulp.src(["index.html"])
-    .pipe(gulp.dest("site"))
+    .pipe(gulp.dest("serve"))
     .pipe($.size({ title: "index.html" }))
 });
 
@@ -78,10 +78,10 @@ gulp.task("cname", function () {
 
 
 // Optimizes all the CSS, HTML and concats the JS etc
-gulp.task("html", ["styles"], function () {
+gulp.task("minify", ["styles"], function () {
   var assets = $.useref.assets({searchPath: "serve"});
 
-  return gulp.src("serve/**/*.html")
+  return gulp.src("serve/**/*")
     .pipe(assets)
     // Concatenate JavaScript files and preserve important comments
     .pipe($.if("*.js", $.uglify({preserveComments: "some"})))
@@ -125,18 +125,18 @@ gulp.task('elm-init', elm.init);
 gulp.task('elm', ['elm-init'], function(){
   return gulp.src('src/Main.elm')
     .pipe(elm())
-    .pipe(gulp.dest('site'));
+    .pipe(gulp.dest('serve'));
 });
 
 // BrowserSync will serve our site on a local server for us and other devices to use
 // It will also autoreload across all devices as well as keep the viewport synchronized
 // between them.
-gulp.task("serve:dev", ["styles", "elm", "copy"], function () {
+gulp.task("serve:dev", ["styles", "elm", "copy:dev"], function () {
   bs = browserSync({
     notify: true,
     // tunnel: "",
     server: {
-      baseDir: "site"
+      baseDir: "serve"
     }
   });
 });
@@ -146,7 +146,7 @@ gulp.task("serve:dev", ["styles", "elm", "copy"], function () {
 // reload the website accordingly. Update or add other files you need to be watched.
 gulp.task("watch", function () {
   gulp.watch(["src/**/*.elm"], ["elm"]);
-  gulp.watch(["site/assets/stylesheets/*.css", "site/Main.js", "site/index.html"], reload);
+  gulp.watch(["serve/assets/stylesheets/*.css", "serve/Main.js", "serve/index.html"], reload);
   gulp.watch(["src/assets/scss/**/*.scss"], ["styles"]);
 });
 
@@ -165,10 +165,10 @@ gulp.task("serve:prod", function () {
 gulp.task("default", ["serve:dev", "watch"]);
 
 // Builds the site but doesnt serve it to you
-gulp.task("build", ["styles"], function () {});
+gulp.task("build", ["styles", "elm"], function () {});
 
 // Builds your site with the "build" command and then runs all the optimizations on
 // it and outputs it to "./site"
 gulp.task("publish", ["build"], function () {
-  gulp.start("html", "copy", "cname", "images", "fonts");
+  gulp.start("minify", "cname", "images", "fonts");
 });
