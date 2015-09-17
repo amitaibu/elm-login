@@ -65,9 +65,9 @@ gulp.task("fonts", function () {
 
 // Copy xml and txt files to the "site" directory
 gulp.task("copy", function () {
-  return gulp.src(["serve/*.txt", "serve/*.xml", "serve/shoovify.sh"])
+  return gulp.src(["index.html"])
     .pipe(gulp.dest("site"))
-    .pipe($.size({ title: "xml & txt & shoovify.sh" }))
+    .pipe($.size({ title: "index.html" }))
 });
 
 gulp.task("cname", function () {
@@ -131,12 +131,12 @@ gulp.task('elm', ['elm-init'], function(){
 // BrowserSync will serve our site on a local server for us and other devices to use
 // It will also autoreload across all devices as well as keep the viewport synchronized
 // between them.
-gulp.task("serve:dev", ["styles", "elm"], function () {
+gulp.task("serve:dev", ["styles", "elm", "copy"], function () {
   bs = browserSync({
     notify: true,
     // tunnel: "",
     server: {
-      baseDir: "serve"
+      baseDir: "site"
     }
   });
 });
@@ -146,7 +146,7 @@ gulp.task("serve:dev", ["styles", "elm"], function () {
 // reload the website accordingly. Update or add other files you need to be watched.
 gulp.task("watch", function () {
   gulp.watch(["src/**/*.elm"], ["elm"]);
-  gulp.watch(["serve/assets/stylesheets/*.css"], reload);
+  gulp.watch(["site/assets/stylesheets/*.css", "site/Main.js", "site/index.html"], reload);
   gulp.watch(["src/assets/scss/**/*.scss"], ["styles"]);
 });
 
