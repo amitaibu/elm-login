@@ -123,7 +123,7 @@ gulp.task("deploy", ["publish"], function () {
 
 gulp.task('elm-init', elm.init);
 gulp.task('elm', ['elm-init'], function(){
-  return gulp.src('src/Main.elm')
+  return gulp.src('src/elm/Main.elm')
     .pipe(elm())
     .pipe(gulp.dest('serve'));
 });
