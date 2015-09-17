@@ -84,7 +84,7 @@ gulp.task("cname", function () {
 gulp.task("minify", ["styles"], function () {
   var assets = $.useref.assets({searchPath: "serve"});
 
-  return gulp.src("serve/**/*")
+  return gulp.src("serve/**/*.*")
     .pipe(assets)
     // Concatenate JavaScript files and preserve important comments
     .pipe($.if("*.js", $.uglify({preserveComments: "some"})))
