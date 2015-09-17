@@ -16,7 +16,7 @@ var elm  = require('gulp-elm');
 var merge = require("merge-stream");
 // Need a command for reloading webpages using BrowserSync
 var reload = browserSync.reload;
-// And define a variable that BrowserSync uses in it"s function
+// And define a variable that BrowserSync uses in its function
 var bs;
 
 // Deletes the directory that is used to serve the site during development
