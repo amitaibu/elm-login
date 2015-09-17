@@ -1,6 +1,5 @@
 module App where
 
-
 import Company exposing (..)
 import Effects exposing (Effects, Never)
 import Event exposing (..)
@@ -8,8 +7,6 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Task exposing (..)
 import User exposing (..)
-
-import Debug
 
 type alias AccessToken = String
 
