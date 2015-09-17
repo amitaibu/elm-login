@@ -85,7 +85,7 @@ gulp.task("minify", ["styles"], function () {
   var assets = $.useref.assets({searchPath: "serve"});
 
   return gulp.src("serve/**/*.*")
-    .pipe(assets)
+    .pipe(plumber())
     // Concatenate JavaScript files and preserve important comments
     .pipe($.if("*.js", $.uglify({preserveComments: "some"})))
     // Minify CSS
@@ -93,8 +93,6 @@ gulp.task("minify", ["styles"], function () {
     // Start cache busting the files
     .pipe($.revAll({ ignore: [".eot", ".svg", ".ttf", ".woff"] }))
     .pipe(assets.restore())
-    // Conctenate your files based on what you specified in _layout/header.html
-    .pipe($.useref())
     // Replace the asset names with their cache busted names
     .pipe($.revReplace())
     // Minify HTML
