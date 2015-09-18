@@ -46,6 +46,7 @@ type alias Model =
   , status : Status
   , selectedEvent : Maybe Int
   , selectedAuthor : Maybe Int
+  , filterEvents : Maybe String
   }
 
 initialModel : Model
@@ -54,6 +55,7 @@ initialModel =
   , status = Init
   , selectedEvent = Nothing
   , selectedAuthor = Nothing
+  , filterEvents = Nothing
   }
 
 init : (Model, Effects Action)
@@ -72,6 +74,7 @@ type Action
   | UnSelectEvent
   | SelectAuthor Int
   | UnSelectAuthor
+  | FilterEvents (Maybe String)
 
 update : Action -> Model -> (Model, Effects Action)
 update action model =
@@ -120,6 +123,12 @@ update action model =
       , Task.succeed UnSelectEvent |> Effects.task
       )
 
+    FilterEvents filter ->
+      ( { model | filterEvents <- filter }
+      , Effects.none
+      )
+
+
 
 -- VIEW
 
@@ -139,7 +148,7 @@ view address model =
           ]
       , div []
           [ div [class "h2"] [ text "Event list:"]
-          , ul [] (viewListEvents address model.events model.selectedAuthor model.selectedEvent)
+          , ul [] (viewListEvents address model.events model.selectedAuthor model.selectedEvent model.filterEvents)
           ]
 
       , div []
@@ -214,8 +223,8 @@ filterListEvents events selectedAuthor =
       events
 
 
-viewListEvents : Signal.Address Action -> List Event -> Maybe Int -> Maybe Int -> List Html
-viewListEvents address events selectedAuthor selectedEvent  =
+viewListEvents : Signal.Address Action -> List Event -> Maybe Int -> Maybe Int -> Maybe String -> List Html
+viewListEvents address events selectedAuthor selectedEvent filterEvents =
   let
     filteredEvents = filterListEvents events selectedAuthor
 
@@ -240,7 +249,16 @@ viewListEvents address events selectedAuthor selectedEvent  =
         Nothing ->
           eventSelect(event)
   in
-    List.map getListItem filteredEvents
+    div []
+      [ input
+          [ placeholder "Filter events"
+          , value filterEvents
+          , on "input" targetValue (Signal.message address << FilterEvents)
+          ]
+          []
+      , List.map getListItem filteredEvents
+      ]
+
 
 
 viewEventInfo : Model -> Html
