@@ -159,7 +159,6 @@ view address model =
           , viewEventInfo model
           ]
       ]
-    , button [ onClick address GetDataFromServer ] [ text "Refresh" ]
     ]
 
 groupEventsByAuthors : List Event -> Dict Int (Author, Int)
