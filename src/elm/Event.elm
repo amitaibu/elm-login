@@ -46,7 +46,8 @@ type alias Model =
   , status : Status
   , selectedEvent : Maybe Int
   , selectedAuthor : Maybe Int
-  , filterEvents : Maybe String
+  -- @todo: Make (Maybe String)
+  , filterString : String
   }
 
 initialModel : Model
@@ -55,7 +56,7 @@ initialModel =
   , status = Init
   , selectedEvent = Nothing
   , selectedAuthor = Nothing
-  , filterEvents = Nothing
+  , filterString = ""
   }
 
 init : (Model, Effects Action)
@@ -74,7 +75,8 @@ type Action
   | UnSelectEvent
   | SelectAuthor Int
   | UnSelectAuthor
-  | FilterEvents (Maybe String)
+  -- @todo: Make (Maybe String)
+  | FilterEvents String
 
 update : Action -> Model -> (Model, Effects Action)
 update action model =
@@ -124,7 +126,7 @@ update action model =
       )
 
     FilterEvents filter ->
-      ( { model | filterEvents <- filter }
+      ( { model | filterString <- filter }
       , Effects.none
       )
 
@@ -143,12 +145,13 @@ view address model =
   div []
     [ div [style [("display", "flex")]]
       [ div []
-          [ div [class "h2"] [ text "Event info:"]
+          [ div [class "h2"] [ text "Event Authors:"]
           , ul [] (viewEventsByAuthors address model.events model.selectedAuthor)
           ]
       , div []
           [ div [class "h2"] [ text "Event list:"]
-          , ul [] (viewListEvents address model.events model.selectedAuthor model.selectedEvent model.filterEvents)
+          , (viewFilterString address model)
+          , ul [] (viewListEvents address model)
           ]
 
       , div []
@@ -212,21 +215,48 @@ viewEventsByAuthors address events selectedAuthor =
         List.map viewAuthor
 
 
--- In case an author is selected, filter the events.
-filterListEvents : List Event -> Maybe Int -> List Event
-filterListEvents events selectedAuthor =
-  case selectedAuthor of
-    Just id ->
-      List.filter (\event -> event.author.id == id) events
-
-    Nothing ->
-      events
-
-
-viewListEvents : Signal.Address Action -> List Event -> Maybe Int -> Maybe Int -> Maybe String -> List Html
-viewListEvents address events selectedAuthor selectedEvent filterEvents =
+-- In case an author or string-filter is selected, filter the events.
+filterListEvents : Model -> List Event
+filterListEvents model =
   let
-    filteredEvents = filterListEvents events selectedAuthor
+    authorFilter : List Event -> List Event
+    authorFilter events =
+      case model.selectedAuthor of
+        Just id ->
+          List.filter (\event -> event.author.id == id) events
+
+        Nothing ->
+          events
+
+    stringFilter : List Event -> List Event
+    stringFilter events =
+      if String.length (String.trim model.filterString) > 0
+        then
+          List.filter (\event -> String.contains (String.trim model.filterString) event.label) events
+
+        else
+          events
+
+  in
+    authorFilter model.events
+     |> stringFilter
+
+viewFilterString : Signal.Address Action -> Model -> Html
+viewFilterString address model =
+      div []
+        [ input
+            [ placeholder "Filter events"
+            , value model.filterString
+            , on "input" targetValue (Signal.message address << FilterEvents)
+            ]
+            []
+        ]
+
+
+viewListEvents : Signal.Address Action -> Model -> List Html
+viewListEvents address model =
+  let
+    filteredEvents = filterListEvents model
 
     eventSelect event =
       li []
@@ -242,22 +272,14 @@ viewListEvents address events selectedAuthor selectedEvent filterEvents =
 
     getListItem : Event -> Html
     getListItem event =
-      case selectedEvent of
+      case model.selectedEvent of
         Just id ->
           if event.id == id then eventUnselect(event) else eventSelect(event)
 
         Nothing ->
           eventSelect(event)
   in
-    div []
-      [ input
-          [ placeholder "Filter events"
-          , value filterEvents
-          , on "input" targetValue (Signal.message address << FilterEvents)
-          ]
-          []
-      , List.map getListItem filteredEvents
-      ]
+    List.map getListItem filteredEvents
 
 
 
