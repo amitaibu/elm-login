@@ -151,7 +151,7 @@ view address model =
       , div []
           [ div [class "h2"] [ text "Event list:"]
           , (viewFilterString address model)
-          , ul [] (viewListEvents address model)
+          , (viewListEvents address model)
           ]
 
       , div []
@@ -243,17 +243,17 @@ filterListEvents model =
 
 viewFilterString : Signal.Address Action -> Model -> Html
 viewFilterString address model =
-      div []
-        [ input
-            [ placeholder "Filter events"
-            , value model.filterString
-            , on "input" targetValue (Signal.message address << FilterEvents)
-            ]
-            []
+  div []
+    [ input
+        [ placeholder "Filter events"
+        , value model.filterString
+        , on "input" targetValue (Signal.message address << FilterEvents)
         ]
+        []
+    ]
 
 
-viewListEvents : Signal.Address Action -> Model -> List Html
+viewListEvents : Signal.Address Action -> Model -> Html
 viewListEvents address model =
   let
     filteredEvents = filterListEvents model
@@ -279,7 +279,12 @@ viewListEvents address model =
         Nothing ->
           eventSelect(event)
   in
-    List.map getListItem filteredEvents
+    if List.length filteredEvents > 0
+      then
+        ul [] (List.map getListItem filteredEvents)
+      else
+        div [] [ text "No results found"]
+
 
 
 
