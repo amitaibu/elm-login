@@ -126,8 +126,26 @@ update action model =
       )
 
     FilterEvents filter ->
+      let
+        model' = { model | filterString <- filter }
+        effects =
+          case model.selectedEvent of
+            Just id ->
+              -- Determine if the selected event is visible (i.e. not filtered
+              -- out).
+              let
+                isSelectedEvent =
+                  filterListEvents model'
+                    |> List.filter (\event -> event.id == id)
+                    |> List.length
+              in
+                if isSelectedEvent > 0 then Effects.none else Task.succeed UnSelectEvent |> Effects.task
+
+            Nothing ->
+              Effects.none
+      in
       ( { model | filterString <- filter }
-      , Effects.none
+      , effects
       )
 
 
