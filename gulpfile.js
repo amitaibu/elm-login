@@ -24,6 +24,8 @@ var reload = browserSync.reload;
 // And define a variable that BrowserSync uses in its function
 var bs;
 
+var wiredep = require('wiredep').stream;
+
 // Deletes the directory that is used to serve the site during development
 gulp.task("clean:dev", function() {
   return del(["serve/**/*"]);
@@ -98,6 +100,12 @@ gulp.task("cname", function () {
     .pipe($.size({ title: "CNAME" }))
 });
 
+gulp.task('bower', function () {
+  gulp.src("src/index.html")
+    .pipe(wiredep())
+    .pipe(gulp.dest("serve"));
+});
+
 
 // Optimizes all the CSS, HTML and concats the JS etc
 gulp.task("minify", ["styles"], function () {
@@ -156,7 +164,7 @@ gulp.task('elm', ['elm-init'], function(){
 // BrowserSync will serve our site on a local server for us and other devices to use
 // It will also autoreload across all devices as well as keep the viewport synchronized
 // between them.
-gulp.task("serve:dev", ["styles", "elm", "copy:dev"], function () {
+gulp.task("serve:dev", ["styles", "elm", "copy:dev", "bower"], function () {
   bs = browserSync({
     notify: true,
     // tunnel: "",
