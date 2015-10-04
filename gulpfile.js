@@ -89,7 +89,7 @@ gulp.task("fonts", function () {
 
 // Copy index.html and CNAME files to the "serve" directory
 gulp.task("copy:dev", function () {
-  return gulp.src(["src/index.html", "src/CNAME"])
+  return gulp.src(["src/index.html", "src/CNAME", "src/js/**/*", "src/assets/images/**"])
     .pipe(gulp.dest("serve"))
     .pipe($.size({ title: "index.html & CNAME" }))
 });
@@ -179,6 +179,7 @@ gulp.task("serve:dev", ["styles", "elm", "copy:dev", "bower"], function () {
 // reload the website accordingly. Update or add other files you need to be watched.
 gulp.task("watch", function () {
   // We need to copy dev, so index.html may be replaced by error messages.
+  gulp.watch(["src/index.html", "src/js/**/*.js"], ["copy:dev", reload]);
   gulp.watch(["src/elm/*.elm"], ["elm", "copy:dev", reload]);
   gulp.watch(["src/assets/scss/**/*.scss"], ["styles", "copy:dev", reload]);
 });
@@ -195,7 +196,7 @@ gulp.task("serve:prod", function () {
 });
 
 // Default task, run when just writing "gulp" in the terminal
-gulp.task("default", ["clean:dev", "serve:dev", "watch"]);
+gulp.task("default", ["build", "serve:dev", "watch"]);
 
 // Builds the site but doesnt serve it to you
 gulp.task("build", ["clean:dev", "copy:dev", "elm", "styles"], function () {});
