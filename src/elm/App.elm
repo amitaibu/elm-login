@@ -6,7 +6,6 @@ import Effects exposing (Effects, Never)
 import Event exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Leaflet exposing (Model)
 import Task exposing (..)
 import User exposing (..)
 
@@ -18,7 +17,6 @@ type alias Model =
   { user : User.Model
   , companies : List Company.Model
   , events : Event.Model
-  , leaflet : Leaflet.Model
   , accessToken : AccessToken
   }
 
@@ -27,7 +25,6 @@ initialModel =
   { user = User.initialModel
   , companies = []
   , events = Event.initialModel
-  , leaflet = Leaflet.initialModel
   , accessToken = ""
   }
 
@@ -41,7 +38,6 @@ type Action
   = SetAccessToken AccessToken
   | ChildUserAction User.Action
   | ChildEventAction Event.Action
-  | ChildLeafletAction Leaflet.Action
 
 
 update : Action -> Model -> (Model, Effects Action)
@@ -72,14 +68,6 @@ update action model =
       in
         ( {model | events <- childModel }
         , Effects.map ChildEventAction childEffects
-        )
-
-    ChildLeafletAction act ->
-      let
-        (childModel, childEffects) = Leaflet.update act model.leaflet
-      in
-        ( {model | leaflet <- childModel }
-        , Effects.map ChildLeafletAction childEffects
         )
 
 -- VIEW

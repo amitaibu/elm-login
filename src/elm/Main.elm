@@ -1,7 +1,8 @@
 
 import Effects exposing (Never)
 import App exposing (init, update, view)
-import Leaflet exposing (Model)
+import Event exposing (Action)
+import Leaflet exposing (Action, Model)
 import StartApp
 import Task
 
@@ -11,7 +12,7 @@ app =
     { init = init
     , update = update
     , view = view
-    , inputs = [Signal.map (App.ChildLeafletAction << Leaflet.ToggleMarker) selectMarker]
+    , inputs = [Signal.map (App.ChildEventAction << Event.ChildLeafletAction << Leaflet.ToggleMarker) selectMarker]
     }
 
 
@@ -25,6 +26,6 @@ port tasks =
 
 -- Interactions with Leaflet maps
 port mapManager : Signal Leaflet.Model
-port mapManager = Signal.map .leaflet app.model
+port mapManager = Signal.map (.events >> .leaflet) app.model
 
 port selectMarker : Signal (Maybe Int)

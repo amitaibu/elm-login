@@ -7,7 +7,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (on, onClick, targetValue)
 import Http
 import Json.Decode as Json exposing ((:=))
-import Leaflet exposing (Model, initialModel, Marker)
+import Leaflet exposing (Model, initialModel, Marker, update)
 import String exposing (length)
 import Task
 import Dict exposing (Dict)
@@ -81,6 +81,9 @@ type Action
   -- @todo: Make (Maybe String)
   | FilterEvents String
 
+  -- Child actions
+  | ChildLeafletAction Leaflet.Action
+
 update : Action -> Model -> (Model, Effects Action)
 update action model =
   case action of
@@ -108,8 +111,6 @@ update action model =
 
             leaflet' =
               { leaflet | markers <- leafletMarkers}
-
-            d = Debug.log "mark" leaflet'
 
           in
             ( {model
@@ -167,6 +168,13 @@ update action model =
       , effects
       )
 
+    ChildLeafletAction act ->
+      let
+        (childModel, childEffects) = Leaflet.update act model.leaflet
+      in
+        ( {model | leaflet <- childModel }
+        , Effects.map ChildLeafletAction childEffects
+        )
 
 
 -- VIEW
@@ -195,6 +203,7 @@ view address model =
           [ div [class "h2"] [ text "Event info:"]
           , viewEventInfo model
           , div [ style myStyle, id "map" ] []
+          , div [] [ text (toString model.leaflet)]
           ]
       ]
     ]
