@@ -23,10 +23,7 @@ type alias Model =
 
 initialMarkers : List Marker
 initialMarkers =
-  [ Marker 1 51.5 -0.09
-  , Marker 2 51.6 -0.09
-  , Marker 3 51.7 -0.09
-  ]
+  []
 
 initialModel : Model
 initialModel =

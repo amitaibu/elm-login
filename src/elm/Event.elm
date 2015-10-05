@@ -7,6 +7,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (on, onClick, targetValue)
 import Http
 import Json.Decode as Json exposing ((:=))
+import Leaflet exposing (Model, initialModel, Marker)
 import String exposing (length)
 import Task
 import Dict exposing (Dict)
@@ -48,6 +49,7 @@ type alias Model =
   , selectedAuthor : Maybe Int
   -- @todo: Make (Maybe String)
   , filterString : String
+  , leaflet : Leaflet.Model
   }
 
 initialModel : Model
@@ -57,6 +59,7 @@ initialModel =
   , selectedEvent = Nothing
   , selectedAuthor = Nothing
   , filterString = ""
+  , leaflet = Leaflet.initialModel
   }
 
 init : (Model, Effects Action)
@@ -94,12 +97,28 @@ update action model =
     UpdateDataFromServer result ->
       case result of
         Ok events ->
-          ( {model
-              | events <- events
-              , status <- Fetched
-            }
-          , Effects.none
-          )
+          let
+            -- Build the Leaflet's markers data from the events
+            leafletMarkers : List Leaflet.Marker
+            leafletMarkers =
+              List.map (\event -> Leaflet.Marker event.id event.marker.lat event.marker.lng) model.events
+
+            leaflet =
+              model.leaflet
+
+            leaflet' =
+              { leaflet | markers <- leafletMarkers}
+
+            d = Debug.log "mark" leaflet'
+
+          in
+            ( {model
+                | events <- events
+                , leaflet <- leaflet'
+                , status <- Fetched
+              }
+            , Effects.none
+            )
         Err msg ->
           ( {model | status <- HttpError msg}
           , Effects.none
