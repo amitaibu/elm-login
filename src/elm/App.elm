@@ -41,6 +41,7 @@ type Action
   = SetAccessToken AccessToken
   | ChildUserAction User.Action
   | ChildEventAction Event.Action
+  | ChildLeafletAction Leaflet.Action
 
 
 update : Action -> Model -> (Model, Effects Action)
@@ -71,6 +72,14 @@ update action model =
       in
         ( {model | events <- childModel }
         , Effects.map ChildEventAction childEffects
+        )
+
+    ChildLeafletAction act ->
+      let
+        (childModel, childEffects) = Leaflet.update act model.leaflet
+      in
+        ( {model | leaflet <- childModel }
+        , Effects.map ChildLeafletAction childEffects
         )
 
 -- VIEW
