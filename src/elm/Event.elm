@@ -100,16 +100,11 @@ update action model =
     UpdateDataFromServer result ->
       case result of
         Ok events ->
-          let
-            leaflet = model.leaflet
-            leaflet' = { leaflet | markers <- (leafletMarkers model)}
-          in
           ( {model
               | events <- events
-              , leaflet <- leaflet'
               , status <- Fetched
             }
-          , Effects.none
+          , Task.succeed (FilterEvents model.filterString) |> Effects.task
           )
         Err msg ->
           ( {model | status <- HttpError msg}
@@ -118,22 +113,28 @@ update action model =
 
     SelectEvent id ->
       ( { model | selectedEvent <- Just id }
-      , Effects.none
+      , Task.succeed (FilterEvents model.filterString) |> Effects.task
       )
 
     UnSelectEvent ->
       ( { model | selectedEvent <- Nothing }
-      , Effects.none
+      , Task.succeed (FilterEvents model.filterString) |> Effects.task
       )
 
     SelectAuthor id ->
       ( { model | selectedAuthor <- Just id }
-      , Task.succeed UnSelectEvent |> Effects.task
+      , Effects.batch
+        [ Task.succeed UnSelectEvent |> Effects.task
+        , Task.succeed (FilterEvents model.filterString) |> Effects.task
+        ]
       )
 
     UnSelectAuthor ->
       ( { model | selectedAuthor <- Nothing }
-      , Task.succeed UnSelectEvent |> Effects.task
+      , Effects.batch
+        [ Task.succeed UnSelectEvent |> Effects.task
+        , Task.succeed (FilterEvents model.filterString) |> Effects.task
+        ]
       )
 
     FilterEvents val ->
