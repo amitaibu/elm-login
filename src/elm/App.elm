@@ -6,6 +6,7 @@ import Effects exposing (Effects, Never)
 import Event exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Leaflet exposing (Model)
 import Task exposing (..)
 import User exposing (..)
 
@@ -17,12 +18,18 @@ type alias Model =
   { user : User.Model
   , companies : List Company.Model
   , events : Event.Model
+  , leaflet : Leaflet.Model
   , accessToken : AccessToken
   }
 
 initialModel : Model
 initialModel =
-  Model User.initialModel [] Event.initialModel ""
+  { user = User.initialModel
+  , companies = []
+  , events = Event.initialModel
+  , leaflet = Leaflet.initialModel
+  , accessToken = ""
+  }
 
 init : (Model, Effects Action)
 init =

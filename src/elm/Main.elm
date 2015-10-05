@@ -1,6 +1,7 @@
 
 import Effects exposing (Never)
 import App exposing (init, update, view)
+import Leaflet exposing (Model)
 import StartApp
 import Task
 
@@ -21,3 +22,9 @@ main =
 port tasks : Signal (Task.Task Never ())
 port tasks =
   app.tasks
+
+-- Interactions with Leaflet maps
+port mapManager : Signal Leaflet.Model
+port mapManager = Signal.map .leaflet app.model
+
+port selectMarker : Signal (Maybe Int)
