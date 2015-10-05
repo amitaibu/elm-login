@@ -28,13 +28,13 @@ var wiredep = require('wiredep').stream;
 
 // Deletes the directory that is used to serve the site during development
 gulp.task("clean:dev", function() {
-  return del(["serve/**/*"]);
+  return del(["serve"]);
 });
 
 
 // Deletes the directory that the optimized site is output to
 gulp.task("clean:prod", function() {
-  return del(["dist/**/*"]);
+  return del(["dist"]);
 });
 
 
@@ -179,7 +179,7 @@ gulp.task('elm', ['elm-init'], function(){
 // BrowserSync will serve our site on a local server for us and other devices to use
 // It will also autoreload across all devices as well as keep the viewport synchronized
 // between them.
-gulp.task("serve:dev", ["styles", "elm", "copy:dev", "bower"], function () {
+gulp.task("serve:dev", ["styles", "elm", "copy:dev"], function () {
   bs = browserSync({
     notify: true,
     // tunnel: "",
@@ -214,7 +214,7 @@ gulp.task("serve:prod", function () {
 gulp.task("default", ["build", "serve:dev", "watch"]);
 
 // Builds the site but doesnt serve it to you
-gulp.task("build", ["clean:dev", "copy:dev", "elm", "styles"], function () {});
+gulp.task("build", ["clean:dev", "copy:dev", "elm", "styles", "bower"], function () {});
 
 // Builds your site with the "build" command and then runs all the optimizations on
 // it and outputs it to "./dist"
