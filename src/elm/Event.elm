@@ -139,6 +139,10 @@ update action model =
     FilterEvents val ->
       let
         model' = { model | filterString <- val }
+
+        leaflet = model.leaflet
+        leaflet' = { leaflet | markers <- (leafletMarkers model')}
+
         effects =
           case model.selectedEvent of
             Just id ->
@@ -154,16 +158,13 @@ update action model =
 
             Nothing ->
               Effects.none
-
-        leaflet = model.leaflet
-        leaflet' = { leaflet | markers <- (leafletMarkers model)}
       in
-      ( { model
-        | filterString <- val
-        , leaflet <- leaflet'
-        }
-      , effects
-      )
+        ( { model
+          | filterString <- val
+          , leaflet <- leaflet'
+          }
+        , effects
+        )
 
     ChildLeafletAction act ->
       let

@@ -22,7 +22,7 @@ var selectedIcon = L.icon({
 });
 
 elmApp.ports.mapManager.subscribe(function(model) {
-  console.log(model);
+  console.log(model.markers.length);
   // We use timeout, to let virtual-dom add the div we need to bind to.
   setTimeout(function () {
     if (!model.showMap && !!mapEl) {
