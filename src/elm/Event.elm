@@ -175,8 +175,15 @@ view address model =
       , div []
           [ div [class "h2"] [ text "Event info:"]
           , viewEventInfo model
+          , div [ style myStyle, id "map" ] []
           ]
       ]
+    ]
+
+myStyle : List (String, String)
+myStyle =
+    [ ("width", "600px")
+    , ("height", "400px")
     ]
 
 groupEventsByAuthors : List Event -> Dict Int (Author, Int)
