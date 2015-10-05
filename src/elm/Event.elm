@@ -101,25 +101,16 @@ update action model =
       case result of
         Ok events ->
           let
-            -- Build the Leaflet's markers data from the events
-            leafletMarkers : List Leaflet.Marker
-            leafletMarkers =
-              List.map (\event -> Leaflet.Marker event.id event.marker.lat event.marker.lng) model.events
-
-            leaflet =
-              model.leaflet
-
-            leaflet' =
-              { leaflet | markers <- leafletMarkers}
-
+            leaflet = model.leaflet
+            leaflet' = { leaflet | markers <- (leafletMarkers model)}
           in
-            ( {model
-                | events <- events
-                , leaflet <- leaflet'
-                , status <- Fetched
-              }
-            , Effects.none
-            )
+          ( {model
+              | events <- events
+              , leaflet <- leaflet'
+              , status <- Fetched
+            }
+          , Effects.none
+          )
         Err msg ->
           ( {model | status <- HttpError msg}
           , Effects.none
@@ -145,9 +136,9 @@ update action model =
       , Task.succeed UnSelectEvent |> Effects.task
       )
 
-    FilterEvents filter ->
+    FilterEvents val ->
       let
-        model' = { model | filterString <- filter }
+        model' = { model | filterString <- val }
         effects =
           case model.selectedEvent of
             Just id ->
@@ -163,8 +154,14 @@ update action model =
 
             Nothing ->
               Effects.none
+
+        leaflet = model.leaflet
+        leaflet' = { leaflet | markers <- (leafletMarkers model)}
       in
-      ( { model | filterString <- filter }
+      ( { model
+        | filterString <- val
+        , leaflet <- leaflet'
+        }
       , effects
       )
 
@@ -176,6 +173,11 @@ update action model =
         , Effects.map ChildLeafletAction childEffects
         )
 
+-- Build the Leaflet's markers data from the events
+leafletMarkers : Model -> List Leaflet.Marker
+leafletMarkers model =
+  filterListEvents model
+    |> List.map (\event -> Leaflet.Marker event.id event.marker.lat event.marker.lng)
 
 -- VIEW
 
