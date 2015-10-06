@@ -26,16 +26,23 @@ port tasks =
 
 type alias LeafletPort =
   { leaflet : Leaflet.Model
-  , events : List Event.Event
+  , events : List Int
   }
 
 -- Interactions with Leaflet maps
 port mapManager : Signal LeafletPort
 port mapManager =
   let
+
+    getLeaflet model =
+      (.events >> .leaflet) model
+
+    getEvents model =
+      (.events >> .events) model
+
     val model = LeafletPort
-      ((.events >> .leaflet) model)
-      ((.events >> .events) model)
+      (getLeaflet model)
+      (List.map .id (getEvents model))
 
   in
   Signal.map val app.model

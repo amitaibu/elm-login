@@ -33,6 +33,9 @@ elmApp.ports.mapManager.subscribe(function(model) {
 
     mapEl = mapEl || addMap();
 
+    // Iterate over all the events, and create a diff
+    console.log(model);
+
     model.leaflet.markers.forEach(function(marker) {
       if (!markersEl[marker.id]) {
         markersEl[marker.id] = L.marker([marker.lat, marker.lng]).addTo(mapEl);
