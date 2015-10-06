@@ -20,14 +20,9 @@ type alias Model =
   , showMap : Bool
   }
 
-
-initialMarkers : List Marker
-initialMarkers =
-  []
-
 initialModel : Model
 initialModel =
-  { markers = initialMarkers
+  { markers = []
   , selectedMarker = Nothing
   , showMap = True
   }
@@ -70,21 +65,10 @@ update action model =
 
 view : Signal.Address Action -> Model -> Html
 view address model =
-  let
-    mapEl =
-      if model.showMap
-        then div [ style myStyle, id "map" ] []
-        else span [] []
-  in
-  div []
-    [ mapEl
-    , button [ onClick address ToggleMap ] [ text "Toggle Map" ]
-    , button
-        [ onClick address UnselectMarker
-        , disabled (model.selectedMarker == Nothing || not model.showMap)
-        ]
-        [ text "Unselect Marker" ]
-    ]
+  if model.showMap
+    then div [ style myStyle, id "map" ] []
+    -- We use span, so the div element will be completely removed. 
+    else span [] []
 
 myStyle : List (String, String)
 myStyle =

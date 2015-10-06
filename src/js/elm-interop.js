@@ -22,10 +22,9 @@ var selectedIcon = L.icon({
 });
 
 elmApp.ports.mapManager.subscribe(function(model) {
-  console.log(model.markers.length);
   // We use timeout, to let virtual-dom add the div we need to bind to.
   setTimeout(function () {
-    if (!model.showMap && !!mapEl) {
+    if (!model.leaflet.showMap && !!mapEl) {
       mapEl.remove();
       mapEl = undefined;
       markersEl = {};
@@ -34,7 +33,7 @@ elmApp.ports.mapManager.subscribe(function(model) {
 
     mapEl = mapEl || addMap();
 
-    model.markers.forEach(function(marker) {
+    model.leaflet.markers.forEach(function(marker) {
       if (!markersEl[marker.id]) {
         markersEl[marker.id] = L.marker([marker.lat, marker.lng]).addTo(mapEl);
         selectMarker(markersEl[marker.id], marker.id);

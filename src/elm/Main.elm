@@ -24,8 +24,20 @@ port tasks : Signal (Task.Task Never ())
 port tasks =
   app.tasks
 
+type alias LeafletPort =
+  { leaflet : Leaflet.Model
+  , events : List Event.Event
+  }
+
 -- Interactions with Leaflet maps
-port mapManager : Signal Leaflet.Model
-port mapManager = Signal.map (.events >> .leaflet) app.model
+port mapManager : Signal LeafletPort
+port mapManager =
+  let
+    val model = LeafletPort
+      ((.events >> .leaflet) model)
+      ((.events >> .events) model)
+
+  in
+  Signal.map val app.model
 
 port selectMarker : Signal (Maybe Int)
