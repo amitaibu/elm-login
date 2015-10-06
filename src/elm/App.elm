@@ -26,9 +26,12 @@ initialModel =
 
 init : (Model, Effects Action)
 init =
-  ( initialModel
-  , Effects.none
-  )
+  let
+    childEffects = snd User.init
+  in
+    ( initialModel
+    , Effects.map ChildUserAction childEffects
+    )
 
 type Action
   = SetAccessToken AccessToken

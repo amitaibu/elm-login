@@ -12,6 +12,8 @@ import Login exposing (..)
 import String exposing (length)
 import Task
 
+import Debug
+
 -- MODEL
 
 type alias Id = Int
@@ -37,8 +39,11 @@ initialModel =
 
 init : (Model, Effects Action)
 init =
+  let
+    childEffects = snd Login.init
+  in
   ( initialModel
-  , Effects.none
+  , Effects.map ChildAction childEffects
   )
 
 
@@ -82,14 +87,20 @@ update action model =
       let
         (childModel, childEffects) = Login.update act model.loginModel
 
+        d = Debug.log "act" act
 
         effects =
           case act of
-            Login.GetAccessTokenFromServer _ ->
+            Login.UpdateAccessTokenFromServer _ ->
               [ Effects.map ChildAction childEffects
               , Task.succeed GetDataFromServer |> Effects.task
               ]
-              
+
+            Login.UpdateAccessTokenFromStorage _ ->
+              [ Effects.map ChildAction childEffects
+              , Task.succeed GetDataFromServer |> Effects.task
+              ]
+
             _ -> [ Effects.map ChildAction childEffects ]
       in
       ( {model

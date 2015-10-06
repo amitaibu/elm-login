@@ -59,12 +59,12 @@ type Action
   = UpdateName String
   | UpdatePass String
   | SubmitForm
-  | GetAccessTokenFromServer (Result Http.Error AccessToken)
+  | UpdateAccessTokenFromServer (Result Http.Error AccessToken)
 
   -- Storage
   | GetStorage (Result String ())
   | SetStorage String
-  | UpdateAccessToken (Result String String)
+  | UpdateAccessTokenFromStorage (Result String String)
 
 
 update : Action -> Model -> (Model, Effects Action)
@@ -96,7 +96,7 @@ update action model =
       , getJson url credentials
       )
 
-    GetAccessTokenFromServer result ->
+    UpdateAccessTokenFromServer result ->
       let
         newModel  = { model | isFetching <- False}
       in
@@ -124,7 +124,7 @@ update action model =
       -- effect should call another action to update the model.
       (model, sendInputToStorage token)
 
-    UpdateAccessToken result ->
+    UpdateAccessTokenFromStorage result ->
       case result of
         Ok token ->
           ( { model | accessToken <- token }
@@ -146,7 +146,7 @@ getInputFromStorage : Effects Action
 getInputFromStorage =
   Storage.getItem "access_token" JD.string
     |> Task.toResult
-    |> Task.map UpdateAccessToken
+    |> Task.map UpdateAccessTokenFromStorage
     |> Effects.task
 
 
@@ -212,7 +212,7 @@ getJson url credentials =
     }
     |> Http.fromJson decodeAccessToken
     |> Task.toResult
-    |> Task.map GetAccessTokenFromServer
+    |> Task.map UpdateAccessTokenFromServer
     |> Effects.task
 
 
