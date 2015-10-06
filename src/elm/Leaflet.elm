@@ -67,7 +67,7 @@ view : Signal.Address Action -> Model -> Html
 view address model =
   if model.showMap
     then div [ style myStyle, id "map" ] []
-    -- We use span, so the div element will be completely removed. 
+    -- We use span, so the div element will be completely removed.
     else span [] []
 
 myStyle : List (String, String)

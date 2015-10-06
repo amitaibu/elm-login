@@ -49,7 +49,7 @@ elmApp.ports.mapManager.subscribe(function(model) {
       }
 
       // Set the marker's icon.
-      markersEl[id].setIcon(!!model.selectedMarker && model.selectedMarker === id ? selectedIcon : defaultIcon);
+      markersEl[id].setIcon(!!model.leaflet.selectedMarker && model.leaflet.selectedMarker === id ? selectedIcon : defaultIcon);
 
       // Unset the marker form the event IDs list.
       var index = eventIds.indexOf(id);
@@ -82,7 +82,7 @@ function selectMarker(markerEl, id) {
  */
 function addMap() {
   // Leaflet
-  var mapEl = L.map('map').setView([50, 50], 2);
+  var mapEl = L.map('map').setView([50, 50], 3);
 
   L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6IjZjNmRjNzk3ZmE2MTcwOTEwMGY0MzU3YjUzOWFmNWZhIn0.Y8bhBaUMqFiPrDRW9hieoQ', {
     maxZoom: 10,

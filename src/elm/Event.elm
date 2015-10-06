@@ -210,7 +210,6 @@ view address model =
           [ div [class "h2"] [ text "Event info:"]
           , viewEventInfo model
           , div [ style myStyle, id "map" ] []
-          , div [] [ text (toString model.leaflet)]
           ]
       ]
     ]
