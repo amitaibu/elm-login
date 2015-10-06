@@ -17,6 +17,8 @@ type alias Model =
   { user : User.Model
   , companies : List Company.Model
   , events : Event.Model
+  -- Although access token exists under user, we move it to the root of the
+  -- model for convenience.
   , accessToken : AccessToken
   }
 
