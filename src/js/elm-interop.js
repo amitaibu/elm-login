@@ -60,6 +60,7 @@ elmApp.ports.mapManager.subscribe(function(model) {
     eventIds.forEach(function(id) {
       if (markersEl[id]) {
         mapEl.removeLayer(markersEl[id]);
+        markersEl[id] = undefined;
       }
     })
 
