@@ -76,6 +76,7 @@ type Action
   | UpdateDataFromServer (Result Http.Error (List Event))
   | SelectEvent Int
   | UnSelectEvent
+  | TestSelect (Maybe Int)
   | SelectAuthor Int
   | UnSelectAuthor
   -- @todo: Make (Maybe String)
@@ -123,6 +124,14 @@ update context action model =
       ( { model | selectedEvent <- Nothing }
       , Task.succeed (ChildLeafletAction <| Leaflet.SelectMarker Nothing) |> Effects.task
       )
+
+    TestSelect val ->
+      case val of
+        Just id ->
+          (model, Task.succeed (SelectEvent id) |> Effects.task)
+        Nothing ->
+          (model, Task.succeed UnSelectEvent |> Effects.task)
+
 
     SelectAuthor id ->
       ( { model | selectedAuthor <- Just id }

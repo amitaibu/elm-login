@@ -12,9 +12,8 @@ app =
     { init = init
     , update = update
     , view = view
-    , inputs = [Signal.map (App.ChildEventAction << Event.ChildLeafletAction << Leaflet.SelectMarker) selectMarker]
+    , inputs = [Signal.map (App.ChildEventAction << Event.TestSelect) selectEvent]
     }
-
 
 main =
   app.html
@@ -47,4 +46,4 @@ port mapManager =
   in
   Signal.map val app.model
 
-port selectMarker : Signal (Maybe Int)
+port selectEvent : Signal (Maybe Int)
