@@ -33,16 +33,23 @@ type Status =
   | HttpError Http.Error
 
 type alias Model =
-  -- @todo: accessToken: (Maybe AccessToken)
   { accessToken: AccessToken
   , loginForm : LoginForm
   , isFetching : Bool
   , status : Status
+  , hasAccessTokenInStorage : Bool
   }
 
 initialModel : Model
 initialModel =
-  Model "" (LoginForm "demo" "1234") False Init
+  { accessToken = ""
+  , loginForm = LoginForm "demo" "1234"
+  , isFetching = False
+  , status = Init
+  -- We start by assuming there's already an access token it the localStorage.
+  -- While this property is set to True, the login form will not appear.  
+  , hasAccessTokenInStorage = True
+  }
 
 
 init : (Model, Effects Action)
@@ -98,17 +105,17 @@ update action model =
 
     UpdateAccessTokenFromServer result ->
       let
-        newModel  = { model | isFetching <- False}
+        model'  = { model | isFetching <- False}
       in
         case result of
           Ok token ->
-            ( {newModel | accessToken <- token}
+            ( { model' | accessToken <- token }
             , sendInputToStorage token
             )
           Err msg ->
-            (
-            {newModel | status <- HttpError msg }
-            , Effects.none)
+            ( { model' | status <- HttpError msg }
+            , Effects.none
+            )
 
 
     GetStorage result ->
@@ -122,7 +129,7 @@ update action model =
     SetStorage token ->
       -- Don't update the model here, instead after this action is done, the
       -- effect should call another action to update the model.
-      (model, sendInputToStorage token)
+      ( model, sendInputToStorage token)
 
     UpdateAccessTokenFromStorage result ->
       case result of
@@ -131,7 +138,10 @@ update action model =
           , Effects.none
           )
         Err err ->
-          (model, Effects.none)
+          -- There was no access token in the storage, so show the login form
+          ( { model | hasAccessTokenInStorage <- False }
+          , Effects.none
+          )
 
 
 
@@ -160,36 +170,46 @@ view address model =
   let
     modelForm = model.loginForm
   in
-  div [class "container"]
-    [ Html.form
-      [ action "javascript:none"
-      , onSubmit address SubmitForm
+    div
+
+      [ class "container"
+      -- Don't show the form while checking for the access token from the
+      -- storage.
+      , hidden model.hasAccessTokenInStorage
       ]
-      [
-    -- Name
-    input
-        [ type' "text"
-        , placeholder "Name"
-        , value model.loginForm.name
-        , on "input" targetValue (Signal.message address << UpdateName)
-        , size 40
-        , required True
+
+      [ Html.form
+        [ action "javascript:none"
+        , onSubmit address SubmitForm
         ]
-        []
-    -- Password
-    , input
-        [ type' "password"
-        , placeholder "Password"
-        , value modelForm.pass
-        , on "input" targetValue (Signal.message address << UpdatePass)
-        , size 40
-        , required True
-        ]
-        []
-    ]
-    , button [ onClick address SubmitForm, disabled ((String.length modelForm.name == 0) || (String.length modelForm.pass == 0)) ] [ text "Login" ]
-    , div [hidden (model.isFetching == False)] [ text "Loading ..."]
-    ]
+        [
+      -- Name
+      input
+          [ type' "text"
+          , placeholder "Name"
+          , value model.loginForm.name
+          , on "input" targetValue (Signal.message address << UpdateName)
+          , size 40
+          , required True
+          ]
+          []
+      -- Password
+      , input
+          [ type' "password"
+          , placeholder "Password"
+          , value modelForm.pass
+          , on "input" targetValue (Signal.message address << UpdatePass)
+          , size 40
+          , required True
+          ]
+          []
+      ]
+      , button
+          [ onClick address SubmitForm
+          , disabled (String.isEmpty modelForm.name || String.isEmpty modelForm.pass || model.isFetching) ]
+          [ text "Login" ]
+      , div [hidden (model.isFetching == False)] [ text "Loading ..."]
+      ]
 
 -- EFFECTS
 
