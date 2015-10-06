@@ -17,14 +17,11 @@ type alias Model =
   { user : User.Model
   , companies : List Company.Model
   , events : Event.Model
-  -- Although access token exists under user, we move it to the root of the
-  -- model for convenience.
-  , accessToken : AccessToken
   }
 
 initialModel : Model
 initialModel =
-  Model User.initialModel [] Event.initialModel ""
+  Model User.initialModel [] Event.initialModel
 
 init : (Model, Effects Action)
 init =
@@ -40,29 +37,18 @@ init =
     )
 
 type Action
-  = SetAccessToken AccessToken
-  | ChildUserAction User.Action
+  = ChildUserAction User.Action
   | ChildEventAction Event.Action
 
 
 update : Action -> Model -> (Model, Effects Action)
 update action model =
   case action of
-
-    -- @todo: Find how child can call this.
-    SetAccessToken accessToken ->
-      ( {model | accessToken <- accessToken}
-      , Effects.none
-      )
-
     ChildUserAction act ->
       let
         (childModel, childEffects) = User.update act model.user
       in
-        ( {model
-            | user <- childModel
-            , accessToken <- childModel.accessToken
-          }
+        ( { model | user <- childModel }
         , Effects.batch
             [ Effects.map ChildUserAction childEffects
             -- @todo: Where to move this so it's invoked on time?
@@ -73,7 +59,7 @@ update action model =
     ChildEventAction act ->
       let
         d = Debug.log "accessToken"
-        context = { accessToken = model.accessToken }
+        context = { accessToken = (.user >> .accessToken) model }
         (childModel, childEffects) = Event.update context act model.events
       in
         ( {model | events <- childModel }
