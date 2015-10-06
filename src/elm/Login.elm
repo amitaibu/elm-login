@@ -8,8 +8,11 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (on, onClick, onSubmit, targetValue)
 import Http
 import Json.Decode as Json exposing ((:=))
+import Storage exposing (..)
 import String exposing (length)
 import Task
+
+
 
 
 import Debug
