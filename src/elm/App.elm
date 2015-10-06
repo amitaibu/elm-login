@@ -11,6 +11,8 @@ import User exposing (..)
 
 import Debug
 
+-- MODEL
+
 type alias AccessToken = String
 
 type alias Model =
@@ -36,14 +38,25 @@ init =
       ]
     )
 
-type Action
-  = ChildUserAction User.Action
-  | ChildEventAction Event.Action
+-- UPDATE
 
+type Action
+  = ChildEventAction Event.Action
+  | ChildUserAction User.Action
 
 update : Action -> Model -> (Model, Effects Action)
 update action model =
   case action of
+    ChildEventAction act ->
+      let
+        -- Pass the access token along to child components.
+        context = { accessToken = (.user >> .accessToken) model }
+        (childModel, childEffects) = Event.update context act model.events
+      in
+        ( {model | events <- childModel }
+        , Effects.map ChildEventAction childEffects
+        )
+
     ChildUserAction act ->
       let
         (childModel, childEffects) = User.update act model.user
@@ -56,19 +69,7 @@ update action model =
             ]
         )
 
-    ChildEventAction act ->
-      let
-        -- Pass the access token along to child components.
-        context = { accessToken = (.user >> .accessToken) model }
-        (childModel, childEffects) = Event.update context act model.events
-      in
-        ( {model | events <- childModel }
-        , Effects.map ChildEventAction childEffects
-        )
-
 -- VIEW
-
-(=>) = (,)
 
 view : Signal.Address Action -> Model -> Html
 view address model =
