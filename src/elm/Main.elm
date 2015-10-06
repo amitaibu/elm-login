@@ -12,7 +12,7 @@ app =
     { init = init
     , update = update
     , view = view
-    , inputs = [Signal.map (App.ChildEventAction << Event.ChildLeafletAction << Leaflet.ToggleMarker) selectMarker]
+    , inputs = [Signal.map (App.ChildEventAction << Event.ChildLeafletAction << Leaflet.SelectMarker) selectMarker]
     }
 
 

@@ -116,12 +116,12 @@ update context action model =
 
     SelectEvent id ->
       ( { model | selectedEvent <- Just id }
-      , Task.succeed (FilterEvents model.filterString) |> Effects.task
+      , Task.succeed (ChildLeafletAction <| Leaflet.SelectMarker <| Just id) |> Effects.task
       )
 
     UnSelectEvent ->
       ( { model | selectedEvent <- Nothing }
-      , Task.succeed (FilterEvents model.filterString) |> Effects.task
+      , Task.succeed (ChildLeafletAction <| Leaflet.SelectMarker Nothing) |> Effects.task
       )
 
     SelectAuthor id ->
@@ -207,9 +207,9 @@ view address model =
           ]
 
       , div []
-          [ div [class "h2"] [ text "Event info:"]
-          , viewEventInfo model
+          [ div [class "h2"] [ text "Map:"]
           , div [ style myStyle, id "map" ] []
+          , viewEventInfo model
           ]
       ]
     ]

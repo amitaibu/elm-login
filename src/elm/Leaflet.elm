@@ -38,7 +38,7 @@ init =
 
 type Action
   = ToggleMap
-  | ToggleMarker (Maybe Int)
+  | SelectMarker (Maybe Int)
   | UnselectMarker
 
 
@@ -50,7 +50,7 @@ update action model =
       , Effects.none
       )
 
-    ToggleMarker val ->
+    SelectMarker val ->
       ( { model | selectedMarker <- val }
       , Effects.none
       )
