@@ -57,7 +57,10 @@ update action model =
       let
         (childModel, childEffects) = User.update act model.user
       in
-        ( {model | user <- childModel}
+        ( {model
+            | user <- childModel
+            , accessToken <- childModel.accessToken
+          }
         , Effects.batch
             [ Effects.map ChildUserAction childEffects
             -- @todo: Where to move this so it's invoked on time?
@@ -67,7 +70,9 @@ update action model =
 
     ChildEventAction act ->
       let
-        (childModel, childEffects) = Event.update act model.events
+        d = Debug.log "accessToken"
+        context = { accessToken = model.accessToken }
+        (childModel, childEffects) = Event.update context act model.events
       in
         ( {model | events <- childModel }
         , Effects.map ChildEventAction childEffects
