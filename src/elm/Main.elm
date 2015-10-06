@@ -12,7 +12,7 @@ app =
     { init = init
     , update = update
     , view = view
-    , inputs = [Signal.map (App.ChildEventAction << Event.TestSelect) selectEvent]
+    , inputs = [Signal.map (App.ChildEventAction << Event.SelectEvent) selectEvent]
     }
 
 main =

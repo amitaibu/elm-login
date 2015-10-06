@@ -74,9 +74,11 @@ init =
 type Action
   = GetDataFromServer
   | UpdateDataFromServer (Result Http.Error (List Event))
-  | SelectEvent Int
+  
+  -- Select event might get values from JS (i.e. selecting a leaflet marker)
+  -- so we allow passing a Maybe Int, instead of just Int.
+  | SelectEvent (Maybe Int)
   | UnSelectEvent
-  | TestSelect (Maybe Int)
   | SelectAuthor Int
   | UnSelectAuthor
   -- @todo: Make (Maybe String)
@@ -115,23 +117,19 @@ update context action model =
           , Effects.none
           )
 
-    SelectEvent id ->
-      ( { model | selectedEvent <- Just id }
-      , Task.succeed (ChildLeafletAction <| Leaflet.SelectMarker <| Just id) |> Effects.task
-      )
+    SelectEvent val ->
+      case val of
+        Just id ->
+          ( { model | selectedEvent <- Just id }
+          , Task.succeed (ChildLeafletAction <| Leaflet.SelectMarker <| Just id) |> Effects.task
+          )
+        Nothing ->
+          (model, Task.succeed  UnSelectEvent |> Effects.task)
 
     UnSelectEvent ->
       ( { model | selectedEvent <- Nothing }
       , Task.succeed (ChildLeafletAction <| Leaflet.SelectMarker Nothing) |> Effects.task
       )
-
-    TestSelect val ->
-      case val of
-        Just id ->
-          (model, Task.succeed (SelectEvent id) |> Effects.task)
-        Nothing ->
-          (model, Task.succeed UnSelectEvent |> Effects.task)
-
 
     SelectAuthor id ->
       ( { model | selectedAuthor <- Just id }
@@ -327,7 +325,7 @@ viewListEvents address model =
 
     eventSelect event =
       li []
-        [ a [ href "#", onClick address (SelectEvent event.id) ] [ text event.label ] ]
+        [ a [ href "#", onClick address (SelectEvent <| Just event.id) ] [ text event.label ] ]
 
     eventUnselect event =
       li []
