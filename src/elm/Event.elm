@@ -88,7 +88,7 @@ update action model =
       in
         ( { model | status <- Fetching}
           -- @todo: Remove access token hardcoding.
-        , getJson url "erUOM1tKSABIGmcCKPoXhZYxO-7F4qUBGyxjRL7oUKs"
+        , getJson url "erUOM1tKSABIGmcCKPoXhZYxO-7F4qUBGyxjRL7oUKs" "1"
         )
 
     UpdateDataFromServer result ->
@@ -324,10 +324,10 @@ viewEventInfo model =
 -- EFFECTS
 
 
-getJson : String -> String -> Effects Action
-getJson url accessToken =
+getJson : String -> String -> String -> Effects Action
+getJson url accessToken companyId =
   let
-    encodedUrl = Http.url url [ ("access_token", accessToken) ]
+    encodedUrl = Http.url url [ ("access_token", accessToken), ("filter[company]", companyId) ]
   in
     Http.send Http.defaultSettings
       { verb = "GET"
