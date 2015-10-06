@@ -101,8 +101,10 @@ update action model =
         newModel  = { model | isFetching <- False}
       in
         case result of
-          Ok accessToken ->
-            ({newModel | accessToken <- accessToken}, Effects.none)
+          Ok token ->
+            ( {newModel | accessToken <- token}
+            , sendInputToStorage token
+            )
           Err msg ->
             (
             {newModel | status <- HttpError msg }

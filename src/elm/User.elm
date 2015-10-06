@@ -80,18 +80,22 @@ update action model =
 
     ChildAction act ->
       let
-        (updatedLoginModel, loginEffects) = Login.update act model.loginModel
+        (childModel, childEffects) = Login.update act model.loginModel
 
 
         effects =
           case act of
             Login.GetAccessTokenFromServer _ ->
-              [ Effects.map ChildAction loginEffects
-              , getDataFromServer
+              [ Effects.map ChildAction childEffects
+              , Task.succeed GetDataFromServer |> Effects.task
               ]
-            _ -> [ Effects.map ChildAction loginEffects ]
+              
+            _ -> [ Effects.map ChildAction childEffects ]
       in
-      ( {model | loginModel <- updatedLoginModel, accessToken <- updatedLoginModel.accessToken}
+      ( {model
+          | loginModel <- childModel
+          , accessToken <- childModel.accessToken
+        }
       , Effects.batch effects
       )
 
@@ -100,10 +104,7 @@ update action model =
       , Effects.none
       )
 
-getDataFromServer : Effects Action
-getDataFromServer =
-  Task.succeed GetDataFromServer
-    |> Effects.task
+
 
 -- VIEW
 
