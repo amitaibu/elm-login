@@ -2522,7 +2522,6 @@ Elm.Native.Storage.make = function(localRuntime){
   var getItemAsJson = function(key){
     return Task.asyncFunction(function(callback){
       localforage.getItem(key).then(function(value){
-        console.log("get succeeded");
         callback(Task.succeed(value));
       }).catch(function(err){
         console.log("Storage Call: getItemAsJson has failed with key: " + key);
@@ -2535,7 +2534,6 @@ Elm.Native.Storage.make = function(localRuntime){
   var setItem = function(key, value){
     return Task.asyncFunction(function(callback){
       localforage.setItem(key, value).then(function(){
-        console.log("set succeeded");
         callback(Task.succeed(Utils.Tuple0));
       }).catch(function(){
         console.log("Storage Call: setItem has failed with key: " + key + " and value: " + value);
