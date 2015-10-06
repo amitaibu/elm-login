@@ -27,10 +27,14 @@ initialModel =
 init : (Model, Effects Action)
 init =
   let
-    childEffects = snd User.init
+    eventEffects = snd Event.init
+    userEffects = snd User.init
   in
     ( initialModel
-    , Effects.map ChildUserAction childEffects
+    , Effects.batch
+      [ Effects.map ChildEventAction eventEffects
+      , Effects.map ChildUserAction userEffects
+      ]
     )
 
 type Action

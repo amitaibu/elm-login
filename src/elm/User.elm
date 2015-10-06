@@ -40,11 +40,11 @@ initialModel =
 init : (Model, Effects Action)
 init =
   let
-    childEffects = snd Login.init
+    loginEffects = snd Login.init
   in
-  ( initialModel
-  , Effects.map ChildAction childEffects
-  )
+    ( initialModel
+    , Effects.map ChildLoginAction loginEffects
+    )
 
 
 -- UPDATE
@@ -52,7 +52,7 @@ init =
 type Action
   = GetDataFromServer
   | UpdateDataFromServer (Result Http.Error (Id, String, List Company.Model))
-  | ChildAction Login.Action
+  | ChildLoginAction Login.Action
   | SetAccessToken AccessToken
 
 
@@ -83,7 +83,7 @@ update action model =
             )
           Err msg -> (newModel, Effects.none)
 
-    ChildAction act ->
+    ChildLoginAction act ->
       let
         (childModel, childEffects) = Login.update act model.loginModel
 
@@ -92,16 +92,16 @@ update action model =
         effects =
           case act of
             Login.UpdateAccessTokenFromServer _ ->
-              [ Effects.map ChildAction childEffects
+              [ Effects.map ChildLoginAction childEffects
               , Task.succeed GetDataFromServer |> Effects.task
               ]
 
             Login.UpdateAccessTokenFromStorage _ ->
-              [ Effects.map ChildAction childEffects
+              [ Effects.map ChildLoginAction childEffects
               , Task.succeed GetDataFromServer |> Effects.task
               ]
 
-            _ -> [ Effects.map ChildAction childEffects ]
+            _ -> [ Effects.map ChildLoginAction childEffects ]
       in
       ( {model
           | loginModel <- childModel
@@ -127,7 +127,7 @@ view address model =
     Anonymous ->
       let
         childAddress =
-            Signal.forwardTo address ChildAction
+            Signal.forwardTo address ChildLoginAction
       in
         div []
           [ Login.view childAddress model.loginModel
