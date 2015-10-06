@@ -33,21 +33,36 @@ elmApp.ports.mapManager.subscribe(function(model) {
 
     mapEl = mapEl || addMap();
 
-    // Iterate over all the events, and create a diff
-    console.log(model);
+    // The event Ids holds the array of all the events - even the one that are
+    // hidden. By unsetting the ones that have visible markers, we remain with
+    // the ones that should be removed.
+    var eventIds = model.events;
 
     model.leaflet.markers.forEach(function(marker) {
-      if (!markersEl[marker.id]) {
-        markersEl[marker.id] = L.marker([marker.lat, marker.lng]).addTo(mapEl);
-        selectMarker(markersEl[marker.id], marker.id);
+      var id = marker.id;
+      if (!markersEl[id]) {
+        markersEl[id] = L.marker([marker.lat, marker.lng]).addTo(mapEl);
+        selectMarker(markersEl[id], id);
       }
       else {
-        markersEl[marker.id].setLatLng([marker.lat, marker.lng]);
+        markersEl[id].setLatLng([marker.lat, marker.lng]);
       }
 
       // Set the marker's icon.
-      markersEl[marker.id].setIcon(!!model.selectedMarker && model.selectedMarker === marker.id ? selectedIcon : defaultIcon);
+      markersEl[id].setIcon(!!model.selectedMarker && model.selectedMarker === id ? selectedIcon : defaultIcon);
+
+      // Unset the marker form the event IDs list.
+      var index = eventIds.indexOf(id);
+      eventIds.splice(index, 1);
     });
+
+    // Hide existing markers.
+    eventIds.forEach(function(id) {
+      if (markersEl[id]) {
+        mapEl.removeLayer(markersEl[id]);
+      }
+    })
+
   }, 50);
 
 });
@@ -66,7 +81,7 @@ function selectMarker(markerEl, id) {
  */
 function addMap() {
   // Leaflet
-  var mapEl = L.map('map').setView([51.505, -0.09], 10);
+  var mapEl = L.map('map').setView([50, 50], 2);
 
   L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6IjZjNmRjNzk3ZmE2MTcwOTEwMGY0MzU3YjUzOWFmNWZhIn0.Y8bhBaUMqFiPrDRW9hieoQ', {
     maxZoom: 10,
