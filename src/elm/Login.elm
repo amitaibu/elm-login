@@ -7,7 +7,8 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (on, onClick, onSubmit, targetValue)
 import Http
-import Json.Decode as Json exposing ((:=))
+import Json.Encode as JE exposing (string, Value)
+import Json.Decode as JD exposing ((:=))
 import Storage exposing (..)
 import String exposing (length)
 import Task
@@ -47,7 +48,8 @@ initialModel =
 init : (Model, Effects Action)
 init =
   ( initialModel
-  , Effects.none
+  -- Try to get an existing access token.
+  , getInputFromStorage
   )
 
 
@@ -58,6 +60,11 @@ type Action
   | UpdatePass String
   | SubmitForm
   | GetAccessTokenFromServer (Result Http.Error AccessToken)
+
+  -- Storage
+  | GetStorage (Result String ())
+  | SetStorage String
+  | UpdateAccessToken (Result String String)
 
 
 update : Action -> Model -> (Model, Effects Action)
@@ -100,6 +107,45 @@ update action model =
             (
             {newModel | status <- HttpError msg }
             , Effects.none)
+
+
+    GetStorage result ->
+      case result of
+        Ok token ->
+          (model, getInputFromStorage)
+        Err err ->
+          (model, Effects.none)
+
+
+    SetStorage token ->
+      -- Don't update the model here, instead after this action is done, the
+      -- effect should call another action to update the model.
+      (model, sendInputToStorage token)
+
+    UpdateAccessToken result ->
+      case result of
+        Ok token ->
+          ( { model | accessToken <- token }
+          , Effects.none
+          )
+        Err err ->
+          (model, Effects.none)
+
+
+
+sendInputToStorage : String -> Effects Action
+sendInputToStorage s =
+  Storage.setItem "access_token" (JE.string s)
+    |> Task.toResult
+    |> Task.map GetStorage
+    |> Effects.task
+
+getInputFromStorage : Effects Action
+getInputFromStorage =
+  Storage.getItem "access_token" JD.string
+    |> Task.toResult
+    |> Task.map UpdateAccessToken
+    |> Effects.task
 
 
 
@@ -168,6 +214,6 @@ getJson url credentials =
     |> Effects.task
 
 
-decodeAccessToken : Json.Decoder AccessToken
+decodeAccessToken : JD.Decoder AccessToken
 decodeAccessToken =
-  Json.at ["access_token"] <| Json.string
+  JD.at ["access_token"] <| JD.string
