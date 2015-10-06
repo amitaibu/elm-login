@@ -58,7 +58,7 @@ update action model =
 
     ChildEventAction act ->
       let
-        d = Debug.log "accessToken"
+        -- Pass the access token along to child components.
         context = { accessToken = (.user >> .accessToken) model }
         (childModel, childEffects) = Event.update context act model.events
       in
