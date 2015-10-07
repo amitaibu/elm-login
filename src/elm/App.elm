@@ -85,9 +85,6 @@ update action model =
         )
 
     UpdateCompanies companies ->
-      let
-        d = Debug.log "UpdateCompanies" companies
-      in
       ( { model | companies <- companies}
       , Effects.none
       )
