@@ -11,46 +11,60 @@ import User exposing (..)
 
 import Debug
 
+-- MODEL
+
 type alias AccessToken = String
 
 type alias Model =
   { user : User.Model
   , companies : List Company.Model
   , events : Event.Model
-  , accessToken : AccessToken
   }
 
 initialModel : Model
 initialModel =
-  Model User.initialModel [] Event.initialModel ""
+  { user = User.initialModel
+  , companies = []
+  , events = Event.initialModel
+  }
 
 init : (Model, Effects Action)
 init =
-  ( initialModel
-  , Effects.none
-  )
+  let
+    eventEffects = snd Event.init
+    userEffects = snd User.init
+  in
+    ( initialModel
+    , Effects.batch
+      [ Effects.map ChildEventAction eventEffects
+      , Effects.map ChildUserAction userEffects
+      ]
+    )
+
+-- UPDATE
 
 type Action
-  = SetAccessToken AccessToken
+  = ChildEventAction Event.Action
   | ChildUserAction User.Action
-  | ChildEventAction Event.Action
-
 
 update : Action -> Model -> (Model, Effects Action)
 update action model =
   case action of
-
-    -- @todo: Find how child can call this.
-    SetAccessToken accessToken ->
-      ( {model | accessToken <- accessToken}
-      , Effects.none
-      )
+    ChildEventAction act ->
+      let
+        -- Pass the access token along to child components.
+        context = { accessToken = (.user >> .accessToken) model }
+        (childModel, childEffects) = Event.update context act model.events
+      in
+        ( {model | events <- childModel }
+        , Effects.map ChildEventAction childEffects
+        )
 
     ChildUserAction act ->
       let
         (childModel, childEffects) = User.update act model.user
       in
-        ( {model | user <- childModel}
+        ( { model | user <- childModel }
         , Effects.batch
             [ Effects.map ChildUserAction childEffects
             -- @todo: Where to move this so it's invoked on time?
@@ -58,17 +72,7 @@ update action model =
             ]
         )
 
-    ChildEventAction act ->
-      let
-        (childModel, childEffects) = Event.update act model.events
-      in
-        ( {model | events <- childModel }
-        , Effects.map ChildEventAction childEffects
-        )
-
 -- VIEW
-
-(=>) = (,)
 
 view : Signal.Address Action -> Model -> Html
 view address model =
