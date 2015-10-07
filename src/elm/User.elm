@@ -56,8 +56,14 @@ type Action
   | SetAccessToken AccessToken
 
 
-update : Action -> Model -> (Model, Effects Action)
+type alias Context =
+  { companies : List }
+
+update : Action -> Model -> (Model, Effects Action, Context)
 update action model =
+  let
+    context = { companies = []}
+  in
   case action of
     GetDataFromServer ->
       let
@@ -66,6 +72,7 @@ update action model =
       in
         ( { model | isFetching <- True}
         , getJson url model.loginModel.accessToken
+        , context
         )
 
     UpdateDataFromServer result ->
@@ -74,15 +81,18 @@ update action model =
       in
         case result of
           Ok (id, name, companies) ->
+            let
+              context' = { context | companies <- companies}
+            in
             ( {newModel
                 | id <- id
                 , name <- LoggedIn name
                 , companies <- companies
               }
             , Effects.none
+            , context'
             )
-          Err msg -> (newModel, Effects.none)
-
+          Err msg -> (newModel, Effects.none, context)
     ChildLoginAction act ->
       let
         (childModel, childEffects) = Login.update act model.loginModel
