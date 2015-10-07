@@ -57,7 +57,7 @@ type Action
 
 
 type alias Context =
-  { companies : List }
+  { companies : List Int}
 
 update : Action -> Model -> (Model, Effects Action, Context)
 update action model =
@@ -82,7 +82,7 @@ update action model =
         case result of
           Ok (id, name, companies) ->
             let
-              context' = { context | companies <- companies}
+              context' = { context | companies <- [1, 2, 3]}
             in
             ( {newModel
                 | id <- id
@@ -116,11 +116,13 @@ update action model =
             , accessToken <- childModel.accessToken
           }
         , Effects.batch effects
+        , context
         )
 
     SetAccessToken accessToken ->
       ( {model | accessToken <- accessToken}
       , Effects.none
+      , context
       )
 
 

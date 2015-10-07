@@ -17,7 +17,7 @@ type alias AccessToken = String
 
 type alias Model =
   { user : User.Model
-  , companies : List Company.Model
+  , companies : List Int
   , events : Event.Model
   }
 
@@ -46,6 +46,7 @@ init =
 type Action
   = ChildEventAction Event.Action
   | ChildUserAction User.Action
+  | UpdateCompanies (List Int)
 
 update : Action -> Model -> (Model, Effects Action)
 update action model =
@@ -62,15 +63,34 @@ update action model =
 
     ChildUserAction act ->
       let
-        (childModel, childEffects) = User.update act model.user
+        (childModel, childEffects, childContext) = User.update act model.user
+
+        effects =
+          [ Effects.map ChildUserAction childEffects
+          -- @todo: Where to move this so it's invoked on time?
+          , Task.succeed (ChildEventAction Event.GetDataFromServer) |> Effects.task
+          ]
+
+        effects' =
+          case act of
+            User.UpdateDataFromServer _ ->
+              (Task.succeed (UpdateCompanies childContext.companies) |> Effects.task) :: effects
+
+            _ ->
+              effects
       in
         ( { model | user <- childModel }
-        , Effects.batch
-            [ Effects.map ChildUserAction childEffects
-            -- @todo: Where to move this so it's invoked on time?
-            , Task.succeed (ChildEventAction Event.GetDataFromServer) |> Effects.task
-            ]
+        , Effects.batch effects'
+
         )
+
+    UpdateCompanies companies ->
+      let
+        d = Debug.log "UpdateCompanies" companies
+      in
+      ( { model | companies <- companies}
+      , Effects.none
+      )
 
 -- VIEW
 
