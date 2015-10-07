@@ -109,7 +109,11 @@ view address model =
         childAddress =
           Signal.forwardTo address ChildEventAction
       in
-        div [ style myStyle ] [ Event.view childAddress model.events ]
+        div
+          [ style myStyle ]
+          [ Event.view childAddress model.events
+          , div [] [ text (toString model.companies)]
+          ]
 
 rootModelView : Model -> Html
 rootModelView model =
