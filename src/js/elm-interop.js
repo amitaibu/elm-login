@@ -2,11 +2,6 @@
 
 var elmApp = Elm.fullscreen(Elm.Main, {selectEvent: null});
 
-// @todo: Remove this hack, that makes sure that the map will appear on first
-// load, as the subscribe to port is triggered only on the first change of
-// model, and not when it is initialized.
-elmApp.ports.selectEvent.send(null);
-
 // Maintain the map and marker state.
 var mapEl = undefined;
 var markersEl = {};
@@ -44,7 +39,7 @@ elmApp.ports.mapManager.subscribe(function(model) {
       var id = marker.id;
       if (!markersEl[id]) {
         markersEl[id] = L.marker([marker.lat, marker.lng]).addTo(mapEl);
-        selectMarker(markersEl[id], id);
+        selectMarker(mapEl, markersEl[id], id);
       }
       else {
         markersEl[id].setLatLng([marker.lat, marker.lng]);
@@ -58,14 +53,23 @@ elmApp.ports.mapManager.subscribe(function(model) {
       eventIds.splice(index, 1);
     });
 
+    //
+    if (model.leaflet.markers.length) {
+      mapEl.fitBounds(model.leaflet.markers);
+    }
+    else {
+       // Show the entire world when no markers are set.
+      mapEl.setZoom(1);
+    }
+
+
     // Hide existing markers.
     eventIds.forEach(function(id) {
       if (markersEl[id]) {
         mapEl.removeLayer(markersEl[id]);
         markersEl[id] = undefined;
       }
-    })
-
+    });
   }, 50);
 
 });
@@ -73,8 +77,12 @@ elmApp.ports.mapManager.subscribe(function(model) {
 /**
  * Send marker click event to Elm.
  */
-function selectMarker(markerEl, id) {
-  markerEl.on('click', function(e) {
+function selectMarker(mapEl, markerEl, id) {
+  markerEl.on('click', function(event) {
+
+    // Center the map around the selected event.
+    mapEl.panTo(event.latlng);
+
     elmApp.ports.selectEvent.send(id);
   });
 }
@@ -84,7 +92,7 @@ function selectMarker(markerEl, id) {
  */
 function addMap() {
   // Leaflet
-  var mapEl = L.map('map').setView([50, 50], 3);
+  var mapEl = L.map('map');
 
   L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6IjZjNmRjNzk3ZmE2MTcwOTEwMGY0MzU3YjUzOWFmNWZhIn0.Y8bhBaUMqFiPrDRW9hieoQ', {
     maxZoom: 10,
