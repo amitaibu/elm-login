@@ -35,6 +35,8 @@ elmApp.ports.mapManager.subscribe(function(model) {
     // the ones that should be removed.
     var eventIds = model.events;
 
+    var selectedMarker = undefined;
+
     model.leaflet.markers.forEach(function(marker) {
       var id = marker.id;
       if (!markersEl[id]) {
@@ -45,8 +47,15 @@ elmApp.ports.mapManager.subscribe(function(model) {
         markersEl[id].setLatLng([marker.lat, marker.lng]);
       }
 
+      var isSelected = !!model.leaflet.selectedMarker && model.leaflet.selectedMarker === id;
+
+      if (isSelected) {
+        // Center the map around the selected event.
+        selectedMarker = markersEl[id];
+      }
+
       // Set the marker's icon.
-      markersEl[id].setIcon(!!model.leaflet.selectedMarker && model.leaflet.selectedMarker === id ? selectedIcon : defaultIcon);
+      markersEl[id].setIcon(isSelected ? selectedIcon : defaultIcon);
 
       // Unset the marker form the event IDs list.
       var index = eventIds.indexOf(id);
@@ -56,6 +65,11 @@ elmApp.ports.mapManager.subscribe(function(model) {
     //
     if (model.leaflet.markers.length) {
       mapEl.fitBounds(model.leaflet.markers);
+
+      if (selectedMarker) {
+        mapEl.panTo(selectedMarker._latlng);
+      }
+
     }
     else {
        // Show the entire world when no markers are set.
@@ -79,10 +93,6 @@ elmApp.ports.mapManager.subscribe(function(model) {
  */
 function selectMarker(mapEl, markerEl, id) {
   markerEl.on('click', function(event) {
-
-    // Center the map around the selected event.
-    mapEl.panTo(event.latlng);
-
     elmApp.ports.selectEvent.send(id);
   });
 }
