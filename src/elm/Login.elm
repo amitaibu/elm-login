@@ -30,12 +30,13 @@ type alias LoginForm =
 
 type Status =
   Init
+  | Fetching
+  | Fetched
   | HttpError Http.Error
 
 type alias Model =
   { accessToken: AccessToken
   , loginForm : LoginForm
-  , isFetching : Bool
   , status : Status
   , hasAccessTokenInStorage : Bool
   }
@@ -44,7 +45,6 @@ initialModel : Model
 initialModel =
   { accessToken = ""
   , loginForm = LoginForm "demo" "1234"
-  , isFetching = False
   , status = Init
   -- We start by assuming there's already an access token it the localStorage.
   -- While this property is set to True, the login form will not appear.
@@ -99,13 +99,17 @@ update action model =
         credentials : String
         credentials = encodeCredentials(model.loginForm.name, model.loginForm.pass)
       in
-      ( { model | isFetching <- True}
-      , getJson url credentials
-      )
+        if model.status == Fetching
+          then
+            (model, Effects.none)
+          else
+            ( { model | status <- Fetching}
+            , getJson url credentials
+            )
 
     UpdateAccessTokenFromServer result ->
       let
-        model'  = { model | isFetching <- False}
+        model'  = { model | status <- Fetched}
       in
         case result of
           Ok token ->
@@ -142,7 +146,7 @@ update action model =
           ( { model | hasAccessTokenInStorage <- False }
           , Effects.none
           )
-          
+
 
 sendInputToStorage : String -> Effects Action
 sendInputToStorage s =
@@ -170,20 +174,19 @@ view address model =
     modelForm = model.loginForm
   in
     div
-
       [ class "container" ]
-
       [ Html.form
-        [ action "javascript:none"
-        , onSubmit address SubmitForm
+        [ onSubmit address SubmitForm
+        , action "javascript:void(0);"
+        , class "form-signin"
         -- Don't show the form while checking for the access token from the
         -- storage.
         , hidden model.hasAccessTokenInStorage
         ]
-        [
-        -- Name
-        input
+        [ h2 [ class "form-signin-heading"] [text "Please login"]
+        , input
             [ type' "text"
+            , class "form-control"
             , placeholder "Name"
             , value model.loginForm.name
             , on "input" targetValue (Signal.message address << UpdateName)
@@ -194,6 +197,7 @@ view address model =
         -- Password
         , input
             [ type' "password"
+            , class "form-control"
             , placeholder "Password"
             , value modelForm.pass
             , on "input" targetValue (Signal.message address << UpdatePass)
@@ -203,10 +207,12 @@ view address model =
             []
         , button
             [ onClick address SubmitForm
-            , disabled (String.isEmpty modelForm.name || String.isEmpty modelForm.pass || model.isFetching) ]
+            , class "btn btn-lg btn-primary btn-block"
+            , disabled (String.isEmpty modelForm.name || String.isEmpty modelForm.pass || model.status == Fetching || model.status == Fetched)
+            ]
             [ text "Login" ]
         ]
-      , div [hidden (model.isFetching == False && not model.hasAccessTokenInStorage)] [ text "Loading ..."]
+      , div [hidden (not (model.status == Fetching) && not model.hasAccessTokenInStorage)] [ text "Loading ..."]
       ]
 
 -- EFFECTS
