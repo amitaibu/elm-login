@@ -7,6 +7,7 @@ import Event exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
+import RouteHash exposing (HashUpdate)
 import Task exposing (..)
 import User exposing (..)
 
@@ -199,6 +200,9 @@ navbarLoggedIn address model =
   let
     childAddress =
       Signal.forwardTo address ChildUserAction
+
+    hrefVoid =
+      href "javascript:void(0);"
   in
     node "nav" [class "navbar navbar-default"]
       [ div [class "container-fluid"]
@@ -206,9 +210,9 @@ navbarLoggedIn address model =
           [ div [class "navbar-header"] []
           , div [ class "collapse navbar-collapse"]
               [ ul [class "nav navbar-nav"]
-                [ li [] [ a [ href "#", onClick address (SetActivePage User) ] [ text "My account"] ]
-                , li [] [ a [ href "#", onClick address (SetActivePage Event)] [ text "Events"] ]
-                , li [] [ a [ href "#", onClick childAddress User.Logout] [ text "Logout"] ]
+                [ li [] [ a [ hrefVoid, onClick address (SetActivePage User) ] [ text "My account"] ]
+                , li [] [ a [ hrefVoid, onClick address (SetActivePage Event)] [ text "Events"] ]
+                , li [] [ a [ hrefVoid, onClick childAddress User.Logout] [ text "Logout"] ]
                 ]
               ]
           ]
@@ -220,3 +224,41 @@ myStyle =
     , ("margin", "50px")
     , ("font-size", "2em")
     ]
+
+
+-- ROUTING
+
+delta2update : Model -> Model -> Maybe HashUpdate
+delta2update previous current =
+  case current.activePage of
+    User ->
+      -- First, we ask the submodule for a HashUpdate. Then, we use
+      -- `map` to prepend something to the URL.
+      RouteHash.map ((::) "my-account") <|
+        User.delta2update previous.user current.user
+
+    Event ->
+      RouteHash.map ((::) "events") <|
+        Event.delta2update previous.events current.events
+
+    _ ->
+      RouteHash.map ((::) "other") <|
+        Just <| RouteHash.set []
+
+
+-- Here, we basically do the reverse of what delta2update does
+location2action : List String -> List Action
+location2action list =
+  case list of
+    "my-account" :: rest ->
+      -- We give the Example1 module a chance to interpret the rest of
+      -- the URL, and then we prepend an action for the part we
+      -- interpreted.
+      ( SetActivePage User ) :: []
+
+    "events" :: rest ->
+      ( SetActivePage Event ) :: []
+
+    _ ->
+      -- @todo: Add 404
+      ( SetActivePage User ) :: []
