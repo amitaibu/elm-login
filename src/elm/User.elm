@@ -75,7 +75,10 @@ update action model =
   in
     case action of
       NoOp _ ->
-        (model, Effects.none)
+        ( model
+        , Effects.none
+        , context
+        )
 
       GetDataFromServer ->
         let
@@ -101,7 +104,11 @@ update action model =
               , Effects.none
               , context
               )
-            Err msg -> (newModel, Effects.none)
+            Err msg ->
+              ( newModel
+              , Effects.none
+              , context
+              )
 
       ChildLoginAction act ->
         let

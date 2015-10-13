@@ -104,7 +104,7 @@ update context action model =
         url = Config.backendUrl ++ "/api/v1.0/events"
       in
         ( { model | status <- Fetching}
-        , getJson url context.accessToken 1
+        , getJson url 1 context.accessToken
         )
 
     UpdateDataFromServer result ->
@@ -410,7 +410,7 @@ viewEventInfo model =
 getJson : String -> Int -> String -> Effects Action
 getJson url companyId accessToken =
   let
-    encodedUrl = Http.url url [ ("access_token", accessToken), , ("filter[company]", toString companyId) ]
+    encodedUrl = Http.url url [ ("access_token", accessToken), ("filter[company]", toString companyId) ]
   in
     Http.send Http.defaultSettings
       { verb = "GET"

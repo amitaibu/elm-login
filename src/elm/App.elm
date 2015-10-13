@@ -79,7 +79,7 @@ update action model =
 
     ChildUserAction act ->
       let
-        (childModel, childEffects) = User.update act model.user
+        (childModel, childEffects, context) = User.update act model.user
 
         defaultEffect =
           Effects.map ChildUserAction childEffects
