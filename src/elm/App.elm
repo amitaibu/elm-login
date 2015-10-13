@@ -17,7 +17,7 @@ import Debug
 type alias AccessToken = String
 
 type Page
-  = Event
+  = Event Int
   | User
   | MyAccount
 
@@ -98,7 +98,7 @@ update action model =
                   -- User was successfully logged in, so we can redirect to the
                   -- events page.
                   ( model'
-                  , (Task.succeed (SetActivePage Event) |> Effects.task) :: defaultEffects
+                  , (Task.succeed (SetActivePage <| Event 1) |> Effects.task) :: defaultEffects
                   )
 
                 Err _ ->
@@ -128,7 +128,7 @@ update action model =
             User ->
               Task.succeed (ChildUserAction User.Deactivate) |> Effects.task
 
-            Event ->
+            Event _ ->
               Task.succeed (ChildEventAction Event.Deactivate) |> Effects.task
 
         newPageEffects =
@@ -136,7 +136,7 @@ update action model =
             User ->
               Task.succeed (ChildUserAction User.Activate) |> Effects.task
 
-            Event ->
+            Event _ ->
               Task.succeed (ChildEventAction Event.Activate) |> Effects.task
 
       in
@@ -177,7 +177,7 @@ mainContent address model =
       in
       view address model'
 
-    Event ->
+    Event companyId ->
       let
         childAddress =
           Signal.forwardTo address ChildEventAction
@@ -207,7 +207,7 @@ navbarLoggedIn address model =
           , div [ class "collapse navbar-collapse"]
               [ ul [class "nav navbar-nav"]
                 [ li [] [ a [ href "#", onClick address (SetActivePage User) ] [ text "My account"] ]
-                , li [] [ a [ href "#", onClick address (SetActivePage Event)] [ text "Events"] ]
+                , li [] [ a [ href "#", onClick address (SetActivePage <| Event 1)] [ text "Events"] ]
                 , li [] [ a [ href "#", onClick childAddress User.Logout] [ text "Logout"] ]
                 ]
               ]
