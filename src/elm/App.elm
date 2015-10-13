@@ -62,6 +62,7 @@ type Action
   = ChildEventAction Event.Action
   | ChildUserAction User.Action
   | SetActivePage Page
+  | UpdateCompanies (List Company.Model)
 
 update : Action -> Model -> (Model, Effects Action)
 update action model =
@@ -151,6 +152,11 @@ update action model =
               , newPageEffects
               ]
             )
+
+    UpdateCompanies companies ->
+      ( { model | companies <- companies}
+      , Effects.none
+      )
 
 -- VIEW
 

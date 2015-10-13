@@ -64,80 +64,100 @@ type Action
   | Deactivate
 
 
-update : Action -> Model -> (Model, Effects Action)
+type alias Context =
+  { companies : List Company.Model}
+
+
+update : Action -> Model -> (Model, Effects Action, Context)
 update action model =
-  case action of
-    NoOp _ ->
-      (model, Effects.none)
+  let
+    context = { companies = []}
+  in
+    case action of
+      NoOp _ ->
+        (model, Effects.none)
 
-    GetDataFromServer ->
-      let
-        url : String
-        url = Config.backendUrl ++ "/api/v1.0/me"
-      in
-        ( { model | isFetching <- True}
-        , getJson url model.loginModel.accessToken
+      GetDataFromServer ->
+        let
+          url : String
+          url = Config.backendUrl ++ "/api/v1.0/me"
+        in
+          ( { model | isFetching <- True}
+          , getJson url model.loginModel.accessToken
+          , context
+          )
+
+      UpdateDataFromServer result ->
+        let
+          newModel  = { model | isFetching <- False}
+        in
+          case result of
+            Ok (id, name, companies) ->
+              ( {newModel
+                  | id <- id
+                  , name <- LoggedIn name
+                  , companies <- companies
+                }
+              , Effects.none
+              , context
+              )
+            Err msg -> (newModel, Effects.none)
+
+      ChildLoginAction act ->
+        let
+          (childModel, childEffects) = Login.update act model.loginModel
+
+          defaultEffects =
+            [ Effects.map ChildLoginAction childEffects ]
+
+          getDataFromServerEffects =
+            (Task.succeed GetDataFromServer |> Effects.task) :: defaultEffects
+
+          effects =
+            case act of
+              Login.UpdateAccessTokenFromServer result ->
+                -- Call server only if token exists.
+                if isAccessTokenInStorage result then getDataFromServerEffects else defaultEffects
+
+              Login.UpdateAccessTokenFromStorage result ->
+                -- Call server only if token exists.
+                if isAccessTokenInStorage result then getDataFromServerEffects else defaultEffects
+
+
+              _ ->
+                defaultEffects
+        in
+          ( {model
+              | loginModel <- childModel
+              , accessToken <- childModel.accessToken
+            }
+          , Effects.batch effects
+          , context
+          )
+
+      Logout ->
+        ( model
+        , removeStorageItem
+        , context
         )
 
-    UpdateDataFromServer result ->
-      let
-        newModel  = { model | isFetching <- False}
-      in
-        case result of
-          Ok (id, name, companies) ->
-            ( {newModel
-                | id <- id
-                , name <- LoggedIn name
-                , companies <- companies
-              }
-            , Effects.none
-            )
-          Err msg -> (newModel, Effects.none)
-
-    ChildLoginAction act ->
-      let
-        (childModel, childEffects) = Login.update act model.loginModel
-
-        defaultEffects =
-          [ Effects.map ChildLoginAction childEffects ]
-
-        getDataFromServerEffects =
-          (Task.succeed GetDataFromServer |> Effects.task) :: defaultEffects
-
-        effects =
-          case act of
-            Login.UpdateAccessTokenFromServer result ->
-              -- Call server only if token exists.
-              if isAccessTokenInStorage result then getDataFromServerEffects else defaultEffects
-
-            Login.UpdateAccessTokenFromStorage result ->
-              -- Call server only if token exists.
-              if isAccessTokenInStorage result then getDataFromServerEffects else defaultEffects
-
-
-            _ ->
-              defaultEffects
-      in
-        ( {model
-            | loginModel <- childModel
-            , accessToken <- childModel.accessToken
-          }
-        , Effects.batch effects
+      SetAccessToken accessToken ->
+        ( {model | accessToken <- accessToken}
+        , Effects.none
+        , context
         )
 
-    Logout ->
-      (model, removeStorageItem)
+      Activate ->
+        ( model
+        , Effects.none
+        , context
+        )
 
-    SetAccessToken accessToken ->
-      ( {model | accessToken <- accessToken}
-      , Effects.none
-      )
-
-    Activate ->
-      (model, Effects.none)
-
-    Deactivate ->
-      (model, Effects.none)
+      Deactivate ->
+        ( model
+        , Effects.none
+        , context
+        )
 
 
 -- Determines if a call to the server should be done, based on having an access
