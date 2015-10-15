@@ -124,6 +124,9 @@ update action model =
 
     SetActivePage page ->
       let
+        page' =
+          if model.user.name == Anonymous then User else page
+
         currentPageEffects =
           case model.activePage of
             User ->
@@ -133,7 +136,7 @@ update action model =
               Task.succeed (ChildEventAction Event.Deactivate) |> Effects.task
 
         newPageEffects =
-          case page of
+          case page' of
             User ->
               Task.succeed (ChildUserAction User.Activate) |> Effects.task
 
@@ -141,12 +144,12 @@ update action model =
               Task.succeed (ChildEventAction Event.Activate) |> Effects.task
 
       in
-        if model.activePage == page
+        if model.activePage == page'
           then
             -- Requesting the same page, so don't do anything.
             (model, Effects.none)
           else
-            ( { model | activePage <- page}
+            ( { model | activePage <- page'}
             , Effects.batch
               [ currentPageEffects
               , newPageEffects
