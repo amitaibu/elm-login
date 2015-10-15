@@ -20,7 +20,6 @@ type alias AccessToken = String
 type Page
   = Event
   | User
-  | MyAccount
 
 type alias Model =
   { user : User.Model
@@ -175,12 +174,6 @@ mainContent address model =
       in
         div [ style myStyle ] [ User.view childAddress model.user ]
 
-    MyAccount ->
-      let
-        model' = { model | activePage <- User }
-      in
-      view address model'
-
     Event ->
       let
         childAddress =
@@ -234,29 +227,29 @@ myStyle =
 delta2update : Model -> Model -> Maybe HashUpdate
 delta2update previous current =
   case current.activePage of
-    User ->
+    Event ->
       -- First, we ask the submodule for a HashUpdate. Then, we use
       -- `map` to prepend something to the URL.
-      RouteHash.map ((::) "my-account") <|
-        User.delta2update previous.user current.user
-
-    Event ->
       RouteHash.map ((::) "events") <|
         Event.delta2update previous.events current.events
 
-    _ ->
-      RouteHash.map ((::) "other") <|
-        Just <| RouteHash.set []
+    User ->
+      let
+        url =
+          if current.user.name == Anonymous then "login" else "my-account"
+      in
+        RouteHash.map ((::) url) <|
+          User.delta2update previous.user current.user
 
 
 -- Here, we basically do the reverse of what delta2update does
 location2action : List String -> List Action
 location2action list =
   case list of
+    "login" :: rest ->
+      ( SetActivePage User ) :: []
+
     "my-account" :: rest ->
-      -- We give the Example1 module a chance to interpret the rest of
-      -- the URL, and then we prepend an action for the part we
-      -- interpreted.
       ( SetActivePage User ) :: []
 
     "events" :: rest ->
