@@ -16,8 +16,10 @@ import Debug
 
 type alias AccessToken = String
 
+type alias CompanyId = Int
+
 type Page
-  = Event Int
+  = Event (Maybe CompanyId)
   | User
   | MyAccount
 
@@ -70,7 +72,10 @@ update action model =
     ChildEventAction act ->
       let
         -- Pass the access token along to child components.
-        context = { accessToken = (.user >> .accessToken) model }
+        context =
+          { accessToken = (.user >> .accessToken) model
+          , companies = model.companies
+          }
         (childModel, childEffects) = Event.update context act model.events
       in
         ( {model | events <- childModel }
@@ -99,7 +104,7 @@ update action model =
                   -- User was successfully logged in, so we can redirect to the
                   -- events page.
                   ( model'
-                  , (Task.succeed (SetActivePage <| Event 1) |> Effects.task) :: defaultEffects
+                  , (Task.succeed (SetActivePage <| Event Nothing) |> Effects.task) :: defaultEffects
                   )
 
                 Err _ ->
@@ -137,8 +142,8 @@ update action model =
             User ->
               Task.succeed (ChildUserAction User.Activate) |> Effects.task
 
-            Event _ ->
-              Task.succeed (ChildEventAction Event.Activate) |> Effects.task
+            Event maybeCompanyId ->
+              Task.succeed (ChildEventAction <| Event.Activate maybeCompanyId) |> Effects.task
 
       in
         if model.activePage == page
@@ -213,7 +218,7 @@ navbarLoggedIn address model =
           , div [ class "collapse navbar-collapse"]
               [ ul [class "nav navbar-nav"]
                 [ li [] [ a [ href "#", onClick address (SetActivePage User) ] [ text "My account"] ]
-                , li [] [ a [ href "#", onClick address (SetActivePage <| Event 1)] [ text "Events"] ]
+                , li [] [ a [ href "#", onClick address (SetActivePage <| Event Nothing)] [ text "Events"] ]
                 , li [] [ a [ href "#", onClick childAddress User.Logout] [ text "Logout"] ]
                 ]
               ]

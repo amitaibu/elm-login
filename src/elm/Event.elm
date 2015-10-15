@@ -42,6 +42,8 @@ type alias Event =
   , author : Author
   }
 
+type alias CompanyId = Int
+
 type alias Model =
   { events : List Event
   , status : Status
@@ -71,6 +73,8 @@ init =
 
 -- UPDATE
 
+
+
 type Action
   = GetDataFromServer
   | UpdateDataFromServer (Result Http.Error (List Event))
@@ -88,7 +92,7 @@ type Action
   | ChildLeafletAction Leaflet.Action
 
   -- Page
-  | Activate
+  | Activate (Maybe CompanyId)
   | Deactivate
 
 
@@ -189,8 +193,19 @@ update context action model =
         , Effects.map ChildLeafletAction childEffects
         )
 
-    Activate ->
+    Activate maybeCompanyId ->
       let
+
+        companyId =
+          case maybeCompanyId of
+            Just id ->
+              id
+
+            Nothing ->
+              -- Get the fist Id from the companies list that exists in the
+              -- context.
+              List.head context.companies
+
         (childModel, childEffects) = Leaflet.update Leaflet.ToggleMap model.leaflet
 
         defaultEffects =
