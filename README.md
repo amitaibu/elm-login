@@ -5,6 +5,7 @@ Port of the [hedley demo](http://hedley-demo.gizra.com/) client to Elm
 ## Install
 
 ```
+npm install -g elm
 npm install
 elm-package install -y
 ```
