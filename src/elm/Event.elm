@@ -12,6 +12,7 @@ import Leaflet exposing (Model, initialModel, Marker, update)
 import RouteHash exposing (HashUpdate)
 import String exposing (length)
 import Task
+import Time exposing (timestamp)
 
 import Debug
 
@@ -22,7 +23,6 @@ type alias Id = Int
 type Status =
   Init
   | Fetching
-  -- @todo: Pass timestamp for "Fetched".
   | Fetched
   | HttpError Http.Error
 
@@ -45,6 +45,7 @@ type alias Event =
 
 type alias Model =
   { events : List Event
+  , fetchedTimestamp : Maybe Time.Time
   , status : Status
   , selectedEvent : Maybe Int
   , selectedAuthor : Maybe Int
@@ -56,6 +57,7 @@ type alias Model =
 initialModel : Model
 initialModel =
   { events = []
+  , fetchedTimestamp = Nothing
   , status = Init
   , selectedEvent = Nothing
   , selectedAuthor = Nothing
@@ -114,6 +116,7 @@ update context action model =
           ( {model
               | events <- events
               , status <- Fetched
+              , fetchedTimestamp <- timestamp
             }
           , Task.succeed (FilterEvents model.filterString) |> Effects.task
           )
