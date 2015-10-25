@@ -411,7 +411,7 @@ viewEventInfo model =
 
 -- EFFECTS
 
--- getHttpResult : String -> String ->
+getHttpResult : String -> String -> Result Http.Error (List Event)
 getHttpResult url accessToken =
   let
     encodedUrl = Http.url url [ ("access_token", accessToken) ]
