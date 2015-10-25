@@ -411,19 +411,16 @@ viewEventInfo model =
 
 -- EFFECTS
 
-getHttpResult : String -> String -> Result Http.Error (List Event)
-getHttpResult url accessToken =
+getJson : String -> String -> Effects Action
+getJson url accessToken =
   let
     encodedUrl = Http.url url [ ("access_token", accessToken) ]
   in
-    Http.get decodeData encodedUrl
-      |> Task.toResult
-
-getJson : String -> String -> Effects Action
-getJson url accessToken =
-  getHttpResult url accessToken
-    `andThen` \httpResult -> getCurrentTime
-    `andThen` \timestamp -> Task.map UpdateDataFromServer (httpResult, timestamp) |> Effects.task
+    Effects.task
+      ( Http.get decodeData encodedUrl |> Task.toResult
+        `andThen` \httpResult -> getCurrentTime
+        `andThen` \timestamp -> Task.map UpdateDataFromServer (httpResult, timestamp)
+      )
 
 decodeData : Json.Decoder (List Event)
 decodeData =
