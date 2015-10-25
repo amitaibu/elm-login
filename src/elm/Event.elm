@@ -11,7 +11,9 @@ import Json.Decode as Json exposing ((:=))
 import Leaflet exposing (Model, initialModel, Marker, update)
 import RouteHash exposing (HashUpdate)
 import String exposing (length)
-import Task
+import Task  exposing (Task, andThen)
+import TaskTutorial exposing (getCurrentTime)
+import Time exposing (Time)
 
 import Debug
 
@@ -22,8 +24,7 @@ type alias Id = Int
 type Status =
   Init
   | Fetching
-  -- @todo: Pass timestamp for "Fetched".
-  | Fetched
+  | Fetched Time.Time
   | HttpError Http.Error
 
 type alias Marker =
@@ -74,7 +75,7 @@ init =
 
 type Action
   = GetDataFromServer
-  | UpdateDataFromServer (Result Http.Error (List Event))
+  | UpdateDataFromServer ((Result Http.Error (List Event)), Time.Time)
 
   -- Select event might get values from JS (i.e. selecting a leaflet marker)
   -- so we allow passing a Maybe Int, instead of just Int.
@@ -108,12 +109,12 @@ update context action model =
         , getJson url context.accessToken
         )
 
-    UpdateDataFromServer result ->
+    UpdateDataFromServer (result, timestamp) ->
       case result of
         Ok events ->
           ( {model
               | events <- events
-              , status <- Fetched
+              , status <- Fetched timestamp
             }
           , Task.succeed (FilterEvents model.filterString) |> Effects.task
           )
