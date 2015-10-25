@@ -11,7 +11,7 @@ import Json.Decode as Json exposing ((:=))
 import Leaflet exposing (Model, initialModel, Marker, update)
 import RouteHash exposing (HashUpdate)
 import String exposing (length)
-import Task  exposing (Task, andThen)
+import Task  exposing (andThen, Task)
 import TaskTutorial exposing (getCurrentTime)
 import Time exposing (Time)
 
