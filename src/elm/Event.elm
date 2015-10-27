@@ -413,10 +413,6 @@ viewEventInfo model =
 
 -- EFFECTS
 
--- isValidCache : Time.Time -> Bool
-isValidCache cacheTimestamp =
-  Task.map (\currentTimestamp -> currentTimestamp < cacheTimestamp) getCurrentTime
-
 getDataFromCache : Status -> Effects Action
 getDataFromCache status =
   let
