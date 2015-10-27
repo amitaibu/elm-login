@@ -80,7 +80,9 @@ init =
 -- UPDATE
 
 type Action
-  = GetDataFromServer
+  = NoOp
+  | GetData
+  | GetDataFromServer
   | UpdateDataFromServer (Result Http.Error (List Event)) Time.Time
 
   -- Select event might get values from JS (i.e. selecting a leaflet marker)
@@ -106,6 +108,12 @@ type alias Context =
 update : Context -> Action -> Model -> (Model, Effects Action)
 update context action model =
   case action of
+    NoOp ->
+      (model, Effects.none)
+
+    GetData ->
+      (model, getDataFromCache model.status)
+
     GetDataFromServer ->
       let
         url : String
@@ -216,7 +224,7 @@ update context action model =
 
             -- Fetch new data.
             _ ->
-              (Task.succeed GetDataFromServer |> Effects.task) :: defaultEffects
+              (Task.succeed GetData |> Effects.task) :: defaultEffects
 
       in
         ( {model | leaflet <- childModel }
@@ -243,10 +251,6 @@ leafletMarkers model =
 
 view : Signal.Address Action -> Model -> Html
 view address model =
-  let
-    message =
-      Signal.send address GetDataFromServer
-  in
   div [class "container"]
     [ div [class "row"]
       [ div [class "col-md-3"]
@@ -420,6 +424,22 @@ viewEventInfo model =
 
 
 -- EFFECTS
+
+isValidCache : Time.Time -> Bool
+isValidCache cacheTimestamp =
+  Task.map (\currentTimestamp -> currentTimestamp < cacheTimestamp) getCurrentTime
+
+getDataFromCache : Status -> Effects Action
+getDataFromCache status =
+  let
+    noOp =
+      Task.succeed NoOp
+  in
+  case status of
+    Fetched timestamp ->
+      if isValidCache timestamp then noOp else Task.succeed GetDataFromServer
+    _ ->
+      Task.succeed NoOp
 
 getJson : String -> String -> Effects Action
 getJson url accessToken =
