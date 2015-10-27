@@ -112,7 +112,9 @@ update context action model =
       (model, Effects.none)
 
     GetData ->
-      (model, getDataFromCache model.status)
+      if model.status == Fetching
+        then (model, Effects.none)
+        else (model, getDataFromCache model.status)
 
     GetDataFromServer ->
       let
@@ -209,26 +211,12 @@ update context action model =
       let
         (childModel, childEffects) = Leaflet.update Leaflet.ToggleMap model.leaflet
 
-        defaultEffects =
-          [ Effects.map ChildLeafletAction childEffects ]
-
-        effects =
-          case model.status of
-            -- Data was already fetched or in the process of being fetched,
-            -- so use the cache.
-            Fetching ->
-              defaultEffects
-
-            Fetched _ ->
-              defaultEffects
-
-            -- Fetch new data.
-            _ ->
-              (Task.succeed GetData |> Effects.task) :: defaultEffects
-
       in
         ( {model | leaflet <- childModel }
-        , Effects.batch effects
+        , Effects.batch
+            [ Task.succeed GetData |> Effects.task
+            , Effects.map ChildLeafletAction childEffects
+            ]
         )
 
     Deactivate ->
@@ -435,11 +423,14 @@ getDataFromCache status =
     actionTask =
       case status of
         Fetched fetchTime ->
+          let
+            d1 = Debug.log "status" "in"
+          in
           Task.map (\currentTime ->
             let
               d1 = Debug.log "fetchTime" fetchTime
               d2 = Debug.log "currentTime" currentTime
-              d3 = Debug.log "val" (fetchTime + (5 * Time.second))
+              d3 = Debug.log "val" (fetchTime + (5 * Time.second) < currentTime)
             in
             if fetchTime + (5 * Time.second) < currentTime
               then NoOp
@@ -447,18 +438,14 @@ getDataFromCache status =
           ) getCurrentTime
 
         _ ->
+          let
+            d1 = Debug.log "status" "out"
+          in
           Task.succeed GetDataFromServer
 
   in
     Effects.task actionTask
-  --   noOp =
-  --     Task.succeed NoOp |> Effects.task
-  -- in
-  -- case status of
-  --   Fetched timestamp ->
-  --     if isValidCache timestamp then noOp else Task.succeed GetDataFromServer |> Effects.task
-  --   _ ->
-  --     noOp
+
 
 getJson : String -> String -> Effects Action
 getJson url accessToken =
