@@ -425,7 +425,7 @@ viewEventInfo model =
 
 -- EFFECTS
 
-isValidCache : Time.Time -> Bool
+-- isValidCache : Time.Time -> Bool
 isValidCache cacheTimestamp =
   Task.map (\currentTimestamp -> currentTimestamp < cacheTimestamp) getCurrentTime
 
@@ -433,13 +433,13 @@ getDataFromCache : Status -> Effects Action
 getDataFromCache status =
   let
     noOp =
-      Task.succeed NoOp
+      Task.succeed NoOp |> Effects.task
   in
   case status of
     Fetched timestamp ->
-      if isValidCache timestamp then noOp else Task.succeed GetDataFromServer
+      if isValidCache timestamp then noOp else Task.succeed GetDataFromServer |> Effects.task
     _ ->
-      Task.succeed NoOp
+      noOp
 
 getJson : String -> String -> Effects Action
 getJson url accessToken =
