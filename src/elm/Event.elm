@@ -432,14 +432,33 @@ isValidCache cacheTimestamp =
 getDataFromCache : Status -> Effects Action
 getDataFromCache status =
   let
-    noOp =
-      Task.succeed NoOp |> Effects.task
+    actionTask =
+      case status of
+        Fetched fetchTime ->
+          Task.map (\currentTime ->
+            let
+              d1 = Debug.log "fetchTime" fetchTime
+              d2 = Debug.log "currentTime" currentTime
+              d3 = Debug.log "val" (fetchTime + (5 * Time.second))
+            in
+            if fetchTime + (5 * Time.second) < currentTime
+              then NoOp
+              else GetDataFromServer
+          ) getCurrentTime
+
+        _ ->
+          Task.succeed GetDataFromServer
+
   in
-  case status of
-    Fetched timestamp ->
-      if isValidCache timestamp then noOp else Task.succeed GetDataFromServer |> Effects.task
-    _ ->
-      noOp
+    Effects.task actionTask
+  --   noOp =
+  --     Task.succeed NoOp |> Effects.task
+  -- in
+  -- case status of
+  --   Fetched timestamp ->
+  --     if isValidCache timestamp then noOp else Task.succeed GetDataFromServer |> Effects.task
+  --   _ ->
+  --     noOp
 
 getJson : String -> String -> Effects Action
 getJson url accessToken =
