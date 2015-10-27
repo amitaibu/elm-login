@@ -423,24 +423,14 @@ getDataFromCache status =
     actionTask =
       case status of
         Fetched fetchTime ->
-          let
-            d1 = Debug.log "status" "in"
-          in
           Task.map (\currentTime ->
-            let
-              d1 = Debug.log "fetchTime" fetchTime
-              d2 = Debug.log "currentTime" currentTime
-              d3 = Debug.log "val" (fetchTime + (5 * Time.second) < currentTime)
-            in
-            if fetchTime + (5 * Time.second) < currentTime
+            -- @todo: Move 5 seconds cache time to config
+            if fetchTime + (5 * Time.second) > currentTime
               then NoOp
               else GetDataFromServer
           ) getCurrentTime
 
         _ ->
-          let
-            d1 = Debug.log "status" "out"
-          in
           Task.succeed GetDataFromServer
 
   in
