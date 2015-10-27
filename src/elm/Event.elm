@@ -420,8 +420,7 @@ getDataFromCache status =
       case status of
         Fetched fetchTime ->
           Task.map (\currentTime ->
-            -- @todo: Move 5 seconds cache time to config
-            if fetchTime + (5 * Time.second) > currentTime
+            if fetchTime + Config.cacheTtl > currentTime
               then NoOp
               else GetDataFromServer
           ) getCurrentTime
