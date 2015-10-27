@@ -386,7 +386,7 @@ viewListEvents address model =
         Nothing ->
           eventSelect(event)
   in
-    if List.length filteredEvents > 0
+    if not <| List.isEmpty filteredEvents
       then
         ul [] (List.map getListItem filteredEvents)
       else
