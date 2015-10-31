@@ -79,11 +79,23 @@ type Action
   | Deactivate
 
 
-update : Action -> Model -> (Model, Effects Action)
+
+type alias Context =
+  { companies : List Company.Model}
+
+
+update : Action -> Model -> (Model, Effects Action, Context)
 update action model =
+  let
+    context =
+      { companies = []}
+
+    noFx =
+      ( model, Effects.none, context )
+  in
   case action of
     NoOp _ ->
-      (model, Effects.none)
+      noFx
 
     GetDataFromServer ->
       let
@@ -92,10 +104,11 @@ update action model =
       in
         if model.status == Fetching || model.status == Fetched
           then
-            (model, Effects.none)
+            noFx
           else
             ( { model | status <- Fetching}
             , getJson url model.loginModel.accessToken
+            , context
             )
 
     UpdateDataFromServer result ->
@@ -111,10 +124,12 @@ update action model =
                 , companies <- companies
               }
             , Effects.none
+            , context
             )
           Err msg ->
             ( { model' | status <- HttpError msg }
             , Effects.none
+            , context
             )
 
     ChildLoginAction act ->
@@ -146,21 +161,23 @@ update action model =
             , accessToken <- childModel.accessToken
           }
         , Effects.batch effects
+        , context
         )
 
     Logout ->
-      (model, removeStorageItem)
+      (model, removeStorageItem, context)
 
     SetAccessToken accessToken ->
       ( {model | accessToken <- accessToken}
       , Effects.none
+      , context
       )
 
     Activate ->
-      (model, Effects.none)
+      noFx
 
     Deactivate ->
-      (model, Effects.none)
+      noFx
 
 
 -- Determines if a call to the server should be done, based on having an access

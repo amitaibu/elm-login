@@ -50,6 +50,8 @@ type alias Event =
   , author : Author
   }
 
+type alias CompanyId = Int
+
 type alias Model =
   { events : List Event
   , status : Status
@@ -79,6 +81,8 @@ init =
 
 -- UPDATE
 
+
+
 type Action
   = NoOp
   | GetData
@@ -98,7 +102,7 @@ type Action
   | ChildLeafletAction Leaflet.Action
 
   -- Page
-  | Activate
+  | Activate (Maybe CompanyId)
   | Deactivate
 
 
@@ -122,7 +126,7 @@ update context action model =
         url = Config.backendUrl ++ "/api/v1.0/events"
       in
         ( { model | status <- Fetching}
-        , getJson url context.accessToken
+        , getJson url 1 context.accessToken
         )
 
     UpdateDataFromServer result timestamp ->
@@ -207,10 +211,10 @@ update context action model =
         , Effects.map ChildLeafletAction childEffects
         )
 
-    Activate ->
+    Activate maybeCompanyId ->
       let
-        (childModel, childEffects) = Leaflet.update Leaflet.ToggleMap model.leaflet
-
+        (childModel, childEffects) =
+          Leaflet.update Leaflet.ToggleMap model.leaflet
       in
         ( {model | leaflet <- childModel }
         , Effects.batch
@@ -432,10 +436,10 @@ getDataFromCache status =
     Effects.task actionTask
 
 
-getJson : String -> String -> Effects Action
-getJson url accessToken =
+getJson : String -> Int -> String -> Effects Action
+getJson url companyId accessToken =
   let
-    encodedUrl = Http.url url [ ("access_token", accessToken) ]
+    encodedUrl = Http.url url [ ("access_token", accessToken), ("filter[company]", toString companyId) ]
 
     httpTask =
       Task.toResult <|
