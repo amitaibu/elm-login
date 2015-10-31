@@ -213,19 +213,8 @@ update context action model =
 
     Activate maybeCompanyId ->
       let
-
-        companyId =
-          case maybeCompanyId of
-            Just id ->
-              id
-
-            Nothing ->
-              -- Get the fist Id from the companies list that exists in the
-              -- context.
-              List.head context.companies
-
-        (childModel, childEffects) = Leaflet.update Leaflet.ToggleMap model.leaflet
-
+        (childModel, childEffects) =
+          Leaflet.update Leaflet.ToggleMap model.leaflet
       in
         ( {model | leaflet <- childModel }
         , Effects.batch

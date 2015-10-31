@@ -270,7 +270,7 @@ myStyle =
 delta2update : Model -> Model -> Maybe HashUpdate
 delta2update previous current =
   case current.activePage of
-    Event ->
+    Event maybeCompanyId ->
       -- First, we ask the submodule for a HashUpdate. Then, we use
       -- `map` to prepend something to the URL.
       RouteHash.map ((::) "events") <|
@@ -296,10 +296,10 @@ location2action list =
       ( SetActivePage User ) :: []
 
     "events" :: rest ->
-      ( SetActivePage Event ) :: []
+      ( SetActivePage <| Event Nothing ) :: []
 
     "" :: rest ->
-      ( SetActivePage Event ) :: []
+      ( SetActivePage <| Event Nothing ) :: []
 
     _ ->
       -- @todo: Add 404
