@@ -93,89 +93,91 @@ update action model =
     noFx =
       ( model, Effects.none, context )
   in
-    case action of
-      NoOp _ ->
-        noFx
+  case action of
+    NoOp _ ->
+      noFx
 
-      GetDataFromServer ->
-        let
-          url : String
-          url = Config.backendUrl ++ "/api/v1.0/me"
-        in
-          ( { model | isFetching <- True}
-          , getJson url model.loginModel.accessToken
-          , context
-          )
+    GetDataFromServer ->
+      let
+        url : String
+        url = Config.backendUrl ++ "/api/v1.0/me"
+      in
+        if model.status == Fetching || model.status == Fetched
+          then
+            noFx
+          else
+            ( { model | status <- Fetching}
+            , getJson url model.loginModel.accessToken
+            , context
+            )
 
-      UpdateDataFromServer result ->
-        let
-          newModel  = { model | isFetching <- False}
-        in
-          case result of
-            Ok (id, name, companies) ->
-              ( {newModel
-                  | id <- id
-                  , name <- LoggedIn name
-                  , companies <- companies
-                }
-              , Effects.none
-              , context
-              )
-            Err msg ->
-              ( newModel
-              , Effects.none
-              , context
-              )
+    UpdateDataFromServer result ->
+      let
+        model' =
+          { model | status <- Fetched}
+      in
+        case result of
+          Ok (id, name, companies) ->
+            ( {model'
+                | id <- id
+                , name <- LoggedIn name
+                , companies <- companies
+              }
+            , Effects.none
+            , context
+            )
+          Err msg ->
+            ( { model' | status <- HttpError msg }
+            , Effects.none
+            , context
+            )
 
-      ChildLoginAction act ->
-        let
-          (childModel, childEffects) = Login.update act model.loginModel
+    ChildLoginAction act ->
+      let
+        (childModel, childEffects) = Login.update act model.loginModel
 
-          defaultEffects =
-            [ Effects.map ChildLoginAction childEffects ]
+        defaultEffects =
+          [ Effects.map ChildLoginAction childEffects ]
 
-          getDataFromServerEffects =
-            (Task.succeed GetDataFromServer |> Effects.task) :: defaultEffects
+        getDataFromServerEffects =
+          (Task.succeed GetDataFromServer |> Effects.task) :: defaultEffects
 
-          effects =
-            case act of
-              Login.UpdateAccessTokenFromServer result ->
-                -- Call server only if token exists.
-                if isAccessTokenInStorage result then getDataFromServerEffects else defaultEffects
+        effects =
+          case act of
+            Login.UpdateAccessTokenFromServer result ->
+              -- Call server only if token exists.
+              if isAccessTokenInStorage result then getDataFromServerEffects else defaultEffects
 
-              Login.UpdateAccessTokenFromStorage result ->
-                -- Call server only if token exists.
-                if isAccessTokenInStorage result then getDataFromServerEffects else defaultEffects
+            Login.UpdateAccessTokenFromStorage result ->
+              -- Call server only if token exists.
+              if isAccessTokenInStorage result then getDataFromServerEffects else defaultEffects
 
 
-              _ ->
-                defaultEffects
-        in
-          ( {model
-              | loginModel <- childModel
-              , accessToken <- childModel.accessToken
-            }
-          , Effects.batch effects
-          , context
-          )
-
-      Logout ->
-        ( model
-        , removeStorageItem
+            _ ->
+              defaultEffects
+      in
+        ( {model
+            | loginModel <- childModel
+            , accessToken <- childModel.accessToken
+          }
+        , Effects.batch effects
         , context
         )
 
-      SetAccessToken accessToken ->
-        ( {model | accessToken <- accessToken}
-        , Effects.none
-        , context
-        )
+    Logout ->
+      (model, removeStorageItem, context)
 
-      Activate ->
-        noFx
+    SetAccessToken accessToken ->
+      ( {model | accessToken <- accessToken}
+      , Effects.none
+      , context
+      )
 
-      Deactivate ->
-        noFx
+    Activate ->
+      noFx
+
+    Deactivate ->
+      noFx
 
 
 -- Determines if a call to the server should be done, based on having an access
