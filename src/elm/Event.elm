@@ -1,6 +1,7 @@
 module Event where
 
 import Config exposing (backendUrl)
+import Dict exposing (Dict)
 import Effects exposing (Effects, Never)
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -8,9 +9,11 @@ import Html.Events exposing (on, onClick, targetValue)
 import Http
 import Json.Decode as Json exposing ((:=))
 import Leaflet exposing (Model, initialModel, Marker, update)
+import RouteHash exposing (HashUpdate)
 import String exposing (length)
-import Task
-import Dict exposing (Dict)
+import Task  exposing (andThen, Task)
+import TaskTutorial exposing (getCurrentTime)
+import Time exposing (Time)
 
 import Debug
 
@@ -21,9 +24,14 @@ type alias Id = Int
 type Status =
   Init
   | Fetching
-  -- @todo: Pass timestamp for "Fetched".
-  | Fetched
+  | Fetched Time.Time
   | HttpError Http.Error
+
+isFetched : Status -> Bool
+isFetched status =
+  case status of
+    Fetched _ -> True
+    _ -> False
 
 type alias Marker =
   { lat: Float
@@ -76,8 +84,10 @@ init =
 
 
 type Action
-  = GetDataFromServer
-  | UpdateDataFromServer (Result Http.Error (List Event))
+  = NoOp
+  | GetData
+  | GetDataFromServer
+  | UpdateDataFromServer (Result Http.Error (List Event)) Time.Time
 
   -- Select event might get values from JS (i.e. selecting a leaflet marker)
   -- so we allow passing a Maybe Int, instead of just Int.
@@ -102,6 +112,14 @@ type alias Context =
 update : Context -> Action -> Model -> (Model, Effects Action)
 update context action model =
   case action of
+    NoOp ->
+      (model, Effects.none)
+
+    GetData ->
+      if model.status == Fetching
+        then (model, Effects.none)
+        else (model, getDataFromCache model.status)
+
     GetDataFromServer ->
       let
         url : String
@@ -111,12 +129,12 @@ update context action model =
         , getJson url 1 context.accessToken
         )
 
-    UpdateDataFromServer result ->
+    UpdateDataFromServer result timestamp ->
       case result of
         Ok events ->
           ( {model
               | events <- events
-              , status <- Fetched
+              , status <- Fetched timestamp
             }
           , Task.succeed (FilterEvents model.filterString) |> Effects.task
           )
@@ -208,22 +226,12 @@ update context action model =
 
         (childModel, childEffects) = Leaflet.update Leaflet.ToggleMap model.leaflet
 
-        defaultEffects =
-          [ Effects.map ChildLeafletAction childEffects ]
-
-        effects =
-          if model.status == Fetching || model.status == Fetched
-            then
-              -- Data was already fetched or in the process of being fetched,
-              -- so use the cache.
-              defaultEffects
-            else
-              -- Fetch new data.
-              (Task.succeed GetDataFromServer |> Effects.task) :: defaultEffects
-
       in
         ( {model | leaflet <- childModel }
-        , Effects.batch effects
+        , Effects.batch
+            [ Task.succeed GetData |> Effects.task
+            , Effects.map ChildLeafletAction childEffects
+            ]
         )
 
     Deactivate ->
@@ -246,41 +254,37 @@ leafletMarkers model =
 
 view : Signal.Address Action -> Model -> Html
 view address model =
-  let
-    message =
-      Signal.send address GetDataFromServer
-  in
-  div []
-    [ div [style [("display", "flex")]]
-      [ div []
-          [ div [class "h2"] [ text "Event Authors:"]
+  div [class "container"]
+    [ div [class "row"]
+      [ div [class "col-md-3"]
+          [ div [class "h2"] [ text "Event Authors"]
           , ul [] (viewEventsByAuthors address model.events model.selectedAuthor)
-          , div [ hidden (model.status == Fetched)] [ text "Loading..."]
-          ]
-      , div []
-          [ div [class "h2"] [ text "Event list:"]
-          , (viewFilterString address model)
-          , (viewListEvents address model)
+          , div [ hidden (isFetched model.status)] [ text "Loading..."]
+          , div []
+              [ div [class "h2"] [ text "Event list"]
+              , (viewFilterString address model)
+              , (viewListEvents address model)
+              ]
           ]
 
-      , div []
-          [ div [class "h2"] [ text "Map:"]
-          , div [ style myStyle, id "map" ] []
+      , div [class "col-md-9"]
+          [ div [class "h2"] [ text "Map"]
+          , div [ style mapStyle, id "map" ] []
           , viewEventInfo model
           ]
       ]
     ]
 
-myStyle : List (String, String)
-myStyle =
-    [ ("width", "600px")
-    , ("height", "400px")
-    ]
+mapStyle : List (String, String)
+mapStyle =
+  [ ("width", "600px")
+  , ("height", "400px")
+  ]
 
 groupEventsByAuthors : List Event -> Dict Int (Author, Int)
 groupEventsByAuthors events =
   let
-    -- handleEvent : Event -> Dict Int (Author, Int) -> Dict Int (Author, Int)
+    handleEvent : Event -> Dict Int (Author, Int) -> Dict Int (Author, Int)
     handleEvent event dict =
       let
         currentValue =
@@ -306,11 +310,11 @@ viewEventsByAuthors address events selectedAuthor =
           text (author.name ++ " (" ++ toString(count) ++ ")")
 
         authorSelect =
-          a [ href "#", onClick address (SelectAuthor author.id) ] [ authorRaw ]
+          a [ href "javascript:void(0);", onClick address (SelectAuthor author.id) ] [ authorRaw ]
 
         authorUnselect =
           span []
-            [ a [ href "#", onClick address (UnSelectAuthor) ] [ text "x " ]
+            [ a [ href "javascript:void(0);", onClick address (UnSelectAuthor) ] [ text "x " ]
             , authorRaw
             ]
       in
@@ -373,14 +377,17 @@ viewListEvents address model =
   let
     filteredEvents = filterListEvents model
 
+    hrefVoid =
+      href "javascript:void(0);"
+
     eventSelect event =
       li []
-        [ a [ href "#", onClick address (SelectEvent <| Just event.id) ] [ text event.label ] ]
+        [ a [ hrefVoid , onClick address (SelectEvent <| Just event.id) ] [ text event.label ] ]
 
     eventUnselect event =
       li []
         [ span []
-          [ a [ href "#", onClick address (UnSelectEvent) ] [ text "x " ]
+          [ a [ href "javascript:void(0);", onClick address (UnSelectEvent) ] [ text "x " ]
           , text event.label
           ]
         ]
@@ -394,7 +401,7 @@ viewListEvents address model =
         Nothing ->
           eventSelect(event)
   in
-    if List.length filteredEvents > 0
+    if not <| List.isEmpty filteredEvents
       then
         ul [] (List.map getListItem filteredEvents)
       else
@@ -421,22 +428,43 @@ viewEventInfo model =
 
 -- EFFECTS
 
+getDataFromCache : Status -> Effects Action
+getDataFromCache status =
+  let
+    actionTask =
+      case status of
+        Fetched fetchTime ->
+          Task.map (\currentTime ->
+            if fetchTime + Config.cacheTtl > currentTime
+              then NoOp
+              else GetDataFromServer
+          ) getCurrentTime
+
+        _ ->
+          Task.succeed GetDataFromServer
+
+  in
+    Effects.task actionTask
+
 
 getJson : String -> Int -> String -> Effects Action
 getJson url companyId accessToken =
   let
     encodedUrl = Http.url url [ ("access_token", accessToken), ("filter[company]", toString companyId) ]
+
+    httpTask =
+      Task.toResult <|
+        Http.get decodeData encodedUrl
+
+    actionTask =
+      httpTask `andThen` (\result ->
+        Task.map (\timestamp ->
+          UpdateDataFromServer result timestamp
+        ) getCurrentTime
+      )
+
   in
-    Http.send Http.defaultSettings
-      { verb = "GET"
-      , headers = []
-      , url = encodedUrl
-      , body = Http.empty
-      }
-      |> Http.fromJson decodeData
-      |> Task.toResult
-      |> Task.map UpdateDataFromServer
-      |> Effects.task
+    Effects.task actionTask
 
 
 decodeData : Json.Decoder (List Event)
@@ -469,3 +497,13 @@ decodeData =
       ("label" := Json.string)
       ("location" := marker)
       ("user" := author)
+
+-- ROUTER
+
+delta2update : Model -> Model -> Maybe HashUpdate
+delta2update previous current =
+  Just <| RouteHash.set []
+
+location2action : List String -> List Action
+location2action list =
+  []

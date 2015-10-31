@@ -14,8 +14,6 @@ import String exposing (length)
 import Task
 
 
-
-
 import Debug
 
 
@@ -99,7 +97,7 @@ update action model =
         credentials : String
         credentials = encodeCredentials(model.loginForm.name, model.loginForm.pass)
       in
-        if model.status == Fetching
+        if model.status == Fetching || model.status == Fetched
           then
             (model, Effects.none)
           else
@@ -171,7 +169,18 @@ getInputFromStorage =
 view : Signal.Address Action -> Model -> Html
 view address model =
   let
-    modelForm = model.loginForm
+    modelForm =
+      model.loginForm
+
+    disabledButton =
+      String.isEmpty modelForm.name || String.isEmpty modelForm.pass || model.status == Fetching || model.status == Fetched
+
+    loginText =
+      if disabledButton
+        then i [ class "fa fa-spinner fa-spin" ] []
+        else span [] [text "Login"]
+
+
   in
     div
       [ class "container" ]
@@ -208,9 +217,9 @@ view address model =
         , button
             [ onClick address SubmitForm
             , class "btn btn-lg btn-primary btn-block"
-            , disabled (String.isEmpty modelForm.name || String.isEmpty modelForm.pass || model.status == Fetching || model.status == Fetched)
+            , disabled disabledButton
             ]
-            [ text "Login" ]
+            [ loginText ]
         ]
       , div [hidden (not (model.status == Fetching) && not model.hasAccessTokenInStorage)] [ text "Loading ..."]
       ]

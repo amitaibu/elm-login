@@ -7,6 +7,7 @@ import Event exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
+import RouteHash exposing (HashUpdate)
 import Task exposing (..)
 import User exposing (..)
 
@@ -21,13 +22,14 @@ type alias CompanyId = Int
 type Page
   = Event (Maybe CompanyId)
   | User
-  | MyAccount
 
 type alias Model =
   { user : User.Model
   , companies : List Company.Model
   , events : Event.Model
   , activePage : Page
+  -- If the user is anonymous, we want to know where to redirect them.
+  , nextPage : Maybe Page
   }
 
 initialModel : Model
@@ -36,6 +38,7 @@ initialModel =
   , companies = []
   , events = Event.initialModel
   , activePage = User
+  , nextPage = Nothing
   }
 
 initialEffects : List (Effects Action)
@@ -101,11 +104,20 @@ update action model =
             User.UpdateDataFromServer result ->
               case result of
                 Ok _ ->
-                  -- User was successfully logged in, so we can redirect to the
-                  -- events page.
-                  ( model'
-                  , (Task.succeed (SetActivePage <| Event Nothing) |> Effects.task) :: defaultEffects
-                  )
+                  let
+                    nextPage =
+                      case model.nextPage of
+                        Just page ->
+                          page
+                        Nothing ->
+                          Event
+
+                  in
+                    -- User was successfully logged in, so we can redirect to the
+                    -- events page.
+                    ( { model' | nextPage <- Nothing }
+                    , (Task.succeed (SetActivePage nextPage) |> Effects.task) :: defaultEffects
+                    )
 
                 Err _ ->
                   ( model'
@@ -129,6 +141,11 @@ update action model =
 
     SetActivePage page ->
       let
+        (page', nextPage) =
+          if model.user.name == Anonymous
+            then (User, Just page)
+            else (page, Nothing)
+
         currentPageEffects =
           case model.activePage of
             User ->
@@ -138,7 +155,7 @@ update action model =
               Task.succeed (ChildEventAction Event.Deactivate) |> Effects.task
 
         newPageEffects =
-          case page of
+          case page' of
             User ->
               Task.succeed (ChildUserAction User.Activate) |> Effects.task
 
@@ -146,12 +163,17 @@ update action model =
               Task.succeed (ChildEventAction <| Event.Activate maybeCompanyId) |> Effects.task
 
       in
-        if model.activePage == page
+        if model.activePage == page'
           then
             -- Requesting the same page, so don't do anything.
-            (model, Effects.none)
+            -- @todo: Because login and myAccount are under the same page (User)
+            -- we set the nextPage here as-well.
+            ( { model | nextPage <- nextPage }, Effects.none)
           else
-            ( { model | activePage <- page}
+            ( { model
+              | activePage <- page'
+              , nextPage <- nextPage
+              }
             , Effects.batch
               [ currentPageEffects
               , newPageEffects
@@ -170,6 +192,7 @@ view address model =
   div []
     [ (navbar address model)
     , (mainContent address model)
+    , footer
     ]
 
 mainContent : Signal.Address Action -> Model -> Html
@@ -181,12 +204,6 @@ mainContent address model =
           Signal.forwardTo address ChildUserAction
       in
         div [ style myStyle ] [ User.view childAddress model.user ]
-
-    MyAccount ->
-      let
-        model' = { model | activePage <- User }
-      in
-      view address model'
 
     Event companyId ->
       let
@@ -204,12 +221,30 @@ navbar address model =
     LoggedIn name ->
       navbarLoggedIn address model
 
+footer : Html
+footer =
+
+  div [class "footer"]
+    [ div [class "container"]
+        [ span []
+            [ text "With ♥ from "
+            , a [href "http://gizra.com", target "_blank"] [text "gizra"]
+            , text " | "
+            , text "Fork me on "
+            , a [href "https://github.com/Gizra/elm-hedley", target "_blank"] [text "GitHub"]
+            ]
+        ]
+    ]
+
 -- Navbar for Auth user.
 navbarLoggedIn : Signal.Address Action -> Model -> Html
 navbarLoggedIn address model =
   let
     childAddress =
       Signal.forwardTo address ChildUserAction
+
+    hrefVoid =
+      href "javascript:void(0);"
   in
     node "nav" [class "navbar navbar-default"]
       [ div [class "container-fluid"]
@@ -217,9 +252,9 @@ navbarLoggedIn address model =
           [ div [class "navbar-header"] []
           , div [ class "collapse navbar-collapse"]
               [ ul [class "nav navbar-nav"]
-                [ li [] [ a [ href "#", onClick address (SetActivePage User) ] [ text "My account"] ]
-                , li [] [ a [ href "#", onClick address (SetActivePage <| Event Nothing)] [ text "Events"] ]
-                , li [] [ a [ href "#", onClick childAddress User.Logout] [ text "Logout"] ]
+                [ li [] [ a [ hrefVoid, onClick address (SetActivePage User) ] [ text "My account"] ]
+                , li [] [ a [ hrefVoid, onClick address (SetActivePage <| Event Nothing)] [ text "Events"] ]
+                , li [] [ a [ hrefVoid, onClick childAddress User.Logout] [ text "Logout"] ]
                 ]
               ]
           ]
@@ -227,7 +262,45 @@ navbarLoggedIn address model =
 
 myStyle : List (String, String)
 myStyle =
-    [ ("padding", "10px")
-    , ("margin", "50px")
-    , ("font-size", "2em")
-    ]
+  [ ("font-size", "1.2em") ]
+
+
+-- ROUTING
+
+delta2update : Model -> Model -> Maybe HashUpdate
+delta2update previous current =
+  case current.activePage of
+    Event ->
+      -- First, we ask the submodule for a HashUpdate. Then, we use
+      -- `map` to prepend something to the URL.
+      RouteHash.map ((::) "events") <|
+        Event.delta2update previous.events current.events
+
+    User ->
+      let
+        url =
+          if current.user.name == Anonymous then "login" else "my-account"
+      in
+        RouteHash.map ((::) url) <|
+          User.delta2update previous.user current.user
+
+
+-- Here, we basically do the reverse of what delta2update does
+location2action : List String -> List Action
+location2action list =
+  case list of
+    "login" :: rest ->
+      ( SetActivePage User ) :: []
+
+    "my-account" :: rest ->
+      ( SetActivePage User ) :: []
+
+    "events" :: rest ->
+      ( SetActivePage Event ) :: []
+
+    "" :: rest ->
+      ( SetActivePage Event ) :: []
+
+    _ ->
+      -- @todo: Add 404
+      ( SetActivePage User ) :: []

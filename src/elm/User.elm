@@ -9,6 +9,7 @@ import Html.Events exposing (on, onClick, targetValue)
 import Http
 import Json.Decode as Json exposing ((:=))
 import Login exposing (..)
+import RouteHash exposing (HashUpdate)
 import Storage exposing (removeItem)
 import String exposing (length)
 import Task
@@ -22,10 +23,16 @@ type alias AccessToken = String
 
 type User = Anonymous | LoggedIn String
 
+type Status =
+  Init
+  | Fetching
+  | Fetched
+  | HttpError Http.Error
+
 type alias Model =
   { name : User
   , id : Id
-  , isFetching : Bool
+  , status : Status
   , accessToken : AccessToken
 
   -- Child components
@@ -36,7 +43,15 @@ type alias Model =
 
 initialModel : Model
 initialModel =
-  Model Anonymous 0 False "" Login.initialModel [Company.initialModel]
+  { name = Anonymous
+  , id = 0
+  , status = Init
+  , accessToken = ""
+
+  -- Child components
+  , loginModel = Login.initialModel
+  , companies = [Company.initialModel]
+  }
 
 init : (Model, Effects Action)
 init =
@@ -64,8 +79,57 @@ type Action
   | Deactivate
 
 
+
 type alias Context =
   { companies : List Company.Model}
+
+update : Action -> Model -> (Model, Effects Action)
+update action model =
+  case action of
+    NoOp _ ->
+      (model, Effects.none)
+
+    GetDataFromServer ->
+      let
+        url : String
+        url = Config.backendUrl ++ "/api/v1.0/me"
+      in
+        if model.status == Fetching || model.status == Fetched
+          then
+            (model, Effects.none)
+          else
+            ( { model | status <- Fetching}
+            , getJson url model.loginModel.accessToken
+            )
+
+    UpdateDataFromServer result ->
+      let
+        model' =
+          { model | status <- Fetched}
+      in
+        case result of
+          Ok (id, name, companies) ->
+            ( {model'
+                | id <- id
+                , name <- LoggedIn name
+                , companies <- companies
+              }
+            , Effects.none
+            )
+          Err msg ->
+            ( { model' | status <- HttpError msg }
+            , Effects.none
+            )
+
+    ChildLoginAction act ->
+      let
+        (childModel, childEffects) = Login.update act model.loginModel
+
+        defaultEffects =
+          [ Effects.map ChildLoginAction childEffects ]
+
+        getDataFromServerEffects =
+          (Task.succeed GetDataFromServer |> Effects.task) :: defaultEffects
 
 
 update : Action -> Model -> (Model, Effects Action, Context)
@@ -210,11 +274,11 @@ view address model =
         italicName =
           em [] [text name]
       in
-      div []
-        [ div [] [ text "Welcome ", italicName ]
-        , div [] [ text "Your companies are:"]
-        , ul  [] (List.map viewCompanies model.companies)
-        ]
+        div [class "container"]
+          [ div [] [ text "Welcome ", italicName ]
+          , div [] [ text "Your companies are:"]
+          , ul  [] (List.map viewCompanies model.companies)
+          ]
 
 viewCompanies : Company.Model -> Html
 viewCompanies company =
@@ -228,13 +292,7 @@ getJson url accessToken =
   let
     encodedUrl = Http.url url [ ("access_token", accessToken) ]
   in
-    Http.send Http.defaultSettings
-      { verb = "GET"
-      , headers = []
-      , url = encodedUrl
-      , body = Http.empty
-      }
-      |> Http.fromJson decodeData
+    Http.get decodeData encodedUrl
       |> Task.toResult
       |> Task.map UpdateDataFromServer
       |> Effects.task
@@ -258,3 +316,13 @@ decodeData =
       ("id" := number)
       ("label" := Json.string)
       ("companies" := Json.list company)
+
+-- ROUTER
+
+delta2update : Model -> Model -> Maybe HashUpdate
+delta2update previous current =
+  Just <| RouteHash.set []
+
+location2action : List String -> List Action
+location2action list =
+  []
