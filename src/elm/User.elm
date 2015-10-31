@@ -83,66 +83,19 @@ type Action
 type alias Context =
   { companies : List Company.Model}
 
-update : Action -> Model -> (Model, Effects Action)
-update action model =
-  case action of
-    NoOp _ ->
-      (model, Effects.none)
-
-    GetDataFromServer ->
-      let
-        url : String
-        url = Config.backendUrl ++ "/api/v1.0/me"
-      in
-        if model.status == Fetching || model.status == Fetched
-          then
-            (model, Effects.none)
-          else
-            ( { model | status <- Fetching}
-            , getJson url model.loginModel.accessToken
-            )
-
-    UpdateDataFromServer result ->
-      let
-        model' =
-          { model | status <- Fetched}
-      in
-        case result of
-          Ok (id, name, companies) ->
-            ( {model'
-                | id <- id
-                , name <- LoggedIn name
-                , companies <- companies
-              }
-            , Effects.none
-            )
-          Err msg ->
-            ( { model' | status <- HttpError msg }
-            , Effects.none
-            )
-
-    ChildLoginAction act ->
-      let
-        (childModel, childEffects) = Login.update act model.loginModel
-
-        defaultEffects =
-          [ Effects.map ChildLoginAction childEffects ]
-
-        getDataFromServerEffects =
-          (Task.succeed GetDataFromServer |> Effects.task) :: defaultEffects
-
 
 update : Action -> Model -> (Model, Effects Action, Context)
 update action model =
   let
-    context = { companies = []}
+    context =
+      { companies = []}
+
+    noFx =
+      ( model, Effects.none, context )
   in
     case action of
       NoOp _ ->
-        ( model
-        , Effects.none
-        , context
-        )
+        noFx
 
       GetDataFromServer ->
         let
@@ -219,16 +172,10 @@ update action model =
         )
 
       Activate ->
-        ( model
-        , Effects.none
-        , context
-        )
+        noFx
 
       Deactivate ->
-        ( model
-        , Effects.none
-        , context
-        )
+        noFx
 
 
 -- Determines if a call to the server should be done, based on having an access
