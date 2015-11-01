@@ -1,45 +1,40 @@
 // Source: http://codepen.io/ace-subido/pen/Cuiep
 .form-signin {
   max-width: 380px;
-  padding: 15px 35px 45px;
+  padding: 15px;
   margin: 0 auto;
   background-color: #fff;
   border: 1px solid rgba(0,0,0,0.1);
 
-  .form-signin-heading,
-	.checkbox {
-	  margin-bottom: 30px;
-	}
-
-  .form-signin-heading,
-  button {
-    font-family: 'Droid Serif', arial, sans-serif;
+  h2 {
+    margin-top: 0px;
+    margin-bottom: 20px;
   }
 
-	.checkbox {
-	  font-weight: normal;
-	}
+  .input-group,
+  .input-group-addon,
+  .form-control,
+  .btn {
+    border-radius: 0px;
+  }
 
-	.form-control {
-	  position: relative;
-	  font-size: 16px;
-	  height: auto;
-	  padding: 10px;
+  .input-group {
+    margin-bottom: 15px;
 
-		&:focus {
-		  z-index: 2;
-		}
-	}
+    .input-group-addon {
+      min-width: 45px;
 
-	input[type="text"] {
-	  margin-bottom: -1px;
-	  border-bottom-left-radius: 0;
-	  border-bottom-right-radius: 0;
-	}
+      .form-control {
+        border-radius: 0px;
+        position: relative;
+        font-size: 16px;
+        height: auto;
+        padding: 10px;
 
-	input[type="password"] {
-	  margin-bottom: 20px;
-	  border-top-left-radius: 0;
-	  border-top-right-radius: 0;
-	}
+        &:focus {
+          z-index: 2;
+        }
+      }
+    }
+  }
 }

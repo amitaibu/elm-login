@@ -192,22 +192,35 @@ view address model =
         -- storage.
         , hidden model.hasAccessTokenInStorage
         ]
-        [ h2 [ class "form-signin-heading"] [text "Please login"]
-         , div
+        -- Form title
+        [ h2 [] [ text "Please login" ]
+        -- UserName
+        , div
           [ class "input-group"]
-          [ input
-           [ type' "text"
-           , class "form-control"
-           , placeholder "Name"
-           , value model.loginForm.name
-           , on "input" targetValue (Signal.message address << UpdateName)
-           , size 40
-           , required True
+          [ span
+            [ class "input-group-addon"]
+            [ i [ class "fa fa-user"] []
+          ]
+          , input
+            [ type' "text"
+            , class "form-control"
+            , placeholder "Name"
+            , value model.loginForm.name
+            , on "input" targetValue (Signal.message address << UpdateName)
+            , size 40
+            , required True
+            ]
+            []
            ]
-           []
-           ]
+        -- UserName
+        , div
+          [ class "input-group"]
+          [ span
+            [ class "input-group-addon"]
+            [ i [ class "fa fa-key"] []
+          ]
         -- Password
-        , input
+          , input
             [ type' "password"
             , class "form-control"
             , placeholder "Password"
@@ -217,6 +230,7 @@ view address model =
             , required True
             ]
             []
+           ]
         , button
             [ onClick address SubmitForm
             , class "btn btn-lg btn-primary btn-block"
