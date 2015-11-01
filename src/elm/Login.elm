@@ -193,16 +193,19 @@ view address model =
         , hidden model.hasAccessTokenInStorage
         ]
         [ h2 [ class "form-signin-heading"] [text "Please login"]
-        , input
-            [ type' "text"
-            , class "form-control"
-            , placeholder "Name"
-            , value model.loginForm.name
-            , on "input" targetValue (Signal.message address << UpdateName)
-            , size 40
-            , required True
-            ]
-            []
+         , div
+          [ class "input-group"]
+          [ input
+           [ type' "text"
+           , class "form-control"
+           , placeholder "Name"
+           , value model.loginForm.name
+           , on "input" targetValue (Signal.message address << UpdateName)
+           , size 40
+           , required True
+           ]
+           []
+           ]
         -- Password
         , input
             [ type' "password"
