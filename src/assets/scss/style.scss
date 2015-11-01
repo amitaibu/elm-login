@@ -6,3 +6,11 @@ body {
   font-family: 'Roboto Condensed', arial, sans-serif;
   background: $main-bg;
 }
+
+hr {
+  display: block;
+  margin: 11px 0px;
+  height: 1px;
+  border-bottom: 1px solid rgb(218, 217, 209);
+  background: #EAE9E3;
+}

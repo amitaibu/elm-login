@@ -1,14 +1,21 @@
 // Source: http://codepen.io/ace-subido/pen/Cuiep
 .form-signin {
-  max-width: 380px;
+  margin: 200px auto 0px auto;
   padding: 15px;
-  margin: 0 auto;
-  background-color: #fff;
+  max-width: 380px;
+  color: white;
+  background: $dark-gray;
   border: 1px solid rgba(0,0,0,0.1);
 
   h2 {
     margin-top: 0px;
     margin-bottom: 20px;
+  }
+
+  .btn,
+  .input-group-addon {
+    color: white;
+    border: none;
   }
 
   .input-group,
@@ -18,11 +25,17 @@
     border-radius: 0px;
   }
 
+  .btn {
+    background: $blue;
+  }
+
   .input-group {
     margin-bottom: 15px;
 
     .input-group-addon {
       min-width: 45px;
+      background: $light-gray;
+
 
       .form-control {
         border-radius: 0px;
