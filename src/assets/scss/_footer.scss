@@ -1,15 +1,19 @@
-html {
-  position: relative;
-  min-height: 100%;
-}
-
-.footer {
+#main-footer {
   position: absolute;
   bottom: 0;
   width: 100%;
-  padding: 18px;
+  padding: 13px;
   border-top: 7px solid white;
   color: white;
   background-color: $dark-gray;
+  font-size: 17px;
   text-align: center;
+
+  a {
+    text-decoration: none;
+    &:not(.gizra-logo),
+    &:not(.gizra-logo):hover {
+      color: inherit;
+    }
+  }
 }
