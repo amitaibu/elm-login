@@ -1,5 +1,10 @@
+.wrapper {
+  margin: 30% auto 0px auto;
+  max-width: 380px;
+}
+
 .form-signin {
-  margin: 200px auto 0px auto;
+  margin: auto 0px;
   padding: 15px;
   max-width: 380px;
   color: white;
@@ -9,6 +14,7 @@
   h2 {
     margin-top: 0px;
     margin-bottom: 20px;
+    text-transform: capitalize;
   }
 
   .btn,
@@ -34,7 +40,6 @@
     .input-group-addon {
       min-width: 45px;
       background: $light-gray;
-
 
       .form-control {
         border-radius: 0px;
