@@ -245,7 +245,7 @@ view address model =
               [ loginText ]
             ]
              , div
-               [ class "loader text-center"
+               [ class "text-center"
                , hidden (not (model.status == Fetching) && not model.hasAccessTokenInStorage) ]
                [ text "Loading ..." ]
           ]
