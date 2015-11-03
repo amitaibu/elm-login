@@ -176,14 +176,14 @@ view address model =
     modelForm =
       model.loginForm
 
-    isFormEmpty =
-      String.isEmpty modelForm.name && String.isEmpty modelForm.pass
+    isFormDirty =
+       String.isEmpty modelForm.name || String.isEmpty modelForm.pass
 
     isFetchStatus =
       model.status == Fetching || model.status == Fetched
 
     loginText =
-      if isFetchStatus && not (isFormEmpty)
+      if isFetchStatus
         then i [ class "fa fa-spinner fa-spin" ] []
         else span [] [text "Login"]
 
@@ -217,6 +217,7 @@ view address model =
                 , on "input" targetValue (Signal.message address << UpdateName)
                 , size 40
                 , required True
+                , disabled (isFetchStatus)
                 ]
                 []
                ]
@@ -235,6 +236,7 @@ view address model =
                 , on "input" targetValue (Signal.message address << UpdatePass)
                 , size 40
                 , required True
+                , disabled (isFetchStatus)
                 ]
                 []
                ]
@@ -242,7 +244,7 @@ view address model =
             , button
               [ onClick address SubmitForm
               , class "btn btn-lg btn-primary btn-block"
-              , disabled (isFetchStatus || String.isEmpty modelForm.name || String.isEmpty modelForm.pass)
+              , disabled (isFetchStatus || isFormDirty)
               ]
               [ loginText ]
             ]
