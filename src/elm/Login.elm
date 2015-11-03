@@ -176,10 +176,14 @@ view address model =
     modelForm =
       model.loginForm
 
-    isStatus = model.status == Fetching || model.status == Fetched
+    isFormEmpty =
+      String.isEmpty modelForm.name && String.isEmpty modelForm.pass
+
+    isFetchStatus =
+      model.status == Fetching || model.status == Fetched
 
     loginText =
-      if isStatus && not (String.isEmpty modelForm.name && String.isEmpty modelForm.pass)
+      if isFetchStatus && not (isFormEmpty)
         then i [ class "fa fa-spinner fa-spin" ] []
         else span [] [text "Login"]
 
@@ -238,7 +242,7 @@ view address model =
             , button
               [ onClick address SubmitForm
               , class "btn btn-lg btn-primary btn-block"
-              , disabled (isStatus || String.isEmpty modelForm.name || String.isEmpty modelForm.pass)
+              , disabled (isFetchStatus || String.isEmpty modelForm.name || String.isEmpty modelForm.pass)
               ]
               [ loginText ]
             ]
