@@ -176,16 +176,11 @@ view address model =
     modelForm =
       model.loginForm
 
-    isFormDirty =
-       String.isEmpty modelForm.name || String.isEmpty modelForm.pass
+    isFormEmpty =
+      String.isEmpty modelForm.name || String.isEmpty modelForm.pass
 
     isFetchStatus =
       model.status == Fetching || model.status == Fetched
-
-    loginText =
-      if isFetchStatus
-        then i [ class "fa fa-spinner fa-spin" ] []
-        else span [] [text "Login"]
 
   in
     div [ id "login-page" ] [
@@ -244,9 +239,19 @@ view address model =
             , button
               [ onClick address SubmitForm
               , class "btn btn-lg btn-primary btn-block"
-              , disabled (isFetchStatus || isFormDirty)
+              , disabled (isFetchStatus || isFormEmpty)
               ]
-              [ loginText ]
+              [ i
+                [ classList
+                  [ ("hidden", not (isFetchStatus))
+                  , ("fa", True)
+                  , ("fa-spinner", True)
+                  , ("fa-spin", True)
+                  ]
+                ]
+                []
+                , span [ hidden isFetchStatus ] [ text "Login" ]
+              ]
             ]
             , div
               [ class "text-center"
