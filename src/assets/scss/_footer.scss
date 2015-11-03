@@ -1,7 +1,8 @@
 .main-footer {
   position: absolute;
-  bottom: 0;
-  width: 100%;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
   padding: 9px;
   border-top: 7px solid white;
   color: white;
@@ -9,10 +10,27 @@
   font-size: 15px;
   text-align: center;
 
+  &:before {
+    content: "";
+    position: absolute;
+    width: 100%;
+    left: 0px;
+    top: -7px;
+    border-top: 1px solid #C8C8CB;
+  }
+
+  .divider {
+    color: rgba(255, 255, 255, 0.38);
+    display: inline-block;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
   a {
     color: white;
 
     &.gizra-logo  {
+      padding-left: 2px;
       font-size: 17px;
     }
   }

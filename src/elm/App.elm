@@ -239,12 +239,12 @@ footer =
         , i [ class "fa fa-heart" ] []
         , text " from "
         , a [ href "http://gizra.com", target "_blank", class "gizra-logo" ] [text "gizra"]
-        , text " | "
+        , span [ class "divider" ] [text "|"]
         , text "Fork me on "
         , a [href "https://github.com/Gizra/elm-hedley", target "_blank"] [text "Github"]
         ]
       ]
-    ]
+  ]
 
 -- Navbar for Auth user.
 navbarLoggedIn : Signal.Address Action -> Model -> Html
