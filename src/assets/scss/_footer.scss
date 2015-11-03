@@ -1,19 +1,23 @@
-#main-footer {
+.main-footer {
   position: absolute;
   bottom: 0;
   width: 100%;
-  padding: 13px;
+  padding: 9px;
   border-top: 7px solid white;
   color: white;
   background-color: $dark-gray;
-  font-size: 17px;
+  font-size: 15px;
   text-align: center;
 
   a {
-    text-decoration: none;
-    &:not(.gizra-logo),
-    &:not(.gizra-logo):hover {
-      color: inherit;
+    color: white;
+
+    &.gizra-logo  {
+      font-size: 17px;
     }
+  }
+
+  i.fa.fa-heart {
+    font-size: 14px;
   }
 }

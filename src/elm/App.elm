@@ -232,14 +232,16 @@ navbar address model =
 footer : Html
 footer =
 
-  div [id "main-footer"]
+  div [class "main-footer"]
     [ div [class "container"]
       [ span []
-        [ text "With ♥ from "
+        [ text "With "
+        , i [ class "fa fa-heart" ] []
+        , text " from "
         , a [ href "http://gizra.com", target "_blank", class "gizra-logo" ] [text "gizra"]
         , text " | "
         , text "Fork me on "
-        , a [href "https://github.com/Gizra/elm-hedley", target "_blank", class "fa fa-github"] []
+        , a [href "https://github.com/Gizra/elm-hedley", target "_blank"] [text "Github"]
         ]
       ]
     ]
