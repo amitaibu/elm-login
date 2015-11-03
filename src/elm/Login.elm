@@ -176,14 +176,12 @@ view address model =
     modelForm =
       model.loginForm
 
-    disabledButton =
-      String.isEmpty modelForm.name || String.isEmpty modelForm.pass || model.status == Fetching || model.status == Fetched
+    disabledButton = model.status == Fetching || model.status == Fetched
 
     loginText =
-      if disabledButton
+      if disabledButton && not (String.isEmpty modelForm.name && String.isEmpty modelForm.pass)
         then i [ class "fa fa-spinner fa-spin" ] []
         else span [] [text "Login"]
-
 
   in
     div [ id "login-page" ] [
