@@ -244,10 +244,10 @@ view address model =
               ]
               [ loginText ]
             ]
-             , div
-               [ class "text-center"
-               , hidden (not (model.status == Fetching) && not model.hasAccessTokenInStorage) ]
-               [ text "Loading ..." ]
+            , div
+              [ class "text-center"
+              , hidden (not (model.status == Fetching) && not model.hasAccessTokenInStorage) ]
+              [ text "Loading ..." ]
           ]
         ]
         , hr [] []
