@@ -241,16 +241,10 @@ view address model =
               , class "btn btn-lg btn-primary btn-block"
               , disabled (isFetchStatus || isFormEmpty)
               ]
-              [ i
-                [ classList
-                  [ ("hidden", not (isFetchStatus))
-                  , ("fa", True)
-                  , ("fa-spinner", True)
-                  , ("fa-spin", True)
-                  ]
-                ]
-                []
-                , span [ hidden isFetchStatus ] [ text "Login" ]
+              [ span
+                [ hidden (not (isFetchStatus)) ]
+                [ i [ class "fa fa-spinner fa-spin" ] [] ]
+              , span [ hidden isFetchStatus ] [ text "Login" ]
               ]
             ]
             , div
