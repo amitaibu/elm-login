@@ -182,6 +182,9 @@ view address model =
     isFetchStatus =
       model.status == Fetching || model.status == Fetched
 
+    spinner =
+      i [ class "fa fa-spinner fa-spin" ] []
+
   in
     div [ id "login-page" ] [
       hr [] []
@@ -241,11 +244,8 @@ view address model =
               , class "btn btn-lg btn-primary btn-block"
               , disabled (isFetchStatus || isFormEmpty)
               ]
-              [ span
-                [ hidden (not (isFetchStatus)) ]
-                [ i [ class "fa fa-spinner fa-spin" ] [] ]
-              , span [ hidden isFetchStatus ] [ text "Login" ]
-              ]
+            [ span [ hidden <| not isFetchStatus] [ spinner ]
+            , span [ hidden isFetchStatus ] [ text "Login" ] ]
             ]
             , div
               [ class "text-center"
