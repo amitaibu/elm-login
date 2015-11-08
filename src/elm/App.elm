@@ -1,13 +1,14 @@
 module App where
 
 
-import Company exposing (..)
-import Effects exposing (Effects, Never)
-import Event exposing (..)
-import Html exposing (..)
-import Html.Attributes exposing (..)
+import Company exposing (Model)
+import Effects exposing (Effects)
+import Event exposing (Model, initialModel, update)
+import Html exposing (a, div, i, li, node, span, text, ul, Html)
+import Html.Attributes exposing (class, href, style, target)
 import Html.Events exposing (onClick)
 import Login exposing (Model, initialModel, update)
+import PageNotFound exposing (view)
 import RouteHash exposing (HashUpdate)
 import Storage exposing (removeItem)
 import Task exposing (..)
@@ -23,6 +24,7 @@ type alias CompanyId = Int
 type Page
   = Event (Maybe CompanyId)
   | Login
+  | PageNotFound
   | User
 
 type alias Model =
@@ -216,6 +218,9 @@ update action model =
             Login ->
               Task.succeed (ChildLoginAction Login.Deactivate) |> Effects.task
 
+            PageNotFound ->
+              Effects.none
+
             User ->
               Task.succeed (ChildUserAction User.Deactivate) |> Effects.task
 
@@ -228,6 +233,9 @@ update action model =
 
             Login ->
               Task.succeed (ChildLoginAction Login.Activate) |> Effects.task
+
+            PageNotFound ->
+              Effects.none
 
             User ->
               Task.succeed (ChildUserAction User.Activate) |> Effects.task
@@ -293,6 +301,10 @@ mainContent address model =
           Signal.forwardTo address ChildLoginAction
       in
         div [ style myStyle ] [ Login.view childAddress model.login ]
+
+    PageNotFound ->
+      div [] [ PageNotFound.view ]
+
 
     User ->
       let
@@ -371,6 +383,11 @@ delta2update previous current =
       RouteHash.map ((::) "login") <|
         Login.delta2update previous.login current.login
 
+    -- @todo: Fix this logic
+    PageNotFound ->
+      RouteHash.map ((::) "login") <|
+        Login.delta2update previous.login current.login
+
     User ->
       RouteHash.map ((::) "my-account") <|
         User.delta2update previous.user current.user
@@ -394,4 +411,4 @@ location2action list =
 
     _ ->
       -- @todo: Add 404
-      ( SetActivePage Login ) :: []
+      ( SetActivePage PageNotFound ) :: []
