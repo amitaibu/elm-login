@@ -385,8 +385,7 @@ delta2update previous current =
 
     -- @todo: Fix this logic
     PageNotFound ->
-      RouteHash.map ((::) "login") <|
-        Login.delta2update previous.login current.login
+      Nothing
 
     User ->
       RouteHash.map ((::) "my-account") <|
