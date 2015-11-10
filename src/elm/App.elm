@@ -369,10 +369,14 @@ delta2update previous current =
         Event.delta2update previous.events current.events
 
     Login ->
-      RouteHash.map ((::) "login") <|
-        Login.delta2update previous.login current.login
+      if current.login.hasAccessTokenInStorage
+        -- The user has access token, but not yet logged in, so we don't change
+        -- the url to "login", as we are just waiting for the server to fetch
+        -- the user info.
+        then Nothing
+        else RouteHash.map ((::) "login") <| Login.delta2update previous.login current.login
 
-    -- @todo: Fix this logic
+
     PageNotFound ->
       Nothing
 
