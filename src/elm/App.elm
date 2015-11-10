@@ -346,7 +346,7 @@ navbarLoggedIn address model =
                 [ li [] [ a [ hrefVoid, onClick address (SetActivePage User) ] [ text "My account"] ]
                 , li [] [ a [ hrefVoid, onClick address (SetActivePage <| Event Nothing)] [ text "Events"] ]
                 , li [] [ a [ hrefVoid, onClick address Logout] [ text "Logout"] ]
-                , li [] [ a [ href "/#!/error-page"] [ text "404"] ]
+                , li [] [ a [ href "/#!/error-page"] [ text "PageNotFound (404)"] ]
                 ]
               ]
           ]
@@ -402,5 +402,4 @@ location2action list =
       ( SetActivePage <| Event Nothing ) :: []
 
     _ ->
-      -- @todo: Add 404
       ( SetActivePage PageNotFound ) :: []
