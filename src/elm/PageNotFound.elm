@@ -3,9 +3,6 @@ module PageNotFound where
 import Html exposing (a, div, h2, text, Html)
 import Html.Attributes exposing (class, href, style)
 
-import Debug
-
-
 -- VIEW
 
 view : Html
