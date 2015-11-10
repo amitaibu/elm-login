@@ -194,13 +194,26 @@ update action model =
         (page', nextPage) =
           if model.user.name == Anonymous
             then
-              if page == Login
-                -- If the user is anonymous and we are asked to set the  active
-                -- page to login, then we make sure that the next page doesn't
+              case page of
+                -- When the page is not found, we should keep the URL as is,
+                -- and even after the user info was fetched, we should keep it
+                -- so we set the next Page also to the error page.
+                PageNotFound ->
+                  (page, Just page)
+
+                -- The user is anonymous and we are asked to set the active page
+                -- to login, then we make sure that the next page doesn't
                 -- change, so they won't be rediected back to the login page.
-                then (Login, model.nextPage)
-                else (Login, Just page)
-            else (page, Nothing)
+                Login ->
+                  (Login, model.nextPage)
+
+                _ ->
+                  (Login, Just page)
+
+              -- Authenticated user.
+              else (page, Nothing)
+
+        d = Debug.log "SetActivePage" page'
 
         currentPageEffects =
           case model.activePage of
@@ -335,6 +348,7 @@ navbarLoggedIn address model =
                 [ li [] [ a [ hrefVoid, onClick address (SetActivePage User) ] [ text "My account"] ]
                 , li [] [ a [ hrefVoid, onClick address (SetActivePage <| Event Nothing)] [ text "Events"] ]
                 , li [] [ a [ hrefVoid, onClick address Logout] [ text "Logout"] ]
+                , li [] [ a [ href "/#!/error-page"] [ text "404"] ]
                 ]
               ]
           ]
