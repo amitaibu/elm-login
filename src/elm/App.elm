@@ -51,15 +51,7 @@ initialModel =
 
 initialEffects : List (Effects Action)
 initialEffects =
-  let
-    eventEffects = snd Event.init
-    loginEffects = snd Login.init
-    userEffects = snd User.init
-  in
-    [ Effects.map ChildEventAction eventEffects
-    , Effects.map ChildLoginAction loginEffects
-    , Effects.map ChildUserAction userEffects
-    ]
+  [ Effects.map ChildLoginAction <| snd Login.init ]
 
 init : (Model, Effects Action)
 init =
@@ -215,31 +207,16 @@ update action model =
             Event companyId ->
               Task.succeed (ChildEventAction Event.Deactivate) |> Effects.task
 
-            Login ->
-              Task.succeed (ChildLoginAction Login.Deactivate) |> Effects.task
-
-            PageNotFound ->
+            _ ->
               Effects.none
-
-            User ->
-              Task.succeed (ChildUserAction User.Deactivate) |> Effects.task
-
-
 
         newPageEffects =
           case page' of
             Event companyId ->
               Task.succeed (ChildEventAction <| Event.Activate Nothing) |> Effects.task
 
-            Login ->
-              Task.succeed (ChildLoginAction Login.Activate) |> Effects.task
-
-            PageNotFound ->
+            _ ->
               Effects.none
-
-            User ->
-              Task.succeed (ChildUserAction User.Activate) |> Effects.task
-
 
       in
         if model.activePage == page'
