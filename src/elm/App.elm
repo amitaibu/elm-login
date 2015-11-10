@@ -213,8 +213,6 @@ update action model =
               -- Authenticated user.
               else (page, Nothing)
 
-        d = Debug.log "SetActivePage" page'
-
         currentPageEffects =
           case model.activePage of
             Event companyId ->
