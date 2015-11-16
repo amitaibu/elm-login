@@ -3,10 +3,10 @@ module Config where
 import Time exposing (Time)
 
 backendUrl : String
-backendUrl = "https://dev-hedley.pantheon.io"
+backendUrl = "http://localhost/hedley-server/www"
 
 cacheTtl : Time.Time
 cacheTtl = (5 * Time.second)
 
 githubClientId : String
-githubClientId = "e9fe6d8d6185db84d5a7"
+githubClientId = "e5661c832ed931ae176c"

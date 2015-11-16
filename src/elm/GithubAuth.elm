@@ -3,12 +3,11 @@ module GithubAuth where
 import Config exposing (backendUrl)
 import Dict exposing (get)
 import Effects exposing (Effects)
-import Html exposing (..)
-import Html.Attributes exposing (..)
+import Html exposing (a, div, i, text, Html)
+import Html.Attributes exposing (class, href, id)
 import Http exposing (Error)
 import Json.Decode as JD exposing ((:=))
 import Json.Encode as JE exposing (..)
-import RouteHash exposing (HashUpdate)
 import Task
 import UrlParameterParser exposing (ParseResult, parseSearchString)
 import WebAPI.Location exposing (location)
@@ -103,6 +102,7 @@ view address model =
             [text <| "Error:" ++ msg
             , a [ href "#!/login"] [text "Back to Login"]
             ]
+
         _ ->
           spinner
 
@@ -119,6 +119,7 @@ getCodeFromUrl =
   let
     errAction =
       SetError "code property is missing form URL."
+
     getAction location =
       case (parseSearchString location.search) of
         UrlParameterParser.UrlParams dict ->
