@@ -5,7 +5,8 @@
     "license": "BSD3",
     "source-directories": [
         "src/elm",
-        "src/vendor/elm-storage/src"
+        "src/vendor/elm-storage/src",
+        "src/vendor/elm-web-api/src"
     ],
     "exposed-modules": [],
     "native-modules": true,
