@@ -53,10 +53,10 @@ localBackend =
 
 prodBackend : BackendConfig
 prodBackend =
-  { backendUrl = "http://localhost/hedley-server/www"
-  , githubClientId = "e5661c832ed931ae176c"
-  , name = "prod"
-  , hostname = "prod"
+  { backendUrl = "https://live-hedley-elm.pantheon.io"
+  , githubClientId = "4aef0ced83d72bd48d00"
+  , name = "gh-pages"
+  , hostname = "gizra.github.io"
   }
 
 backends : List BackendConfig
