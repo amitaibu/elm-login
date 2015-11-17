@@ -5,13 +5,12 @@ import Task exposing (map)
 import Time exposing (Time)
 import WebAPI.Location exposing (location)
 
-
 type alias BackendConfig =
   { backendUrl : String
   , githubClientId : String
   , name : String
   -- Url information
-  , host : String
+  , hostname : String
   }
 
 initialBackendConfig : BackendConfig
@@ -19,7 +18,7 @@ initialBackendConfig =
   { backendUrl = ""
   , githubClientId = ""
   , name = ""
-  , host = ""
+  , hostname = ""
   }
 
 
@@ -49,7 +48,7 @@ localBackend =
   { backendUrl = "http://localhost/hedley-server/www"
   , githubClientId = "e5661c832ed931ae176c"
   , name = "local"
-  , host = "localhost"
+  , hostname = "localhost"
   }
 
 prodBackend : BackendConfig
@@ -57,7 +56,7 @@ prodBackend =
   { backendUrl = "http://localhost/hedley-server/www"
   , githubClientId = "e5661c832ed931ae176c"
   , name = "prod"
-  , host = "localhost"
+  , hostname = "localhost"
   }
 
 backends : List BackendConfig
@@ -94,11 +93,15 @@ update action model =
 getConfigFromUrl : Effects Action
 getConfigFromUrl =
   let
-    errAction =
-      SetStatus Error
-
     getAction location =
-      SetConfig localBackend
+      let
+        config =
+          List.filter (\backend -> backend.hostname == location.hostname) backends
+          |> List.head
+      in
+        case config of
+          Just val -> SetConfig val
+          Nothing -> SetStatus Error
 
     actionTask =
       Task.map getAction WebAPI.Location.location
