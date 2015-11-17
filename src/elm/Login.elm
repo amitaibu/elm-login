@@ -198,10 +198,16 @@ view address model =
       model.status == Fetching || model.status == Fetched
 
     githubUrl =
-      "https://github.com/login/oauth/authorize?client_id=" ++ Config.githubClientId ++ "&scope=user:email" 
+      "https://github.com/login/oauth/authorize?client_id=" ++ Config.githubClientId ++ "&scope=user:email"
 
     githubLogin =
-      div [] [ a [ href githubUrl] [ text "Login with GitHub"] ]
+      div
+      []
+      [ i
+        [ class "fa fa-github"]
+        [ a [ href githubUrl] [ text "Login with GitHub"]
+        ]
+      ]
 
     loginForm =
       Html.form
@@ -217,6 +223,7 @@ view address model =
         [ h2 [] [ text "Please login" ]
         -- UserName
         , githubLogin
+        , div [] [ text "OR" ]
         , div
             [ class "input-group" ]
             [ span
