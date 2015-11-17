@@ -214,12 +214,14 @@ view context address model =
     githubUrl =
       "https://github.com/login/oauth/authorize?client_id=" ++ githubClientId ++ "&scope=user:email"
 
+
     githubLogin =
       div
-      []
-      [ i
-        [ class "fa fa-github"]
-        [ a [ href githubUrl] [ text "Login with GitHub"]
+      [ class "btn btn-lg btn-primary btn-block"]
+      [ a
+        [ href githubUrl]
+        [ i [ class "fa fa-github", style [("margin-right", "10px")] ] []
+        , span [] [ text "Login with GitHub" ]
         ]
       ]
 
@@ -237,7 +239,9 @@ view context address model =
         [ h2 [] [ text "Please login" ]
         -- UserName
         , githubLogin
-        , div [] [ text "OR" ]
+        , div
+          [ style [("margin-bottom", "20px"), ("margin-top", "20px"), ("text-align", "center")] ]
+          [ text "OR" ]
         , div
             [ class "input-group" ]
             [ span
