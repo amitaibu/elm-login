@@ -38,7 +38,7 @@ type Status
 type alias Model =
   { accessToken : AccessToken
   , activePage : Page
-  , backendConfig : Config.Model
+  , config : Config.Model
   , companies : List Company.Model
   , events : Event.Model
   , githubAuth: GithubAuth.Model
@@ -53,7 +53,7 @@ initialModel : Model
 initialModel =
   { accessToken = ""
   , activePage = Login
-  , backendConfig = Config.initialModel
+  , config = Config.initialModel
   , companies = []
   , events = Event.initialModel
   , githubAuth = GithubAuth.initialModel
@@ -100,9 +100,9 @@ update action model =
   case action of
     ChildConfigAction act ->
       let
-        (childModel, childEffects) = Config.update act model.backendConfig
+        (childModel, childEffects) = Config.update act model.config
       in
-        ( {model | backendConfig <- childModel }
+        ( {model | config <- childModel }
         , Effects.map ChildConfigAction childEffects
         )
 
@@ -111,6 +111,7 @@ update action model =
         -- Pass the access token along to the child components.
         context =
           { accessToken = model.accessToken
+          , backendConfig = (.config >> .backendConfig) model
           , companies = model.companies
           }
 
@@ -122,7 +123,10 @@ update action model =
 
     ChildGithubAuthAction act ->
       let
-        (childModel, childEffects) = GithubAuth.update act model.githubAuth
+        context =
+          { backendConfig = (.config >> .backendConfig) model }
+
+        (childModel, childEffects) = GithubAuth.update context act model.githubAuth
 
         defaultEffect =
           Effects.map ChildGithubAuthAction childEffects
@@ -151,8 +155,10 @@ update action model =
 
     ChildLoginAction act ->
       let
+        context =
+          { backendConfig = (.config >> .backendConfig) model }
 
-        (childModel, childEffects) = Login.update act model.login
+        (childModel, childEffects) = Login.update context act model.login
 
         defaultEffect =
           Effects.map ChildLoginAction childEffects

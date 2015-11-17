@@ -103,6 +103,7 @@ type Action
 
 type alias UpdateContext =
   { accessToken : String
+  , backendConfig : Config.BackendConfig
   , companies : List Company.Model
   }
 

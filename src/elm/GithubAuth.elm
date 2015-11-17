@@ -56,8 +56,12 @@ type Action
   | SetAccessToken AccessToken
   | UpdateAccessTokenFromServer (Result Http.Error AccessToken)
 
-update : Action -> Model -> (Model, Effects Action)
-update action model =
+type alias UpdateContext =
+  { backendConfig : Config.BackendConfig
+  }
+
+update : UpdateContext -> Action -> Model -> (Model, Effects Action)
+update context action model =
   case action of
     Activate ->
       (model, getCodeFromUrl)
