@@ -1,7 +1,7 @@
 module Login where
 
 import Base64 exposing (encode)
-import ConfigManager exposing (BackendConfig)
+import ConfigType exposing (BackendConfig)
 import Effects exposing (Effects, Never)
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -75,11 +75,11 @@ type Action
   | SubmitForm
 
 type alias UpdateContext =
-  { backendConfig : ConfigManager.BackendConfig
+  { backendConfig : BackendConfig
   }
 
 type alias ViewContext =
-  { backendConfig : ConfigManager.BackendConfig
+  { backendConfig : BackendConfig
   }
 
 update : UpdateContext -> Action -> Model -> (Model, Effects Action)

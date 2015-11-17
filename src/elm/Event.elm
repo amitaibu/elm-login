@@ -1,6 +1,7 @@
 module Event where
 
-import ConfigManager exposing (BackendConfig)
+import Config exposing (cacheTtl)
+import ConfigType exposing (BackendConfig)
 import Company exposing (Model)
 import Dict exposing (Dict)
 import Effects exposing (Effects, Never)
@@ -103,7 +104,7 @@ type Action
 
 type alias UpdateContext =
   { accessToken : String
-  , backendConfig : ConfigManager.BackendConfig
+  , backendConfig : BackendConfig
   , companies : List Company.Model
   }
 
@@ -525,7 +526,7 @@ getDataFromCache status maybeCompanyId =
           if id == maybeCompanyId
             then
               Task.map (\currentTime ->
-                if fetchTime + ConfigManager.cacheTtl > currentTime
+                if fetchTime + Config.cacheTtl > currentTime
                   then NoOp
                   else GetDataFromServer maybeCompanyId
               ) getCurrentTime

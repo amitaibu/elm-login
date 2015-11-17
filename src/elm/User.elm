@@ -1,7 +1,7 @@
 module User where
 
 import Company exposing (..)
-import ConfigManager exposing (BackendConfig)
+import ConfigType exposing (BackendConfig)
 import Effects exposing (Effects, Never)
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -66,7 +66,7 @@ type Action
 
 type alias UpdateContext =
   { accessToken : AccessToken
-  , backendConfig : ConfigManager.BackendConfig
+  , backendConfig : BackendConfig
   }
 
 update : UpdateContext -> Action -> Model -> (Model, Effects Action)

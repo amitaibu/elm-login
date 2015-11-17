@@ -1,6 +1,6 @@
 module GithubAuth where
 
-import ConfigManager exposing (BackendConfig)
+import ConfigType exposing (BackendConfig)
 import Dict exposing (get)
 import Effects exposing (Effects)
 import Html exposing (a, div, i, text, Html)
@@ -57,7 +57,7 @@ type Action
   | UpdateAccessTokenFromServer (Result Http.Error AccessToken)
 
 type alias UpdateContext =
-  { backendConfig : ConfigManager.BackendConfig
+  { backendConfig : BackendConfig
   }
 
 update : UpdateContext -> Action -> Model -> (Model, Effects Action)
