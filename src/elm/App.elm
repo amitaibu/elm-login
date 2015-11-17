@@ -5,7 +5,7 @@ import Company exposing (Model)
 import Effects exposing (Effects)
 import Event exposing (Model, initialModel, update)
 import GithubAuth exposing (Model)
-import Html exposing (a, div, i, li, node, span, text, ul, Html)
+import Html exposing (a, div, h2, i, li, node, span, text, ul, Html)
 import Html.Attributes exposing (class, href, style, target)
 import Html.Events exposing (onClick)
 import Json.Encode as JE exposing (string, Value)
@@ -31,35 +31,43 @@ type Page
   | PageNotFound
   | User
 
+type Status
+  = Init
+  | ConfigError
+
 type alias Model =
   { accessToken : AccessToken
+  , activePage : Page
   , backendConfig : Config.Model
-  , user : User.Model
   , companies : List Company.Model
   , events : Event.Model
   , githubAuth: GithubAuth.Model
   , login: Login.Model
-  , activePage : Page
   -- If the user is anonymous, we want to know where to redirect them.
   , nextPage : Maybe Page
+  , status : Status
+  , user : User.Model
   }
 
 initialModel : Model
 initialModel =
   { accessToken = ""
+  , activePage = Login
   , backendConfig = Config.initialModel
-  , user = User.initialModel
   , companies = []
   , events = Event.initialModel
   , githubAuth = GithubAuth.initialModel
   , login = Login.initialModel
-  , activePage = Login
   , nextPage = Nothing
+  , status = Init
+  , user = User.initialModel
   }
 
 initialEffects : List (Effects Action)
 initialEffects =
-  [ Effects.map ChildLoginAction <| snd Login.init ]
+  [ Effects.map ChildConfigAction <| snd Config.init
+  , Effects.map ChildLoginAction <| snd Login.init
+  ]
 
 init : (Model, Effects Action)
 init =
@@ -78,6 +86,7 @@ type Action
   | Logout
   | SetAccessToken AccessToken
   | SetActivePage Page
+  | SetStatus Status
   | UpdateCompanies (List Company.Model)
 
   -- NoOp actions
@@ -328,6 +337,11 @@ update action model =
               ]
             )
 
+    SetStatus status ->
+      ( { model | status <- status}
+      , Effects.none
+      )
+
     UpdateCompanies companies ->
       ( { model | companies <- companies}
       , Effects.none
@@ -341,11 +355,20 @@ update action model =
 
 view : Signal.Address Action -> Model -> Html
 view address model =
-  div []
-    [ (navbar address model)
-    , (mainContent address model)
-    , footer
-    ]
+  if model.status == ConfigError
+    then
+      div
+      [ class "config-error"]
+      [ h2 [] [ text "Configuration error" ]
+      , div [] [ text "Check your Config.elm file and make sure you have defined the enviorement properly" ]
+      ]
+    else
+      div
+      []
+      [ (navbar address model)
+      , (mainContent address model)
+      , footer
+      ]
 
 mainContent : Signal.Address Action -> Model -> Html
 mainContent address model =

@@ -12,7 +12,6 @@ type alias BackendConfig =
   , name : String
   -- Url information
   , host : String
-  , port' : String
   }
 
 initialBackendConfig : BackendConfig
@@ -21,7 +20,6 @@ initialBackendConfig =
   , githubClientId = ""
   , name = ""
   , host = ""
-  , port' = ""
   }
 
 
@@ -52,7 +50,6 @@ localBackend =
   , githubClientId = "e5661c832ed931ae176c"
   , name = "local"
   , host = "localhost"
-  , port' = "3000"
   }
 
 prodBackend : BackendConfig
@@ -61,7 +58,6 @@ prodBackend =
   , githubClientId = "e5661c832ed931ae176c"
   , name = "prod"
   , host = "localhost"
-  , port' = "80"
   }
 
 backends : List BackendConfig
