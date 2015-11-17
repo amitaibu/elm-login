@@ -1,6 +1,6 @@
 module App where
 
-import ConfigManager exposing (BackendConfig)
+import ConfigManager exposing (Model)
 import Company exposing (Model)
 import Effects exposing (Effects)
 import Event exposing (Model, initialModel, update)
