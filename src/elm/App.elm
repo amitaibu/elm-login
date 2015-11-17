@@ -402,8 +402,12 @@ mainContent address model =
       let
         childAddress =
           Signal.forwardTo address ChildLoginAction
+
+        context =
+          { backendConfig = (.config >> .backendConfig) model }
+
       in
-        div [ style myStyle ] [ Login.view childAddress model.login ]
+        div [ style myStyle ] [ Login.view context childAddress model.login ]
 
     PageNotFound ->
       div [] [ PageNotFound.view ]

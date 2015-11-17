@@ -78,6 +78,10 @@ type alias UpdateContext =
   { backendConfig : ConfigManager.BackendConfig
   }
 
+type alias ViewContext =
+  { backendConfig : ConfigManager.BackendConfig
+  }
+
 update : UpdateContext -> Action -> Model -> (Model, Effects Action)
 update context action model =
   case action of
@@ -192,8 +196,8 @@ getInputFromStorage =
 
 -- VIEW
 
-view : Signal.Address Action -> Model -> Html
-view address model =
+view : ViewContext -> Signal.Address Action -> Model -> Html
+view context address model =
   let
     modelForm =
       model.loginForm
@@ -204,8 +208,11 @@ view address model =
     isFetchStatus =
       model.status == Fetching || model.status == Fetched
 
+    githubClientId =
+      (.backendConfig >> .githubClientId) context
+
     githubUrl =
-      "https://github.com/login/oauth/authorize?client_id=" ++ ConfigManager.githubClientId ++ "&scope=user:email"
+      "https://github.com/login/oauth/authorize?client_id=" ++ githubClientId ++ "&scope=user:email"
 
     githubLogin =
       div
