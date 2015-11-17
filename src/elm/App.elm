@@ -1,6 +1,6 @@
 module App where
 
-import Config exposing (BackendConfig)
+import ConfigManager exposing (BackendConfig)
 import Company exposing (Model)
 import Effects exposing (Effects)
 import Event exposing (Model, initialModel, update)
@@ -38,7 +38,7 @@ type Status
 type alias Model =
   { accessToken : AccessToken
   , activePage : Page
-  , config : Config.Model
+  , config : ConfigManager.Model
   , companies : List Company.Model
   , events : Event.Model
   , githubAuth: GithubAuth.Model
@@ -53,7 +53,7 @@ initialModel : Model
 initialModel =
   { accessToken = ""
   , activePage = Login
-  , config = Config.initialModel
+  , config = ConfigManager.initialModel
   , companies = []
   , events = Event.initialModel
   , githubAuth = GithubAuth.initialModel
@@ -65,7 +65,7 @@ initialModel =
 
 initialEffects : List (Effects Action)
 initialEffects =
-  [ Effects.map ChildConfigAction <| snd Config.init
+  [ Effects.map ChildConfigAction <| snd ConfigManager.init
   , Effects.map ChildLoginAction <| snd Login.init
   ]
 
@@ -78,7 +78,7 @@ init =
 -- UPDATE
 
 type Action
-  = ChildConfigAction Config.Action
+  = ChildConfigAction ConfigManager.Action
   | ChildEventAction Event.Action
   | ChildGithubAuthAction GithubAuth.Action
   | ChildLoginAction Login.Action
@@ -100,7 +100,7 @@ update action model =
   case action of
     ChildConfigAction act ->
       let
-        (childModel, childEffects) = Config.update act model.config
+        (childModel, childEffects) = ConfigManager.update act model.config
       in
         ( {model | config <- childModel }
         , Effects.map ChildConfigAction childEffects
@@ -191,7 +191,9 @@ update action model =
     ChildUserAction act ->
       let
         context =
-          { accessToken = model.accessToken }
+          { accessToken = model.accessToken
+          , backendConfig = (.config >> .backendConfig) model
+          }
 
         (childModel, childEffects) = User.update context act model.user
 

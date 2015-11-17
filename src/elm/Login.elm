@@ -1,7 +1,7 @@
 module Login where
 
 import Base64 exposing (encode)
-import Config exposing (BackendConfig)
+import ConfigManager exposing (BackendConfig)
 import Effects exposing (Effects, Never)
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -75,7 +75,7 @@ type Action
   | SubmitForm
 
 type alias UpdateContext =
-  { backendConfig : Config.BackendConfig
+  { backendConfig : ConfigManager.BackendConfig
   }
 
 update : UpdateContext -> Action -> Model -> (Model, Effects Action)
@@ -205,7 +205,7 @@ view address model =
       model.status == Fetching || model.status == Fetched
 
     githubUrl =
-      "https://github.com/login/oauth/authorize?client_id=" ++ Config.githubClientId ++ "&scope=user:email"
+      "https://github.com/login/oauth/authorize?client_id=" ++ ConfigManager.githubClientId ++ "&scope=user:email"
 
     githubLogin =
       div

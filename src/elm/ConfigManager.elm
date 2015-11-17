@@ -1,4 +1,4 @@
-module Config where
+module ConfigManager where
 
 import Effects exposing (Effects)
 import Task exposing (map)
