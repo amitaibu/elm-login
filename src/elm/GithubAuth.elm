@@ -8,7 +8,7 @@ import Html.Attributes exposing (class, href, id)
 import Http exposing (Error)
 import Json.Decode as JD exposing ((:=))
 import Json.Encode as JE exposing (..)
-import Task
+import Task exposing (map)
 import UrlParameterParser exposing (ParseResult, parseSearchString)
 import WebAPI.Location exposing (location)
 

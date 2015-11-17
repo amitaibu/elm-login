@@ -1,6 +1,6 @@
 module App where
 
-
+import Config exposing (BackendConfig)
 import Company exposing (Model)
 import Effects exposing (Effects)
 import Event exposing (Model, initialModel, update)
@@ -33,6 +33,7 @@ type Page
 
 type alias Model =
   { accessToken : AccessToken
+  , backendConfig : Config.Model
   , user : User.Model
   , companies : List Company.Model
   , events : Event.Model
@@ -46,6 +47,7 @@ type alias Model =
 initialModel : Model
 initialModel =
   { accessToken = ""
+  , backendConfig = Config.initialModel
   , user = User.initialModel
   , companies = []
   , events = Event.initialModel
@@ -68,7 +70,8 @@ init =
 -- UPDATE
 
 type Action
-  = ChildEventAction Event.Action
+  = ChildConfigAction Config.Action
+  | ChildEventAction Event.Action
   | ChildGithubAuthAction GithubAuth.Action
   | ChildLoginAction Login.Action
   | ChildUserAction User.Action
@@ -86,6 +89,14 @@ type Action
 update : Action -> Model -> (Model, Effects Action)
 update action model =
   case action of
+    ChildConfigAction act ->
+      let
+        (childModel, childEffects) = Config.update act model.backendConfig
+      in
+        ( {model | backendConfig <- childModel }
+        , Effects.map ChildConfigAction childEffects
+        )
+
     ChildEventAction act ->
       let
         -- Pass the access token along to the child components.
@@ -225,7 +236,6 @@ update action model =
 
       in
         (model'', Effects.batch effects')
-
 
     Logout ->
       ( initialModel
