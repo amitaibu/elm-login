@@ -56,7 +56,7 @@ prodBackend =
   { backendUrl = "http://localhost/hedley-server/www"
   , githubClientId = "e5661c832ed931ae176c"
   , name = "prod"
-  , hostname = "localhost"
+  , hostname = "prod"
   }
 
 backends : List BackendConfig

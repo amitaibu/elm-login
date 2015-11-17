@@ -101,8 +101,22 @@ update action model =
     ChildConfigAction act ->
       let
         (childModel, childEffects) = ConfigManager.update act model.config
+
+        status =
+          case act of
+            ConfigManager.SetStatus status ->
+              if status == ConfigManager.Error
+                then ConfigError
+                else model.status
+
+            _ ->
+              model.status
+
       in
-        ( {model | config <- childModel }
+        ( {model
+          | config <- childModel
+          , status <- status
+          }
         , Effects.map ChildConfigAction childEffects
         )
 
