@@ -1,6 +1,6 @@
 module GithubAuth where
 
-import Config exposing (backendUrl)
+import Config exposing (BackendConfig)
 import Dict exposing (get)
 import Effects exposing (Effects)
 import Html exposing (a, div, i, text, Html)
@@ -67,7 +67,13 @@ update context action model =
       (model, getCodeFromUrl)
 
     AuthorizeUser code ->
-      (model, getJson code)
+      let
+        backendUrl =
+          (.backendConfig >> .backendUrl) context
+      in
+        ( model
+        , getJson backendUrl code
+        )
 
     SetError msg ->
       ( { model | status <- Error msg }
@@ -142,11 +148,11 @@ getCodeFromUrl =
     Effects.task actionTask
 
 
-getJson : String -> Effects Action
-getJson code =
+getJson : String -> String -> Effects Action
+getJson backendUrl code =
   Http.post
     decodeAccessToken
-    (Config.backendUrl ++ "/auth/github")
+    (backendUrl ++ "/auth/github")
     (Http.string <| dataToJson code )
     |> Task.toResult
     |> Task.map UpdateAccessTokenFromServer

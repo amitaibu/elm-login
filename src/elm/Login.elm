@@ -1,7 +1,7 @@
 module Login where
 
 import Base64 exposing (encode)
-import Config exposing (backendUrl)
+import Config exposing (BackendConfig)
 import Effects exposing (Effects, Never)
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -101,8 +101,11 @@ update context action model =
 
     SubmitForm ->
       let
-        url : String
-        url = Config.backendUrl ++ "/api/login-token"
+        backendUrl =
+          (.backendConfig >> .backendUrl) context
+
+        url =
+          backendUrl ++ "/api/login-token"
 
         credentials : String
         credentials = encodeCredentials(model.loginForm.name, model.loginForm.pass)

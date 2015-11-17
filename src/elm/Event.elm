@@ -1,6 +1,6 @@
 module Event where
 
-import Config exposing (backendUrl)
+import Config exposing (BackendConfig)
 import Company exposing (Model)
 import Dict exposing (Dict)
 import Effects exposing (Effects, Never)
@@ -138,8 +138,11 @@ update context action model =
 
     GetDataFromServer maybeCompanyId ->
       let
-        url : String
-        url = Config.backendUrl ++ "/api/v1.0/events"
+        backendUrl =
+          (.backendConfig >> .backendUrl) context
+
+        url =
+          backendUrl ++ "/api/v1.0/events"
       in
         ( { model | status <- Fetching maybeCompanyId}
         , getJson url maybeCompanyId context.accessToken
