@@ -1,27 +1,10 @@
 module ConfigManager where
 
 import Config exposing (backends)
-import ConfigType exposing (BackendConfig)
+import ConfigType exposing (BackendConfig, initialBackendConfig)
 import Effects exposing (Effects)
 import Task exposing (map)
 import WebAPI.Location exposing (location)
-
-type alias BackendConfig =
-  { backendUrl : String
-  , githubClientId : String
-  , name : String
-  -- Url information
-  , hostname : String
-  }
-
-initialBackendConfig : BackendConfig
-initialBackendConfig =
-  { backendUrl = ""
-  , githubClientId = ""
-  , name = ""
-  , hostname = ""
-  }
-
 
 type Status
   = Init

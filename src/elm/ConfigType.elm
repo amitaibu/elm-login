@@ -7,3 +7,11 @@ type alias BackendConfig =
   -- Url information
   , hostname : String
   }
+
+initialBackendConfig : BackendConfig
+initialBackendConfig =
+  { backendUrl = ""
+  , githubClientId = ""
+  , name = ""
+  , hostname = ""
+  }

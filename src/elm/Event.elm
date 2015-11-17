@@ -274,6 +274,7 @@ update context action model =
         , Effects.map ChildLeafletAction childEffects
         )
 
+
 -- Build the Leaflet's markers data from the events
 leafletMarkers : Model -> List Leaflet.Marker
 leafletMarkers model =
