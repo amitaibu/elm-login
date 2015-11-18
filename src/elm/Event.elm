@@ -557,7 +557,8 @@ getJson url maybeCompanyId accessToken =
           params
 
 
-    encodedUrl = Http.url url params'
+    encodedUrl =
+      Http.url url params'
 
     httpTask =
       Task.toResult <|

@@ -353,13 +353,20 @@ decodeData =
 
 postArticle : String -> String -> ArticleForm -> Effects Action
 postArticle url accessToken data =
-  Http.post
-    decodePostArticle
-    url
-    (Http.string <| dataToJson data )
-    |> Task.toResult
-    |> Task.map NoOpPostArticle
-    |> Effects.task
+  let
+    params =
+      [ ("access_token", accessToken) ]
+
+    encodedUrl =
+      Http.url url params
+  in
+    Http.post
+      decodePostArticle
+      encodedUrl
+      (Http.string <| dataToJson data )
+      |> Task.toResult
+      |> Task.map NoOpPostArticle
+      |> Effects.task
 
 
 dataToJson : ArticleForm -> String
