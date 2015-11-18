@@ -43,15 +43,28 @@ type alias Article =
   , author : Author
   }
 
+type alias ArticleForm =
+  { label : String
+  , body : String
+  }
+
+initialArticleForm : ArticleForm
+initialArticleForm =
+  { label = ""
+  , body = ""
+  }
+
 type alias Model =
-  { articles : List Article
+  { articleForm : ArticleForm
+  , articles : List Article
   , status : Status
   , userMessage : UserMessage
   }
 
 initialModel : Model
 initialModel =
-  { articles = []
+  { articleForm = initialArticleForm
+  , articles = []
   , status = Init
   , userMessage = None
   }
