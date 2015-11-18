@@ -172,7 +172,7 @@ getJson url accessToken =
     Effects.task actionTask
 
 
-decodeData : JD (List Aricle)
+decodeData : JD.Decoder (List Article)
 decodeData =
   let
     -- Cast String to Int.
