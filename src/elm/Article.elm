@@ -3,11 +3,12 @@ module Article where
 import Config exposing (cacheTtl)
 import ConfigType exposing (BackendConfig)
 import Effects exposing (Effects)
-import Html exposing (div, h2, input, li, text, span, ul, Html)
+import Html exposing (button, div, h2, input, li, text, span, ul, Html)
 import Html.Attributes exposing (action, class, disabled, placeholder, required, size, style, type', value)
 import Html.Events exposing (on, onClick, onSubmit, targetValue)
 import Http exposing (post)
 import Json.Decode as JD exposing ((:=))
+import Json.Encode as JE exposing (string)
 import String exposing (toInt, toFloat)
 import Task  exposing (andThen, Task)
 import TaskTutorial exposing (getCurrentTime)
@@ -84,6 +85,7 @@ type Action
   | GetData
   | GetDataFromServer
   | NoOp
+  | NoOpPostArticle (Result Http.Error Article)
   | SetUserMessage UserMessage
   | UpdateDataFromServer (Result Http.Error (List Article)) Time.Time
 
@@ -185,7 +187,16 @@ update context action model =
         )
 
     SubmitForm ->
-      (model, Effects.none)
+      let
+        backendUrl =
+          (.backendConfig >> .backendUrl) context
+
+        url =
+          backendUrl ++ "/api/v1.0/articles"
+      in
+        ( model
+        , postArticle url context.accessToken model.articleForm
+        )
 
 
 -- VIEW
@@ -260,6 +271,13 @@ viewForm address model =
                 []
             ]
          ] -- End body
+
+        -- Submit button
+        , button
+            [ onClick address SubmitForm
+            , class "btn btn-lg btn-primary btn-block"
+            ]
+            [ text "Submit" ] -- End submit button
      ]
 
 -- EFFECTS
@@ -326,6 +344,51 @@ decodeData =
   in
     JD.at ["data"]
       <| JD.list
+      <| JD.object4 Article
+        ("id" := number)
+        ("label" := JD.string)
+        ("body" := JD.string)
+        ("user" := author)
+
+
+postArticle : String -> String -> ArticleForm -> Effects Action
+postArticle url accessToken data =
+  Http.post
+    decodePostArticle
+    url
+    (Http.string <| dataToJson data )
+    |> Task.toResult
+    |> Task.map NoOpPostArticle
+    |> Effects.task
+
+
+dataToJson : ArticleForm -> String
+dataToJson data =
+  JE.encode 0
+    <| JE.object
+        [ ("label", JE.string data.label)
+        , ("body", JE.string data.body)
+        ]
+
+decodePostArticle : JD.Decoder Article
+decodePostArticle =
+  let
+    -- Cast String to Int.
+    number : JD.Decoder Int
+    number =
+      JD.oneOf [ JD.int, JD.customDecoder JD.string String.toInt ]
+
+
+    numberFloat : JD.Decoder Float
+    numberFloat =
+      JD.oneOf [ JD.float, JD.customDecoder JD.string String.toFloat ]
+
+    author =
+      JD.object2 Author
+        ("id" := number)
+        ("label" := JD.string)
+  in
+    JD.at ["data", "0"]
       <| JD.object4 Article
         ("id" := number)
         ("label" := JD.string)
