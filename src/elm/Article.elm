@@ -339,7 +339,9 @@ getJson : String -> String -> Effects Action
 getJson url accessToken =
   let
     params =
-      [ ("access_token", accessToken) ]
+      [ ("access_token", accessToken)
+      , ("sort", "-id")
+      ]
 
     encodedUrl = Http.url url params
 
