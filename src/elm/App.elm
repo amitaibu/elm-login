@@ -540,7 +540,7 @@ delta2update : Model -> Model -> Maybe HashUpdate
 delta2update previous current =
   case current.activePage of
     Article ->
-      RouteHash.map ((::) "articles") Nothing
+      Just <| RouteHash.set ["articles"]
 
     Event companyId ->
       -- First, we ask the submodule for a HashUpdate. Then, we use

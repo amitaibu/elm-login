@@ -3,14 +3,16 @@ module Article where
 import Config exposing (cacheTtl)
 import ConfigType exposing (BackendConfig)
 import Effects exposing (Effects)
-import Html exposing (div, text, Html)
-import Html.Attributes exposing (class)
+import Html exposing (div, li, text, ul, Html)
+import Html.Attributes exposing (class, style)
 import Http exposing (post)
 import Json.Decode as JD exposing ((:=))
 import String exposing (toInt, toFloat)
 import Task  exposing (andThen, Task)
 import TaskTutorial exposing (getCurrentTime)
 import Time exposing (Time)
+import Utils.Http exposing (getErrorMessageFromHttpResponse)
+
 
 import Debug
 
@@ -23,6 +25,10 @@ type Status =
   | Fetching
   | Fetched Time.Time
   | HttpError Http.Error
+
+type UserMessage
+  = None
+  | Error String
 
 
 type alias Author =
@@ -40,12 +46,14 @@ type alias Article =
 type alias Model =
   { articles : List Article
   , status : Status
+  , userMessage : UserMessage
   }
 
 initialModel : Model
 initialModel =
   { articles = []
   , status = Init
+  , userMessage = None
   }
 
 init : (Model, Effects Action)
@@ -62,6 +70,7 @@ type Action
   | GetData
   | GetDataFromServer
   | NoOp
+  | SetUserMessage UserMessage
   | UpdateDataFromServer (Result Http.Error (List Article)) Time.Time
 
 type alias UpdateContext =
@@ -72,23 +81,25 @@ type alias UpdateContext =
 update : UpdateContext -> Action -> Model -> (Model, Effects Action)
 update context action model =
   case action of
-    NoOp ->
-      (model, Effects.none)
+    Activate ->
+      ( model
+      , Task.succeed GetData |> Effects.task
+      )
 
     GetData ->
       let
-        noFx =
-          (model, Effects.none)
+        effects =
+          case model.status of
+            Fetching ->
+              Effects.none
 
-        getFx =
-          (model, getDataFromCache model.status)
+            _ ->
+              getDataFromCache model.status
       in
-      case model.status of
-        Fetching ->
-          noFx
+        ( model
+        , effects
+        )
 
-        _ ->
-          getFx
 
     GetDataFromServer ->
       let
@@ -102,6 +113,15 @@ update context action model =
         , getJson url context.accessToken
         )
 
+
+    NoOp ->
+      (model, Effects.none)
+
+    SetUserMessage userMessage ->
+      ( { model | userMessage <- userMessage }
+      , Effects.none
+      )
+
     UpdateDataFromServer result timestamp' ->
       case result of
         Ok articles ->
@@ -112,21 +132,36 @@ update context action model =
           , Effects.none
           )
 
-        Err msg ->
-          ( { model | status <- HttpError msg }
-          , Effects.none
-          )
-
-    Activate ->
-        ( model
-        , Task.succeed Activate |> Effects.task
-        )
+        Err err ->
+          let
+            message =
+              getErrorMessageFromHttpResponse err
+          in
+            ( { model | status <- HttpError err }
+            , Task.succeed (SetUserMessage <| Error message) |> Effects.task
+            )
 
 -- VIEW
 
 view :Signal.Address Action -> Model -> Html
 view address model =
-  div [] [ text "Articles"]
+  div [class "container"]
+    [ viewUserMessage model.userMessage
+    , div [] [ text "Recent articles"]
+    , ul  [] (List.map viewArticles model.articles)
+    ]
+
+viewUserMessage : UserMessage -> Html
+viewUserMessage userMessage =
+  case userMessage of
+    None ->
+      div [] []
+    Error message ->
+      div [ style [("text-align", "center")]] [ text message ]
+
+viewArticles : Article -> Html
+viewArticles article =
+  li [] [ text article.label ]
 
 -- EFFECTS
 
