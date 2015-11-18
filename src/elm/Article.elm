@@ -139,7 +139,6 @@ update context action model =
         , getJson url context.accessToken
         )
 
-
     UpdatePostArticle result ->
       case result of
         Ok val ->
@@ -221,9 +220,12 @@ update context action model =
             ( { model | postStatus <- Busy }
             , postArticle url context.accessToken model.articleForm
             )
+
           else
             (model, Effects.none)
 
+    NoOp ->
+      (model, Effects.none)
 
 -- VIEW
 
