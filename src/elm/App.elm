@@ -352,6 +352,9 @@ update action model =
 
         newPageEffects =
           case page' of
+            Article ->
+              Task.succeed (ChildArticleAction Article.Activate) |> Effects.task
+
             Event companyId ->
               Task.succeed (ChildEventAction <| Event.Activate companyId) |> Effects.task
 
