@@ -3,8 +3,9 @@ module Article where
 import Config exposing (cacheTtl)
 import ConfigType exposing (BackendConfig)
 import Effects exposing (Effects)
-import Html exposing (div, li, text, ul, Html)
-import Html.Attributes exposing (class, style)
+import Html exposing (div, h2, li, text, ul, Html)
+import Html.Attributes exposing (action, class, style)
+import Html.Events exposing (on, onClick, onSubmit, targetValue)
 import Http exposing (post)
 import Json.Decode as JD exposing ((:=))
 import String exposing (toInt, toFloat)
@@ -86,6 +87,10 @@ type Action
   | SetUserMessage UserMessage
   | UpdateDataFromServer (Result Http.Error (List Article)) Time.Time
 
+  | UpdateLabel String
+  | UpdateBody String
+  | SubmitForm
+
 type alias UpdateContext =
   { accessToken : String
   , backendConfig : BackendConfig
@@ -154,14 +159,43 @@ update context action model =
             , Task.succeed (SetUserMessage <| Error message) |> Effects.task
             )
 
+    -- @todo: Create a helper function.
+    UpdateBody val ->
+      let
+        articleForm =
+          model.articleForm
+
+        articleForm' =
+          { articleForm | body <- val }
+      in
+        ( { model | articleForm <- articleForm' }
+        , Effects.none
+        )
+
+    UpdateLabel val ->
+      let
+        articleForm =
+          model.articleForm
+
+        articleForm' =
+          { articleForm | body <- val }
+      in
+        ( { model | articleForm <- articleForm' }
+        , Effects.none
+        )
+
+    SubmitForm ->
+      (model, Effects.none)
+
+
 -- VIEW
 
 view :Signal.Address Action -> Model -> Html
 view address model =
   div [class "container"]
     [ viewUserMessage model.userMessage
-    , div [] [ text "Recent articles"]
-    , ul  [] (List.map viewArticles model.articles)
+    , viewForm address model
+    , viewRecentArticles model.articles
     ]
 
 viewUserMessage : UserMessage -> Html
@@ -175,6 +209,26 @@ viewUserMessage userMessage =
 viewArticles : Article -> Html
 viewArticles article =
   li [] [ text article.label ]
+
+
+viewRecentArticles : List Article -> Html
+viewRecentArticles articles =
+  div
+    []
+    [ h2 [] [ text "Recent articles"]
+    , ul  [] (List.map viewArticles articles)
+    ]
+
+
+viewForm :Signal.Address Action -> Model -> Html
+viewForm address model =
+  Html.form
+    [ onSubmit address SubmitForm
+    , action "javascript:void(0);"
+    ]
+    [ h2 [] [ text "Add new article"]
+
+    ]
 
 -- EFFECTS
 
