@@ -3,8 +3,8 @@ module Article where
 import Config exposing (cacheTtl)
 import ConfigType exposing (BackendConfig)
 import Effects exposing (Effects)
-import Html exposing (div, h2, li, text, ul, Html)
-import Html.Attributes exposing (action, class, style)
+import Html exposing (div, h2, input, li, text, span, ul, Html)
+import Html.Attributes exposing (action, class, disabled, placeholder, required, size, style, type', value)
 import Html.Events exposing (on, onClick, onSubmit, targetValue)
 import Http exposing (post)
 import Json.Decode as JD exposing ((:=))
@@ -178,7 +178,7 @@ update context action model =
           model.articleForm
 
         articleForm' =
-          { articleForm | body <- val }
+          { articleForm | label <- val }
       in
         ( { model | articleForm <- articleForm' }
         , Effects.none
@@ -227,8 +227,23 @@ viewForm address model =
     , action "javascript:void(0);"
     ]
     [ h2 [] [ text "Add new article"]
-
-    ]
+    , div
+        [ class "input-group" ]
+        [ span
+            [ class "input-group-addon" ]
+            [ input
+                [ type' "text"
+                , class "form-control"
+                , placeholder "Label"
+                , value model.articleForm.label
+                , on "input" targetValue (Signal.message address << UpdateLabel)
+                , size 40
+                , required True
+                ]
+                []
+            ]
+        ]
+  ]
 
 -- EFFECTS
 
