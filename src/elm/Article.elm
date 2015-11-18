@@ -89,9 +89,11 @@ type Action
   | UpdateDataFromServer (Result Http.Error (List Article)) Time.Time
   | UpdatePostArticle (Result Http.Error Article)
 
+  | ResetForm
+  | SubmitForm
   | UpdateLabel String
   | UpdateBody String
-  | SubmitForm
+
 
 type alias UpdateContext =
   { accessToken : String
@@ -139,7 +141,8 @@ update context action model =
         Ok val ->
           -- Append the new article to the articles list.
           ( { model | articles <- val :: model.articles }
-          , Effects.none
+          -- We can reset the form, as it was posted successfully.
+          , Task.succeed ResetForm |> Effects.task
           )
 
         Err err ->
@@ -193,6 +196,11 @@ update context action model =
         , Effects.none
         )
 
+    ResetForm ->
+      ( { model | articleForm <- initialArticleForm }
+      , Effects.none
+      )
+
     SubmitForm ->
       let
         backendUrl =
@@ -240,6 +248,14 @@ viewRecentArticles articles =
 
 viewForm :Signal.Address Action -> Model -> Html
 viewForm address model =
+  let
+    articleForm =
+      model.articleForm
+
+    isFormEmpty =
+      String.isEmpty articleForm.label
+
+  in
   Html.form
     [ onSubmit address SubmitForm
     , action "javascript:void(0);"
@@ -273,7 +289,6 @@ viewForm address model =
                 , placeholder "Body"
                 , value model.articleForm.body
                 , on "input" targetValue (Signal.message address << UpdateBody)
-                , required True
                 ]
                 []
             ]
@@ -283,6 +298,7 @@ viewForm address model =
         , button
             [ onClick address SubmitForm
             , class "btn btn-lg btn-primary btn-block"
+            , disabled isFormEmpty
             ]
             [ text "Submit" ] -- End submit button
      ]
