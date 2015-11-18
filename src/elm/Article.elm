@@ -227,6 +227,7 @@ viewForm address model =
     , action "javascript:void(0);"
     ]
     [ h2 [] [ text "Add new article"]
+    -- Label
     , div
         [ class "input-group" ]
         [ span
@@ -237,13 +238,29 @@ viewForm address model =
                 , placeholder "Label"
                 , value model.articleForm.label
                 , on "input" targetValue (Signal.message address << UpdateLabel)
-                , size 40
                 , required True
                 ]
                 []
             ]
-        ]
-  ]
+         ] -- End label
+
+    -- Body
+    , div
+        [ class "input-group" ]
+        [ span
+            [ class "input-group-addon" ]
+            [ input
+                [ type' "text"
+                , class "form-control"
+                , placeholder "Body"
+                , value model.articleForm.body
+                , on "input" targetValue (Signal.message address << UpdateBody)
+                , required True
+                ]
+                []
+            ]
+         ] -- End body
+     ]
 
 -- EFFECTS
 
