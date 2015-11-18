@@ -364,29 +364,7 @@ getJson url accessToken =
 
 decodeData : JD.Decoder (List Article)
 decodeData =
-  let
-    -- Cast String to Int.
-    number : JD.Decoder Int
-    number =
-      JD.oneOf [ JD.int, JD.customDecoder JD.string String.toInt ]
-
-
-    numberFloat : JD.Decoder Float
-    numberFloat =
-      JD.oneOf [ JD.float, JD.customDecoder JD.string String.toFloat ]
-
-    author =
-      JD.object2 Author
-        ("id" := number)
-        ("label" := JD.string)
-  in
-    JD.at ["data"]
-      <| JD.list
-      <| JD.object4 Article
-        ("id" := number)
-        ("label" := JD.string)
-        ("body" := JD.string)
-        ("user" := author)
+  JD.at ["data"] <| JD.list <| decodeArticle
 
 
 postArticle : String -> String -> ArticleForm -> Effects Action
@@ -417,6 +395,11 @@ dataToJson data =
 
 decodePostArticle : JD.Decoder Article
 decodePostArticle =
+  JD.at ["data", "0"] <| decodeArticle
+
+
+decodeArticle : JD.Decoder Article
+decodeArticle =
   let
     -- Cast String to Int.
     number : JD.Decoder Int
@@ -433,9 +416,8 @@ decodePostArticle =
         ("id" := number)
         ("label" := JD.string)
   in
-    JD.at ["data", "0"]
-      <| JD.object4 Article
-        ("id" := number)
-        ("label" := JD.string)
-        ("body" := JD.string)
-        ("user" := author)
+    JD.object4 Article
+      ("id" := number)
+      ("label" := JD.string)
+      ("body" := JD.string)
+      ("user" := author)
