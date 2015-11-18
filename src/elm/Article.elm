@@ -28,6 +28,8 @@ type Status =
   | Fetched Time.Time
   | HttpError Http.Error
 
+type PostStatus = Ready | Busy
+
 type UserMessage
   = None
   | Error String
@@ -59,6 +61,7 @@ initialArticleForm =
 type alias Model =
   { articleForm : ArticleForm
   , articles : List Article
+  , postStatus : PostStatus
   , status : Status
   , userMessage : UserMessage
   }
@@ -67,6 +70,7 @@ initialModel : Model
 initialModel =
   { articleForm = initialArticleForm
   , articles = []
+  , postStatus = Ready
   , status = Init
   , userMessage = None
   }
@@ -197,7 +201,10 @@ update context action model =
         )
 
     ResetForm ->
-      ( { model | articleForm <- initialArticleForm }
+      ( { model
+        | articleForm <- initialArticleForm
+        , postStatus <- Ready
+        }
       , Effects.none
       )
 
@@ -209,9 +216,13 @@ update context action model =
         url =
           backendUrl ++ "/api/v1.0/articles"
       in
-        ( model
-        , postArticle url context.accessToken model.articleForm
-        )
+        if model.postStatus == Ready
+          then
+            ( { model | postStatus <- Busy }
+            , postArticle url context.accessToken model.articleForm
+            )
+          else
+            (model, Effects.none)
 
 
 -- VIEW
