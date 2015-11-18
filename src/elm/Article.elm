@@ -261,14 +261,6 @@ viewRecentArticles articles =
 
 viewForm :Signal.Address Action -> Model -> Html
 viewForm address model =
-  let
-    articleForm =
-      model.articleForm
-
-    isFormEmpty =
-      String.isEmpty articleForm.label
-
-  in
   Html.form
     [ onSubmit address SubmitForm
     , action "javascript:void(0);"
@@ -311,7 +303,7 @@ viewForm address model =
         , button
             [ onClick address SubmitForm
             , class "btn btn-lg btn-primary btn-block"
-            , disabled isFormEmpty
+            , disabled (String.isEmpty model.articleForm.label)
             ]
             [ text "Submit" ] -- End submit button
      ]
