@@ -85,9 +85,9 @@ type Action
   | GetData
   | GetDataFromServer
   | NoOp
-  | NoOpPostArticle (Result Http.Error Article)
   | SetUserMessage UserMessage
   | UpdateDataFromServer (Result Http.Error (List Article)) Time.Time
+  | UpdatePostArticle (Result Http.Error Article)
 
   | UpdateLabel String
   | UpdateBody String
@@ -134,8 +134,19 @@ update context action model =
         )
 
 
-    NoOp ->
-      (model, Effects.none)
+    UpdatePostArticle result ->
+      case result of
+        Ok val ->
+          -- Append the new article to the articles list.
+          ( { model | articles <- val :: model.articles }
+          , Effects.none
+          )
+
+        Err err ->
+          ( { model | status <- HttpError err }
+          , Task.succeed (SetUserMessage <| Error (getErrorMessageFromHttpResponse err)) |> Effects.task
+          )
+
 
     SetUserMessage userMessage ->
       ( { model | userMessage <- userMessage }
@@ -153,13 +164,9 @@ update context action model =
           )
 
         Err err ->
-          let
-            message =
-              getErrorMessageFromHttpResponse err
-          in
-            ( { model | status <- HttpError err }
-            , Task.succeed (SetUserMessage <| Error message) |> Effects.task
-            )
+          ( { model | status <- HttpError err }
+          , Task.succeed (SetUserMessage <| Error (getErrorMessageFromHttpResponse err)) |> Effects.task
+          )
 
     -- @todo: Create a helper function.
     UpdateBody val ->
@@ -365,7 +372,7 @@ postArticle url accessToken data =
       encodedUrl
       (Http.string <| dataToJson data )
       |> Task.toResult
-      |> Task.map NoOpPostArticle
+      |> Task.map UpdatePostArticle
       |> Effects.task
 
 
