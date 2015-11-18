@@ -1,5 +1,6 @@
 module App where
 
+import Article exposing (Model)
 import ConfigManager exposing (Model)
 import Company exposing (Model)
 import Effects exposing (Effects)
@@ -25,7 +26,8 @@ type alias AccessToken = String
 type alias CompanyId = Int
 
 type Page
-  = Event (Maybe CompanyId)
+  = Article
+  | Event (Maybe CompanyId)
   | GithubAuth
   | Login
   | PageNotFound
@@ -38,6 +40,7 @@ type Status
 type alias Model =
   { accessToken : AccessToken
   , activePage : Page
+  , article : Article.Model
   , config : ConfigManager.Model
   , companies : List Company.Model
   , events : Event.Model
@@ -53,6 +56,7 @@ initialModel : Model
 initialModel =
   { accessToken = ""
   , activePage = Login
+  , article = Article.initialModel
   , config = ConfigManager.initialModel
   , companies = []
   , events = Event.initialModel
@@ -78,7 +82,8 @@ init =
 -- UPDATE
 
 type Action
-  = ChildConfigAction ConfigManager.Action
+  = ChildArticleAction Article.Action
+  | ChildConfigAction ConfigManager.Action
   | ChildEventAction Event.Action
   | ChildGithubAuthAction GithubAuth.Action
   | ChildLoginAction Login.Action
@@ -98,6 +103,20 @@ type Action
 update : Action -> Model -> (Model, Effects Action)
 update action model =
   case action of
+    ChildArticleAction act ->
+      let
+        -- Pass the access token along to the child components.
+        context =
+          { accessToken = model.accessToken
+          , backendConfig = (.config >> .backendConfig) model
+          }
+
+        (childModel, childEffects) = Article.update context act model.article
+      in
+        ( {model | article <- childModel }
+        , Effects.map ChildArticleAction childEffects
+        )
+
     ChildConfigAction act ->
       let
         (childModel, childEffects) = ConfigManager.update act model.config
@@ -396,6 +415,13 @@ view address model =
 mainContent : Signal.Address Action -> Model -> Html
 mainContent address model =
   case model.activePage of
+    Article ->
+      let
+        childAddress =
+          Signal.forwardTo address ChildArticleAction
+      in
+        div [ style myStyle ] [ Article.view childAddress model.article ]
+
     Event companyId ->
       let
         childAddress =
@@ -512,6 +538,9 @@ removeStorageItem =
 delta2update : Model -> Model -> Maybe HashUpdate
 delta2update previous current =
   case current.activePage of
+    Article ->
+      RouteHash.map ((::) "articles") Nothing
+
     Event companyId ->
       -- First, we ask the submodule for a HashUpdate. Then, we use
       -- `map` to prepend something to the URL.
@@ -543,6 +572,9 @@ location2action list =
   case list of
     ["auth", "github"] ->
       ( SetActivePage GithubAuth ) :: []
+
+    "articles" :: rest ->
+      ( SetActivePage Article ) :: []
 
     "login" :: rest ->
       ( SetActivePage Login ) :: []
