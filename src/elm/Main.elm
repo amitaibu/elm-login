@@ -49,15 +49,15 @@ type alias LeafletPort =
 port mapManager : Signal LeafletPort
 port mapManager =
   let
-    getLeaflet model =
-      (.events >> .leaflet) model
-
     getEvents model =
       (.events >> .events) model
 
+    getLeaflet model =
+      (.events >> .leaflet) model
+
     getLeafletPort model =
-      { leaflet = getLeaflet model
-      , events = List.map .id <| getEvents model
+      { events = List.map .id <| getEvents model
+      , leaflet = getLeaflet model
       }
 
   in
@@ -67,11 +67,17 @@ port selectEvent : Signal (Maybe Int)
 
 -- Dropzone
 
-port activePage : Signal String
+type alias ActivePagePort =
+  { accessToken : String
+  , activePage : String
+  , backendUrl : String
+  }
+
+port activePage : Signal ActivePagePort
 port activePage =
   let
-    pageAsString model =
-      case model.activePage of
+    pageAsString page =
+      case page of
         App.Article -> "Article"
         App.Event _ -> "Event"
         App.GithubAuth -> "GithubAuth"
@@ -79,5 +85,10 @@ port activePage =
         App.PageNotFound -> "PageNotFound"
         App.User -> "User"
 
+    getPortData model =
+      { accessToken = model.accessToken
+      , activePage = pageAsString model.activePage
+      , backendUrl = (.config >> .backendConfig >> .backendUrl) model
+      }
   in
-  Signal.map pageAsString app.model
+  Signal.map getPortData app.model

@@ -185,8 +185,8 @@ function addMap() {
 
 var dropZone = undefined;
 
-elmApp.ports.activePage.subscribe(function(page) {
-  if (page != 'Article') {
+elmApp.ports.activePage.subscribe(function(model) {
+  if (model.page != 'Article') {
     // Reset dropzone variable, in case we switch between pages.
     dropZone = undefined;
     return;
@@ -196,8 +196,8 @@ elmApp.ports.activePage.subscribe(function(page) {
 
 });
 
-function attachDropzone(selector, page) {
-  if (page != 'Article') {
+function attachDropzone(selector, model) {
+  if (model.page != 'Article') {
     return false;
   }
 
@@ -212,9 +212,11 @@ function attachDropzone(selector, page) {
     return true;
   }
 
-  dropZone = new Dropzone(selector, { url: '/file/post'});
 
-  dropZone.options.headers = {'access_token' : 'foo'};
+
+  dropZone = new Dropzone(selector, { url: model.backendUrl + '/file/upload'});
+
+  dropZone.options.headers = {'access_token' : model.accessToken};
 
   dropZone.on('sending', function(file) {
     // Add the access token to the header.
