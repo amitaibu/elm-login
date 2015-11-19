@@ -213,6 +213,14 @@ function attachDropzone(selector, page) {
   }
 
   dropZone = new Dropzone(selector, { url: '/file/post'});
+
+  dropZone.options.headers = {'access_token' : 'foo'};
+
+  dropZone.on('sending', function(file) {
+    // Add the access token to the header.
+    // @todo: Let Elm know about this.
+  });
+
   dropZone.on('complete', function(file) {
     // @todo: Let Elm know about this.
   });
