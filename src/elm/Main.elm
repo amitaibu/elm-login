@@ -1,4 +1,5 @@
 import App exposing (init, update, view)
+import Article exposing (Action)
 import StartApp as StartApp
 import Effects exposing (Never)
 import Event exposing (Action)
@@ -14,6 +15,7 @@ app =
     , view = view
     , inputs =
         [ messages.signal
+        , Signal.map (App.ChildArticleAction << Article.SetImageId) dropzoneUploadedFile
         , Signal.map (App.ChildEventAction << Event.SelectEvent) selectEvent
         ]
     }

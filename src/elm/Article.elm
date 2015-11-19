@@ -50,12 +50,14 @@ type alias Article =
 type alias ArticleForm =
   { label : String
   , body : String
+  , image : Maybe Int
   }
 
 initialArticleForm : ArticleForm
 initialArticleForm =
   { label = ""
   , body = ""
+  , image = Nothing
   }
 
 type alias Model =
@@ -95,8 +97,10 @@ type Action
 
   | ResetForm
   | SubmitForm
-  | UpdateLabel String
+  | SetImageId (Maybe Int)
   | UpdateBody String
+  | UpdateLabel String
+
 
 
 type alias UpdateContext =
@@ -199,6 +203,18 @@ update context action model =
         , Effects.none
         )
 
+    SetImageId maybeVal ->
+      let
+        articleForm =
+          model.articleForm
+
+        articleForm' =
+          { articleForm | image <- maybeVal }
+      in
+        ( { model | articleForm <- articleForm' }
+        , Effects.none
+        )
+
     ResetForm ->
       ( { model
         | articleForm <- initialArticleForm
@@ -233,6 +249,7 @@ view :Signal.Address Action -> Model -> Html
 view address model =
   div [class "container"]
     [ viewUserMessage model.userMessage
+    , div [] [ text <| toString model.articleForm ]
     , viewForm address model
     , viewRecentArticles model.articles
     ]
@@ -385,11 +402,18 @@ postArticle url accessToken data =
 
 dataToJson : ArticleForm -> String
 dataToJson data =
-  JE.encode 0
-    <| JE.object
-        [ ("label", JE.string data.label)
-        , ("body", JE.string data.body)
-        ]
+  let
+    intOrNull maybeVal =
+      case maybeVal of
+        Just val -> JE.int val
+        Nothing -> JE.null
+  in
+    JE.encode 0
+      <| JE.object
+          [ ("label", JE.string data.label)
+          , ("body", JE.string data.body)
+          , ("image", intOrNull data.image)
+          ]
 
 decodePostArticle : JD.Decoder Article
 decodePostArticle =
