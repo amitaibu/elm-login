@@ -183,8 +183,12 @@ function addMap() {
 // Dropzone
 // @todo: Move to own file.
 
+var dropZone = undefined;
+
 elmApp.ports.activePage.subscribe(function(page) {
   if (page != 'Article') {
+    // Reset dropzone variable, in case we switch between pages.
+    dropZone = undefined;
     return;
   }
 
@@ -203,7 +207,12 @@ function attachDropzone(selector, page) {
     return false;
   }
 
-  var dropZone = new Dropzone(selector, { url: '/file/post'});
+  if (!!dropZone) {
+    // Drop zone was already attached once.
+    return true;
+  }
+
+  dropZone = new Dropzone(selector, { url: '/file/post'});
   dropZone.on('complete', function(file) {
     // @todo: Let Elm know about this.
   });
