@@ -183,10 +183,28 @@ function addMap() {
 // Dropzone
 // @todo: Move to own file.
 
-elmApp.ports.articleDropzone.subscribe(function(model) {
-  var dropZone = new Dropzone('.dropzone', { url: '/file/post'});
-  dropZone.on('complete', function(file) {
-    myDropzone.removeFile(file);
-  });
+elmApp.ports.activePage.subscribe(function(page) {
+  if (page != 'Article') {
+    return;
+  }
+
+  waitForElement('.dropzone', attachDropzone, page);
 
 });
+
+function attachDropzone(selector, page) {
+  if (page != 'Article') {
+    return false;
+  }
+
+  var element = document.querySelector(selector);
+  if (!element) {
+    // Element doesn't exist yet.
+    return false;
+  }
+
+  var dropZone = new Dropzone(selector, { url: '/file/post'});
+  dropZone.on('complete', function(file) {
+    // @todo: Let Elm know about this.
+  });
+}
