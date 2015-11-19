@@ -177,3 +177,16 @@ function addMap() {
 
   return mapEl;
 }
+
+
+
+// Dropzone
+// @todo: Move to own file.
+
+elmApp.ports.articleDropzone.subscribe(function(model) {
+  var dropZone = new Dropzone('.dropzone', { url: '/file/post'});
+  dropZone.on('complete', function(file) {
+    myDropzone.removeFile(file);
+  });
+
+});

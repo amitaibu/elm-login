@@ -7,7 +7,6 @@ import RouteHash
 import Task exposing (Task)
 
 
--- app : StartApp.App App.Model App.Action
 app =
   StartApp.start
     { init = init
@@ -32,13 +31,13 @@ port tasks =
 
 port routeTasks : Signal (Task () ())
 port routeTasks =
-    RouteHash.start
-        { prefix = RouteHash.defaultPrefix
-        , address = messages.address
-        , models = app.model
-        , delta2update = App.delta2update
-        , location2action = App.location2action
-        }
+  RouteHash.start
+    { prefix = RouteHash.defaultPrefix
+    , address = messages.address
+    , models = app.model
+    , delta2update = App.delta2update
+    , location2action = App.location2action
+    }
 
 -- Interactions with Leaflet maps
 
@@ -50,7 +49,6 @@ type alias LeafletPort =
 port mapManager : Signal LeafletPort
 port mapManager =
   let
-
     getLeaflet model =
       (.events >> .leaflet) model
 
@@ -58,9 +56,28 @@ port mapManager =
       (.events >> .events) model
 
     getLeafletPort model =
-      LeafletPort (getLeaflet model) (List.map .id (getEvents model))
+      { leaflet = getLeaflet model
+      , events = List.map .id <| getEvents model
+      }
 
   in
-  Signal.map getLeafletPort app.model
+    Signal.map getLeafletPort app.model
 
 port selectEvent : Signal (Maybe Int)
+
+-- Dropzone
+
+port activePage : Signal String
+port activePage =
+  let
+    pageAsString model =
+      case model.activePage of
+        App.Article -> "Article"
+        App.Event _ -> "Event"
+        App.GithubAuth -> "GithubAuth"
+        App.Login -> "Login"
+        App.PageNotFound -> "PageNotFound"
+        App.User -> "User"
+
+  in
+  Signal.map pageAsString app.model
