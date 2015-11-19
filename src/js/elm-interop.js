@@ -1,6 +1,11 @@
 "use strict";
 
-var elmApp = Elm.fullscreen(Elm.Main, {selectEvent: null});
+var initialValues = {
+  dropzoneUploadedFile : null,
+  selectEvent: null
+};
+
+var elmApp = Elm.fullscreen(Elm.Main, initialValues);
 
 // Maintain the map and marker state.
 var mapEl = undefined;
@@ -186,18 +191,17 @@ function addMap() {
 var dropZone = undefined;
 
 elmApp.ports.activePage.subscribe(function(model) {
-  if (model.page != 'Article') {
+  if (model.activePage != 'Article') {
     // Reset dropzone variable, in case we switch between pages.
     dropZone = undefined;
     return;
   }
 
-  waitForElement('.dropzone', attachDropzone, page);
-
+  waitForElement('.dropzone', attachDropzone, model);
 });
 
 function attachDropzone(selector, model) {
-  if (model.page != 'Article') {
+  if (model.activePage != 'Article') {
     return false;
   }
 
@@ -213,10 +217,10 @@ function attachDropzone(selector, model) {
   }
 
 
+  // Set the backend url with the access token.
+  var url = model.backendUrl + '/api/file-upload?access_token=' + model.accessToken;
 
-  dropZone = new Dropzone(selector, { url: model.backendUrl + '/file/upload'});
-
-  dropZone.options.headers = {'access_token' : model.accessToken};
+  dropZone = new Dropzone(selector, { url: url});
 
   dropZone.on('sending', function(file) {
     // Add the access token to the header.
@@ -224,6 +228,21 @@ function attachDropzone(selector, model) {
   });
 
   dropZone.on('complete', function(file) {
+    if (!file.accepted) {
+      // File was not uploaded.
+      return;
+    }
+
+    if (file.xhr.status !== 200) {
+      return;
+    }
+
+    var data = JSON.parse(file.xhr.response);
+
+    // Get the file ID, and send it to Elm.
+    var id = parseInt(data.data[0]['id']);
+    elmApp.ports.dropzoneUploadedFile.send(id);
+
     // @todo: Let Elm know about this.
   });
 }

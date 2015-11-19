@@ -91,4 +91,6 @@ port activePage =
       , backendUrl = (.config >> .backendConfig >> .backendUrl) model
       }
   in
-  Signal.map getPortData app.model
+    Signal.map getPortData app.model
+
+port dropzoneUploadedFile : Signal (Maybe Int)
