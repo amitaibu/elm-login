@@ -255,7 +255,6 @@ view :Signal.Address Action -> Model -> Html
 view address model =
   div [class "container"]
     [ viewUserMessage model.userMessage
-    , div [] [ text <| toString model.articleForm ]
     , viewForm address model
     , viewRecentArticles model.articles
     ]
