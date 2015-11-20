@@ -278,7 +278,8 @@ viewArticles article =
     li
     []
     [ div [] [ text article.label ]
-    , div [] [ text article.body ]
+    -- @todo: Uncomment, when we can encode the escaped HTML.
+    -- , div [] [ text article.body ]
     , image
     ]
 
