@@ -190,10 +190,15 @@ function addMap() {
 
 var dropZone = undefined;
 
+// Determine if drop zone was already cleared from files, after a successful
+// upload.
+var clearedDropzone = false;
+
 elmApp.ports.activePage.subscribe(function(model) {
   if (model.activePage != 'Article') {
     // Reset dropzone variable, in case we switch between pages.
     dropZone = undefined;
+    clearedDropzone = false;
     return;
   }
 
@@ -212,6 +217,14 @@ function attachDropzone(selector, model) {
   }
 
   if (!!dropZone) {
+
+    // Check if we need to remove files.
+    if (!clearedDropzone && model.postStatus == "Done") {
+      // Remove all files, even the ones being currently uploaded.
+      dropZone.removeAllFiles(true);
+      clearedDropzone = true;
+    }
+
     // Drop zone was already attached once.
     return true;
   }
@@ -242,7 +255,5 @@ function attachDropzone(selector, model) {
     // Get the file ID, and send it to Elm.
     var id = parseInt(data.data[0]['id']);
     elmApp.ports.dropzoneUploadedFile.send(id);
-
-    // @todo: Let Elm know about this.
   });
 }
