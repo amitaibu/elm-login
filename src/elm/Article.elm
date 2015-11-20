@@ -276,11 +276,12 @@ viewArticles article =
         Just val -> img [ src val ] []
         Nothing -> div [] []
   in
-  li
-  []
-  [ div [] [ text article.label ]
-  , image
-  ]
+    li
+    []
+    [ div [] [ text article.label ]
+    , div [] [ text article.body ]
+    , image
+    ]
 
 
 viewRecentArticles : List Article -> Html
@@ -461,7 +462,7 @@ decodeArticle =
   in
     JD.object5 Article
       ("user" := decodeAuthor)
-      ("body" := JD.string)
+      (JD.oneOf [ "body" := JD.string, JD.succeed "" ])
       ("id" := number)
       (JD.maybe ("image" := decodeImage))
       ("label" := JD.string)
