@@ -28,7 +28,7 @@ type Status =
   | Fetched Time.Time
   | HttpError Http.Error
 
-type PostStatus = Ready | Busy
+type PostStatus = Busy | Done | Ready
 
 type UserMessage
   = None
@@ -52,6 +52,7 @@ type alias ArticleForm =
   { label : String
   , body : String
   , image : Maybe Int
+  , show : Bool
   }
 
 initialArticleForm : ArticleForm
@@ -59,6 +60,7 @@ initialArticleForm =
   { label = ""
   , body = ""
   , image = Nothing
+  , show = True
   }
 
 type alias Model =
@@ -148,7 +150,10 @@ update context action model =
       case result of
         Ok val ->
           -- Append the new article to the articles list.
-          ( { model | articles <- val :: model.articles }
+          ( { model
+            | articles <- val :: model.articles
+            , postStatus <- Done
+            }
           -- We can reset the form, as it was posted successfully.
           , Task.succeed ResetForm |> Effects.task
           )

@@ -1,5 +1,5 @@
 import App exposing (init, update, view)
-import Article exposing (Action)
+import Article exposing (Action, PostStatus)
 import StartApp as StartApp
 import Effects exposing (Never)
 import Event exposing (Action)
@@ -73,6 +73,7 @@ type alias ActivePagePort =
   { accessToken : String
   , activePage : String
   , backendUrl : String
+  , postStatus : String
   }
 
 port activePage : Signal ActivePagePort
@@ -87,10 +88,17 @@ port activePage =
         App.PageNotFound -> "PageNotFound"
         App.User -> "User"
 
+    postStatusAsString status =
+      case status of
+        Article.Busy -> "Busy"
+        Article.Done -> "Done"
+        Article.Ready -> "Ready"
+
     getPortData model =
       { accessToken = model.accessToken
       , activePage = pageAsString model.activePage
       , backendUrl = (.config >> .backendConfig >> .backendUrl) model
+      , postStatus = postStatusAsString model.article.postStatus
       }
   in
     Signal.map getPortData app.model
