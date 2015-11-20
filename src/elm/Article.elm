@@ -3,8 +3,8 @@ module Article where
 import Config exposing (cacheTtl)
 import ConfigType exposing (BackendConfig)
 import Effects exposing (Effects)
-import Html exposing (button, div, h2, input, li, text, span, ul, Html)
-import Html.Attributes exposing (action, class, disabled, placeholder, required, size, style, type', value)
+import Html exposing (button, div, h2, input, img, li, text, span, ul, Html)
+import Html.Attributes exposing (action, class, disabled, placeholder, required, size, src, style, type', value)
 import Html.Events exposing (on, onClick, onSubmit, targetValue)
 import Http exposing (post)
 import Json.Decode as JD exposing ((:=))
@@ -41,10 +41,11 @@ type alias Author =
   }
 
 type alias Article =
-  { id : Id
-  , label : String
+  { author : Author
   , body : String
-  , author : Author
+  , id : Id
+  , image : Maybe String
+  , label : String
   }
 
 type alias ArticleForm =
@@ -264,7 +265,17 @@ viewUserMessage userMessage =
 
 viewArticles : Article -> Html
 viewArticles article =
-  li [] [ text article.label ]
+  let
+    image =
+      case article.image of
+        Just val -> img [ src val ] []
+        Nothing -> div [] []
+  in
+  li
+  []
+  [ div [] [ text article.label ]
+  , image
+  ]
 
 
 viewRecentArticles : List Article -> Html
@@ -433,13 +444,19 @@ decodeArticle =
     numberFloat =
       JD.oneOf [ JD.float, JD.customDecoder JD.string String.toFloat ]
 
-    author =
+    decodeAuthor =
       JD.object2 Author
         ("id" := number)
         ("label" := JD.string)
+
+    decodeImage =
+      JD.at ["styles"]
+        ("thumbnail" := JD.string)
+
   in
-    JD.object4 Article
-      ("id" := number)
-      ("label" := JD.string)
+    JD.object5 Article
+      ("user" := decodeAuthor)
       ("body" := JD.string)
-      ("user" := author)
+      ("id" := number)
+      (JD.maybe ("image" := decodeImage))
+      ("label" := JD.string)
