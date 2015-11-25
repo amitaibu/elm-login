@@ -501,21 +501,23 @@ navbarLoggedIn address model =
       href "javascript:void(0);"
 
   in
-    node "nav" [ class "navbar navbar-default"]
-      [ div [ class "container-fluid"]
-        -- Brand and toggle get grouped for better mobile display
-          [ div [ class "navbar-header"] []
-          , div [ class "collapse navbar-collapse"]
-              [ ul [ class "nav navbar-nav"]
-                [ li [] [ a [ hrefVoid, onClick address (SetActivePage User) ] [ text "My account"] ]
-                , li [] [ a [ hrefVoid, onClick address (SetActivePage <| Event Nothing) ] [ text "Events"] ]
-                , li [] [ a [ hrefVoid, onClick address (SetActivePage Article) ] [ text "Articles"] ]
-                , li [] [ a [ href "#!/error-page"] [ text "PageNotFound (404)"] ]
-                , li [] [ a [ hrefVoid, onClick address Logout ] [ text "Logout"] ]
+    node "nav"
+        [ class "navbar navbar-default" ]
+        [ div
+            [ class "container-fluid" ]
+            [ div
+                [ class "collapse navbar-collapse"]
+                [ ul
+                    [ class "nav navbar-nav"]
+                    [ li [] [ a [ hrefVoid, onClick address (SetActivePage User) ] [ text "My account"] ]
+                    , li [] [ a [ hrefVoid, onClick address (SetActivePage <| Event Nothing) ] [ text "Events"] ]
+                    , li [] [ a [ hrefVoid, onClick address (SetActivePage Article) ] [ text "Articles"] ]
+                    , li [] [ a [ href "#!/error-page"] [ text "PageNotFound (404)"] ]
+                    , li [] [ a [ hrefVoid, onClick address Logout ] [ text "Logout"] ]
+                  ]
                 ]
-              ]
-          ]
-      ]
+            ]
+        ]
 
 myStyle : List (String, String)
 myStyle =
