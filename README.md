@@ -2,11 +2,11 @@
 
 # elm-hedley
 
-Port of the [hedley demo](http://hedley-demo.gizra.com/) client to Elm
+An Elm single page application. The server side code is [here](https://github.com/Gizra/hedley-server).
 
 ## Install
 
-Install [Elm](http://elm-lang.org/install).
+Install Elm v0.15.1 (`npm install -g elm@0.15.1`)
 
 ```
 npm install
@@ -17,4 +17,4 @@ Execute with `gulp`
 
 ## Testing
 
-In order to view the tests on the browser Start elm reactor (`elm-reactor`) and navigate to http://localhost:8000/src/elm/TestRunner.elm
+In order to view the tests on the browser Start elm reactor (`elm-reactor`) and navigate to [http://localhost:8000/src/elm/TestRunner.elm](http://localhost:8000/src/elm/TestRunner.elm)

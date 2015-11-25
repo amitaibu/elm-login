@@ -1,7 +1,7 @@
 module Login where
 
 import Base64 exposing (encode)
-import Config exposing (backendUrl)
+import ConfigType exposing (BackendConfig)
 import Effects exposing (Effects, Never)
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -10,7 +10,8 @@ import Http exposing (Error)
 import Json.Decode as JD exposing ((:=))
 import Storage exposing (..)
 import String exposing (length)
-import Task
+import Task exposing  (Task)
+import Utils.Http exposing (getErrorMessageFromHttpResponse)
 
 
 import Debug
@@ -74,8 +75,16 @@ type Action
   | SetUserMessage UserMessage
   | SubmitForm
 
-update : Action -> Model -> (Model, Effects Action)
-update action model =
+type alias UpdateContext =
+  { backendConfig : BackendConfig
+  }
+
+type alias ViewContext =
+  { backendConfig : BackendConfig
+  }
+
+update : UpdateContext -> Action -> Model -> (Model, Effects Action)
+update context action model =
   case action of
     UpdateName name ->
       let
@@ -97,8 +106,11 @@ update action model =
 
     SubmitForm ->
       let
-        url : String
-        url = Config.backendUrl ++ "/api/login-token"
+        backendUrl =
+          (.backendConfig >> .backendUrl) context
+
+        url =
+          backendUrl ++ "/api/login-token"
 
         credentials : String
         credentials = encodeCredentials(model.loginForm.name, model.loginForm.pass)
@@ -155,24 +167,6 @@ update action model =
           , Effects.none
           )
 
-getErrorMessageFromHttpResponse : Http.Error -> String
-getErrorMessageFromHttpResponse err =
-  case err of
-    Http.Timeout ->
-      "Connection has timed out"
-
-    Http.BadResponse code _ ->
-      if | code == 401 -> "Wrong username or password"
-         | code == 429 -> "Too many login requests with the wrong username or password. Wait a few hours before trying again"
-         | code >= 500 -> "Some error has occured on the server"
-         | otherwise -> "Unknow error has occured"
-
-    Http.NetworkError ->
-      "A network error has occured"
-
-    _ ->
-      "Unknow error has occured"
-
 
 getInputFromStorage : Effects Action
 getInputFromStorage =
@@ -185,8 +179,8 @@ getInputFromStorage =
 
 -- VIEW
 
-view : Signal.Address Action -> Model -> Html
-view address model =
+view : ViewContext -> Signal.Address Action -> Model -> Html
+view context address model =
   let
     modelForm =
       model.loginForm
@@ -196,6 +190,23 @@ view address model =
 
     isFetchStatus =
       model.status == Fetching || model.status == Fetched
+
+    githubClientId =
+      (.backendConfig >> .githubClientId) context
+
+    githubUrl =
+      "https://github.com/login/oauth/authorize?client_id=" ++ githubClientId ++ "&scope=user:email"
+
+
+    githubLogin =
+      div
+      [ class "btn btn-lg btn-primary btn-block"]
+      [ a
+        [ href githubUrl]
+        [ i [ class "fa fa-github", style [("margin-right", "10px")] ] []
+        , span [] [ text "Login with GitHub" ]
+        ]
+      ]
 
     loginForm =
       Html.form
@@ -210,6 +221,10 @@ view address model =
         -- Form title
         [ h2 [] [ text "Please login" ]
         -- UserName
+        , githubLogin
+        , div
+          [ style [("margin-bottom", "20px"), ("margin-top", "20px"), ("text-align", "center")] ]
+          [ text "OR" ]
         , div
             [ class "input-group" ]
             [ span
