@@ -6,8 +6,8 @@ import Company exposing (Model)
 import Effects exposing (Effects)
 import Event exposing (Model, initialModel, update)
 import GithubAuth exposing (Model)
-import Html exposing (a, div, h2, i, li, node, span, text, ul, Html)
-import Html.Attributes exposing (class, href, style, target)
+import Html exposing (a, div, h2, i, li, node, span, text, ul, button, Html)
+import Html.Attributes exposing (class, id, href, style, target, attribute)
 import Html.Events exposing (onClick)
 import Json.Encode as JE exposing (string, Value)
 import Login exposing (Model, initialModel, update)
@@ -500,24 +500,43 @@ navbarLoggedIn address model =
     hrefVoid =
       href "javascript:void(0);"
 
+
+    navCollapseButton =
+      let
+        iconBar = span [ class "icon-bar" ] []
+
+      in
+        button
+            [ class "navbar-toggle"
+              , attribute "data-toggle" "collapse"
+              , attribute "data-target" "#main-nav"
+            ]
+            [ span [ class "sr-only"] [ text "Menu" ]
+            , iconBar
+            , iconBar
+            , iconBar
+            ]
+
   in
     node "nav"
         [ class "navbar navbar-default" ]
         [ div
             [ class "container-fluid" ]
-            [ div
-                [ class "collapse navbar-collapse"]
-                [ ul
-                    [ class "nav navbar-nav"]
-                    [ li [] [ a [ hrefVoid, onClick address (SetActivePage User) ] [ text "My account"] ]
-                    , li [] [ a [ hrefVoid, onClick address (SetActivePage <| Event Nothing) ] [ text "Events"] ]
-                    , li [] [ a [ hrefVoid, onClick address (SetActivePage Article) ] [ text "Articles"] ]
-                    , li [] [ a [ href "#!/error-page"] [ text "PageNotFound (404)"] ]
-                    , li [] [ a [ hrefVoid, onClick address Logout ] [ text "Logout"] ]
+            [ div [ class "navbar-header" ] [ navCollapseButton ]
+              , div
+                  [ class "collapse navbar-collapse", id "main-nav"]
+                  [ ul
+                      [ class "nav navbar-nav"]
+                      [ li [] [ a [ hrefVoid, onClick address (SetActivePage User) ] [ text "My account"] ]
+                        , li [] [ a [ hrefVoid, onClick address (SetActivePage <| Event Nothing) ] [ text "Events"] ]
+                        , li [] [ a [ hrefVoid, onClick address (SetActivePage Article) ] [ text "Articles"] ]
+                        , li [] [ a [ href "#!/error-page"] [ text "PageNotFound (404)"] ]
+                        , li [] [ a [ hrefVoid, onClick address Logout ] [ text "Logout"] ]
+                      ]
                   ]
-                ]
             ]
         ]
+
 
 myStyle : List (String, String)
 myStyle =
