@@ -509,11 +509,11 @@ navbarLoggedIn address model =
       in
         button
             [ class "navbar-toggle"
-              , attribute "data-toggle" "collapse"
-              , attribute "data-target" "#main-nav"
+            , attribute "data-toggle" "collapse"
+            , attribute "data-target" "#main-nav"
             ]
             [ span [ class "sr-only"] [ text "Menu" ]
-              , span [] ( List.map iconBar [0..2] )
+            , span [] ( List.map iconBar [0..2] )
             ]
 
   in
@@ -522,17 +522,19 @@ navbarLoggedIn address model =
         [ div
             [ class "container-fluid" ]
             [ div [ class "navbar-header" ] [ navCollapseButton ]
-              , div
-                  [ class "collapse navbar-collapse", id "main-nav"]
-                  [ ul
-                      [ class "nav navbar-nav"]
-                      [ li [] [ a [ hrefVoid, onClick address (SetActivePage User) ] [ text "My account"] ]
-                        , li [] [ a [ hrefVoid, onClick address (SetActivePage <| Event Nothing) ] [ text "Events"] ]
-                        , li [] [ a [ hrefVoid, onClick address (SetActivePage Article) ] [ text "Articles"] ]
-                        , li [] [ a [ href "#!/error-page"] [ text "PageNotFound (404)"] ]
-                        , li [] [ a [ hrefVoid, onClick address Logout ] [ text "Logout"] ]
-                      ]
-                  ]
+            , div
+                [ class "collapse navbar-collapse"
+                , id "main-nav"
+                ]
+                [ ul
+                    [ class "nav navbar-nav"]
+                    [ li [] [ a [ hrefVoid, onClick address (SetActivePage User) ] [ text "My account"] ]
+                    , li [] [ a [ hrefVoid, onClick address (SetActivePage <| Event Nothing) ] [ text "Events"] ]
+                    , li [] [ a [ hrefVoid, onClick address (SetActivePage Article) ] [ text "Articles"] ]
+                    , li [] [ a [ href "#!/error-page"] [ text "PageNotFound (404)"] ]
+                    , li [] [ a [ hrefVoid, onClick address Logout ] [ text "Logout"] ]
+                    ]
+                ]
             ]
         ]
 
