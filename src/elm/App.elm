@@ -503,7 +503,8 @@ navbarLoggedIn address model =
 
     navCollapseButton =
       let
-        iconBar = span [ class "icon-bar" ] []
+        iconBar index =
+          span [ class "icon-bar" ] []
 
       in
         button
@@ -512,9 +513,7 @@ navbarLoggedIn address model =
               , attribute "data-target" "#main-nav"
             ]
             [ span [ class "sr-only"] [ text "Menu" ]
-            , iconBar
-            , iconBar
-            , iconBar
+              , span [] ( List.map iconBar [0..2] )
             ]
 
   in
