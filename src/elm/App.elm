@@ -403,10 +403,10 @@ view address model =
   if model.status == ConfigError
     then
       div
-      [ class "config-error"]
-      [ h2 [] [ text "Configuration error" ]
-      , div [] [ text "Check your Config.elm file and make sure you have defined the enviorement properly" ]
-      ]
+        [ class "config-error"]
+        [ h2 [] [ text "Configuration error" ]
+        , div [] [ text "Check your Config.elm file and make sure you have defined the enviorement properly" ]
+        ]
     else
       div
       []
@@ -508,35 +508,31 @@ navbarLoggedIn address model =
 
       in
         button
-            [ class "navbar-toggle"
-            , attribute "data-toggle" "collapse"
-            , attribute "data-target" "#main-nav"
-            ]
-            [ span [ class "sr-only"] [ text "Menu" ]
-            , span [] ( List.map iconBar [0..2] )
-            ]
+          [ class "navbar-toggle"
+          , attribute "data-toggle" "collapse"
+          , attribute "data-target" ".main-nav"
+          ]
+          [ span [ class "sr-only"] [ text "Menu" ]
+          , span [] ( List.map iconBar [0..2] )
+          ]
 
   in
     node "nav"
-        [ class "navbar navbar-default" ]
-        [ div
-            [ class "container-fluid" ]
-            [ div [ class "navbar-header" ] [ navCollapseButton ]
-            , div
-                [ class "collapse navbar-collapse"
-                , id "main-nav"
-                ]
-                [ ul
-                    [ class "nav navbar-nav"]
-                    [ li [] [ a [ hrefVoid, onClick address (SetActivePage User) ] [ text "My account"] ]
-                    , li [] [ a [ hrefVoid, onClick address (SetActivePage <| Event Nothing) ] [ text "Events"] ]
-                    , li [] [ a [ hrefVoid, onClick address (SetActivePage Article) ] [ text "Articles"] ]
-                    , li [] [ a [ href "#!/error-page"] [ text "PageNotFound (404)"] ]
-                    , li [] [ a [ hrefVoid, onClick address Logout ] [ text "Logout"] ]
-                    ]
-                ]
+      [ class "navbar navbar-default" ]
+      [ div
+        [ class "container-fluid" ]
+        [ div [ class "navbar-header" ] [ navCollapseButton ]
+        , div [ class "collapse navbar-collapse main-nav" ]
+          [ ul [ class "nav navbar-nav"]
+            [ li [] [ a [ hrefVoid, onClick address (SetActivePage User) ] [ text "My account"] ]
+            , li [] [ a [ hrefVoid, onClick address (SetActivePage <| Event Nothing) ] [ text "Events"] ]
+            , li [] [ a [ hrefVoid, onClick address (SetActivePage Article) ] [ text "Articles"] ]
+            , li [] [ a [ href "#!/error-page" ] [ text "PageNotFound (404)" ] ]
+            , li [] [ a [ hrefVoid, onClick address Logout ] [ text "Logout" ] ]
             ]
+          ]
         ]
+      ]
 
 
 myStyle : List (String, String)
