@@ -189,17 +189,14 @@ function addMap() {
 // Dropzone
 // @todo: Move to own file.
 
+var ck = undefined;
 var dropZone = undefined;
-
-// Determine if drop zone was already cleared from files, after a successful
-// upload.
-var clearedDropzone = false;
 
 elmApp.ports.activePage.subscribe(function(model) {
   if (model.activePage != 'Article') {
     // Reset dropzone variable, in case we switch between pages.
+    ck = undefined;
     dropZone = undefined;
-    clearedDropzone = false;
     return;
   }
 
@@ -220,13 +217,15 @@ function attachDropzone(selector, model) {
   if (!!dropZone) {
 
     // Check if we need to remove files.
-    if (!clearedDropzone && model.postStatus == "Done") {
+    if (model.postStatus == "Done") {
       // Remove all files, even the ones being currently uploaded.
       dropZone.removeAllFiles(true);
-      clearedDropzone = true;
+
+      // Clear the CKeditor text area.
+      ck.setData('');
     }
 
-    // Drop zone was already attached once.
+    // Widgets were already attached once.
     return true;
   }
 
@@ -253,7 +252,7 @@ function attachDropzone(selector, model) {
     elmApp.ports.dropzoneUploadedFile.send(id);
   });
 
-  var ck = CKEDITOR.replace('body');
+  ck = CKEDITOR.replace('body');
 
   // Send the data to Elm.
   ck.on('change', function() {
