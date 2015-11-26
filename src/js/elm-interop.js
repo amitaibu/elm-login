@@ -1,6 +1,7 @@
 "use strict";
 
 var initialValues = {
+  ckeditor : '',
   dropzoneUploadedFile : null,
   selectEvent: null
 };
@@ -252,5 +253,10 @@ function attachDropzone(selector, model) {
     elmApp.ports.dropzoneUploadedFile.send(id);
   });
 
-  CKEDITOR.replace('body');
+  var ck = CKEDITOR.replace('body');
+
+  // Send the data to Elm.
+  ck.on('change', function() {
+    elmApp.ports.ckeditor.send(ck.getData());
+  });
 }
