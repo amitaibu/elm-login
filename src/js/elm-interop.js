@@ -235,11 +235,6 @@ function attachDropzone(selector, model) {
 
   dropZone = new Dropzone(selector, { url: url});
 
-  dropZone.on('sending', function(file) {
-    // Add the access token to the header.
-    // @todo: Let Elm know about this.
-  });
-
   dropZone.on('complete', function(file) {
     if (!file.accepted) {
       // File was not uploaded.
@@ -256,4 +251,6 @@ function attachDropzone(selector, model) {
     var id = parseInt(data.data[0]['id']);
     elmApp.ports.dropzoneUploadedFile.send(id);
   });
+
+  CKEDITOR.replace('body');
 }
