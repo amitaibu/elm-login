@@ -1,22 +1,60 @@
 #my-account {
-  ul.companies {
+
+  .wrapper,
+  h4 {
+    font-weight: 300;
+  }
+
+  .wrapper {
+    position: relative;
+
+    &:after {
+    content: "";
+    position: absolute;
+    bottom: 9px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: rgba(152, 152, 152, 0.27);
+    }
+  }
+
+  .company-title {
+    margin-top: 25px;
+    margin-bottom: 10px;
+  }
+
+  .companies {
     display: inline-block;
     list-style: none;
     padding: 0;
 
     li {
+      position: relative;
       float: left;
-      margin-left: 8px;
-      padding: 12px;
+      margin-left: 14px;
+      padding: 5px 9px;
       border-radius: 3px;
       border: 1px solid $gray;
+
+      &:before {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 34px;
+        background: rgba(95, 144, 187, 0.19);
+        border-right: 1px solid $gray;
+      }
 
       &:first-child {
         margin-left: 0;
       }
 
       i {
-        vertical-align: middle;
+        margin-right: 15px;
+        font-size: 15px;
       }
     }
   }

@@ -161,11 +161,11 @@ view address model =
               [ class "wrapper"]
               [ h3
                   [ class "title"]
-                  [ i [ class "fa fa-user" ] []
+                  [ i [ class "" ] []
                   , text " My account"
                   ]
               , h4 [] [ text "Welcome ", italicName ]
-              , h4 [] [ text "Your companies are:"]
+              , h4 [ class "company-title"] [ text "Your companies are:"]
               , ul  [ class "companies" ] (List.map viewCompanies model.companies)
               ]
           ]
