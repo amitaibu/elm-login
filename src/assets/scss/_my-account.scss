@@ -1,0 +1,23 @@
+#my-account {
+  ul.companies {
+    display: inline-block;
+    list-style: none;
+    padding: 0;
+
+    li {
+      float: left;
+      margin-left: 8px;
+      padding: 12px;
+      border-radius: 3px;
+      border: 1px solid $gray;
+
+      &:first-child {
+        margin-left: 0;
+      }
+
+      i {
+        vertical-align: middle;
+      }
+    }
+  }
+}
