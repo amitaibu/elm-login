@@ -5,20 +5,6 @@
     font-weight: 300;
   }
 
-  .wrapper {
-    position: relative;
-
-    &:after {
-    content: "";
-    position: absolute;
-    bottom: 9px;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: rgba(152, 152, 152, 0.27);
-    }
-  }
-
   .company-title {
     margin-top: 25px;
     margin-bottom: 10px;

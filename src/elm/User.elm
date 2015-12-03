@@ -156,12 +156,15 @@ view address model =
           em [] [ text name ]
       in
         div
-          [ id "my-account" , class "container" ]
+          [
+          id "my-account"
+          , class "container"
+          ]
           [ div
-              [ class "wrapper"]
+              [ class "wrapper -suffix"]
               [ h3 [ class "title"] [ text " My account" ]
               , h4 [] [ text "Welcome ", italicName ]
-              , h4 [ class "company-title"] [ text "Your companies are:"]
+              , h4 [ class "company-title"] [ text "Your companies are:" ]
               , ul  [ class "companies" ] (List.map viewCompanies model.companies)
               ]
           ]
