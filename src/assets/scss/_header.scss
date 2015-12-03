@@ -15,6 +15,21 @@
     border-bottom: 1px solid #C8C8CB;
   }
 
+  .navbar-header {
+    a {
+      margin-top: 2px;
+      text-decoration: none;
+    }
+  }
+
+  .main-nav {
+    @media only screen and (max-width : 767px) {
+      border: none;
+      box-shadow: none;
+    }
+
+  }
+
   .brand {
     color: $blue;
     font-size: 30px;

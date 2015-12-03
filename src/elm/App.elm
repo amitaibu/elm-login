@@ -522,12 +522,16 @@ navbarLoggedIn address model =
       , class "navbar navbar-default" ]
       [ div
           [ class "container" ]
-          [ div [ class "navbar-header" ] [ navCollapseButton ]
+          [ div
+            [ class "navbar-header" ]
+            [ a [ class "brand visible-xs pull-left", href "#!/" ] [ text "Hedley" ]
+            , navCollapseButton
+            ]
           , div
               [ class "collapse navbar-collapse main-nav" ]
               [ ul
                 [ class "nav navbar-nav"]
-                [ li [ ] [ a [ class "brand", href "#!/" ] [ text "Hedley" ] ]
+                [ li [] [ a [ class "brand hidden-xs", href "#!/" ] [ text "Hedley" ] ]
                 , li [] [ a [ hrefVoid, onClick address (SetActivePage User) ] [ text "My account"] ]
                 , li [] [ a [ hrefVoid, onClick address (SetActivePage <| Event Nothing) ] [ text "Events"] ]
                 , li [] [ a [ hrefVoid, onClick address (SetActivePage Article) ] [ text "Articles"] ]
