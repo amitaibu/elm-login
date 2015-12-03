@@ -1,0 +1,40 @@
+#main-header {
+  position: relative;
+  padding: 9px;
+  border-bottom: 7px solid white;
+  color: white;
+  background-color: #2D2D38;
+  font-size: 15px;
+
+  &:before {
+    content: "";
+    position: absolute;
+    width: 100%;
+    left: 0px;
+    bottom: -7px;
+    border-bottom: 1px solid #C8C8CB;
+  }
+
+  .brand {
+    color: $blue;
+    font-size: 30px;
+    font-family: 'Fjalla One', sans-serif;
+
+    &:hover {
+      color: $dark-blue;
+    }
+  }
+
+  ul {
+    text-align: center;
+  }
+
+  a {
+    transition: color 0.3s ease-in;
+    color: white;
+
+    &:hover {
+      color: $blue;
+    }
+  }
+}

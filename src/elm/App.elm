@@ -518,20 +518,24 @@ navbarLoggedIn address model =
 
   in
     node "nav"
-      [ class "navbar navbar-default" ]
+      [ id "main-header"
+      , class "navbar navbar-default" ]
       [ div
-        [ class "container-fluid" ]
-        [ div [ class "navbar-header" ] [ navCollapseButton ]
-        , div [ class "collapse navbar-collapse main-nav" ]
-          [ ul [ class "nav navbar-nav"]
-            [ li [] [ a [ hrefVoid, onClick address (SetActivePage User) ] [ text "My account"] ]
-            , li [] [ a [ hrefVoid, onClick address (SetActivePage <| Event Nothing) ] [ text "Events"] ]
-            , li [] [ a [ hrefVoid, onClick address (SetActivePage Article) ] [ text "Articles"] ]
-            , li [] [ a [ href "#!/error-page" ] [ text "PageNotFound (404)" ] ]
-            , li [] [ a [ hrefVoid, onClick address Logout ] [ text "Logout" ] ]
-            ]
+          [ class "container" ]
+          [ div [ class "navbar-header" ] [ navCollapseButton ]
+          , div
+              [ class "collapse navbar-collapse main-nav" ]
+              [ ul
+                [ class "nav navbar-nav"]
+                [ li [ ] [ a [ class "brand", href "#!/" ] [ text "Hedley" ] ]
+                , li [] [ a [ hrefVoid, onClick address (SetActivePage User) ] [ text "My account"] ]
+                , li [] [ a [ hrefVoid, onClick address (SetActivePage <| Event Nothing) ] [ text "Events"] ]
+                , li [] [ a [ hrefVoid, onClick address (SetActivePage Article) ] [ text "Articles"] ]
+                , li [] [ a [ href "#!/error-page" ] [ text "PageNotFound (404)" ] ]
+                , li [] [ a [ hrefVoid, onClick address Logout ] [ text "Logout" ] ]
+                ]
+              ]
           ]
-        ]
       ]
 
 
