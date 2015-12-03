@@ -159,11 +159,7 @@ view address model =
           [ id "my-account" , class "container" ]
           [ div
               [ class "wrapper"]
-              [ h3
-                  [ class "title"]
-                  [ i [ class "" ] []
-                  , text " My account"
-                  ]
+              [ h3 [ class "title"] [ text " My account" ]
               , h4 [] [ text "Welcome ", italicName ]
               , h4 [ class "company-title"] [ text "Your companies are:"]
               , ul  [ class "companies" ] (List.map viewCompanies model.companies)
@@ -173,11 +169,7 @@ view address model =
 
 viewCompanies : Company.Model -> Html
 viewCompanies company =
-  li []
-    [
-    i [ class "fa fa-briefcase"] []
-    , text <| " " ++ company.label
-    ]
+  li [] [ text company.label ]
 
 -- EFFECTS
 

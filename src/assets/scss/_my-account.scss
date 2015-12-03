@@ -33,7 +33,7 @@
       position: relative;
       float: left;
       margin-left: 14px;
-      padding: 5px 9px;
+      padding: 5px 9px 5px 12px;
       border-radius: 3px;
       border: 1px solid $gray;
 
@@ -43,18 +43,13 @@
         top: 0;
         bottom: 0;
         left: 0;
-        width: 34px;
+        width: 6px;
         background: rgba(95, 144, 187, 0.19);
         border-right: 1px solid $gray;
       }
 
       &:first-child {
         margin-left: 0;
-      }
-
-      i {
-        margin-right: 15px;
-        font-size: 15px;
       }
     }
   }
