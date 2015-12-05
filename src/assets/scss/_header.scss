@@ -1,4 +1,5 @@
 #main-header {
+  margin-bottom: 50px;
   position: relative;
   padding: 9px;
   border-bottom: 7px solid white;
@@ -20,12 +21,46 @@
       margin-top: 2px;
       text-decoration: none;
     }
+
+    .navbar-toggle {
+      border-color: $blue;
+      margin-right: 0;
+      transition: all 0.3s ease-in;
+
+      &:hover,
+      &:focus {
+        background: $dark-blue;
+        border-color: $dark-blue;
+
+        .icon-bar {
+          background: white;
+        }
+      }
+
+      .icon-bar {
+        background: $blue;
+        transition: all 0.3s ease-in;
+      }
+    }
   }
 
   .main-nav {
     @media only screen and (max-width : 767px) {
       border: none;
       box-shadow: none;
+    }
+
+    ul.nav {
+      li {
+        @media only screen and (max-width : 767px) {
+          border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+          text-align: left;
+
+          a {
+            padding: 16px 0;
+          }
+        }
+      }
     }
   }
 
