@@ -52,38 +52,47 @@
 
     ul.nav {
       li {
+        margin-left: 14px;
+
+        &:hover {
+          a,
+          i {
+            color: $blue;
+          }
+        }
+
+        &:nth-child(n+2):not(last-child) a {
+          border-right: 1px solid $blue;
+        }
+
         @media only screen and (max-width : 767px) {
           border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-          text-align: left;
 
           a {
             padding: 16px 0;
           }
         }
+
+        a, i {
+          transition: color 0.3s ease-in;
+        }
+
+        a {
+          padding: 0 10px;
+          display: inline-block;
+          color: white;
+
+          &.brand {
+            color: $blue;
+            font-size: 30px;
+            font-family: 'Fjalla One', sans-serif;
+
+            &:hover {
+              color: $dark-blue;
+            }
+          }
+        }
       }
-    }
-  }
-
-  .brand {
-    color: $blue;
-    font-size: 30px;
-    font-family: 'Fjalla One', sans-serif;
-
-    &:hover {
-      color: $dark-blue;
-    }
-  }
-
-  ul {
-    text-align: center;
-  }
-
-  a {
-    transition: color 0.3s ease-in;
-    color: white;
-
-    &:hover {
-      color: $blue;
     }
   }
 }
