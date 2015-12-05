@@ -1,8 +1,7 @@
 #my-account {
 
-  .wrapper,
   h4 {
-    font-weight: 300;
+    margin-top: 25px;
   }
 
   .company-title {
@@ -14,6 +13,7 @@
     display: inline-block;
     list-style: none;
     padding: 0;
+    margin-bottom: 20px;
 
     li {
       position: relative;
@@ -22,6 +22,7 @@
       padding: 5px 9px 5px 12px;
       border-radius: 3px;
       border: 1px solid $gray;
+      @extend .shadow;
 
       &:before {
         content: "";
