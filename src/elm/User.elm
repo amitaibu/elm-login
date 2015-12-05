@@ -151,10 +151,6 @@ view address model =
       div [] [ text "This is wrong - anon user cannot reach this!"]
 
     LoggedIn name ->
-      let
-        italicName =
-          em [] [ text name ]
-      in
         div
           [
           id "my-account"
@@ -163,7 +159,7 @@ view address model =
           [ div
               [ class "wrapper -suffix"]
               [ h3 [ class "title"] [ text " My account" ]
-              , h4 [] [ text "Welcome ", italicName ]
+              , h4 [ class "name" ] [ text <| "Welcome " ++ name ]
               , h4 [ class "company-title"] [ text "Your companies are:" ]
               , ul  [ class "companies" ] (List.map viewCompanies model.companies)
               ]
