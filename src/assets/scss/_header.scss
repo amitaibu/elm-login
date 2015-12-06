@@ -16,6 +16,17 @@
     border-bottom: 1px solid #C8C8CB;
   }
 
+  .brand {
+    color: $blue;
+    font-size: 30px;
+    font-family: 'Fjalla One', sans-serif;
+    transition: color 0.3s ease-in;
+
+    &:hover {
+      color: $dark-blue;
+    }
+  }
+
   .navbar-header {
     a {
       margin-top: 2px;
@@ -45,14 +56,10 @@
   }
 
   .main-nav {
-    @media only screen and (max-width : 767px) {
-      border: none;
-      box-shadow: none;
-    }
 
     ul.nav {
       li {
-        margin-left: 14px;
+        padding: 8px;
 
         &:hover {
           a,
@@ -61,19 +68,8 @@
           }
         }
 
-        &:nth-child(n+2):not(last-child) a {
-          border-right: 1px solid $blue;
-        }
-
-        @media only screen and (max-width : 767px) {
-          border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-
-          a {
-            padding: 16px 0;
-          }
-        }
-
-        a, i {
+        a,
+        i {
           transition: color 0.3s ease-in;
         }
 
@@ -83,13 +79,38 @@
           color: white;
 
           &.brand {
-            color: $blue;
-            font-size: 30px;
-            font-family: 'Fjalla One', sans-serif;
+            @extend .brand;
+          }
+        }
+      }
+    }
+  }
 
-            &:hover {
-              color: $dark-blue;
-            }
+  .main-nav {
+    @media only screen and (max-width : 767px) {
+      border: none;
+      box-shadow: none;
+    }
+
+    ul.nav {
+      li {
+
+        @media only screen and (min-width : 768px) {
+          a {
+            border-right: 1px solid $blue;
+          }
+
+          &:first-child a,
+          &:last-child a {
+            border-right: none;
+          }
+        }
+
+        @media only screen and (max-width : 767px) {
+          border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+          a {
+            padding-top: 4px;
+            padding-bottom: 8px;
           }
         }
       }

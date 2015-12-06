@@ -523,20 +523,40 @@ navbarLoggedIn address model =
       [ div
           [ class "container" ]
           [ div
-            [ class "navbar-header" ]
-            [ a [ class "brand visible-xs pull-left", href "#!/" ] [ text "Hedley" ]
-            , navCollapseButton
-            ]
+              [ class "navbar-header" ]
+              [ a [ class "brand visible-xs pull-left", href "#!/" ] [ text "Hedley" ]
+              , navCollapseButton
+              ]
           , div
               [ class "collapse navbar-collapse main-nav" ]
               [ ul
-                [ class "nav navbar-nav"]
-                [ li [] [ a [ class "brand hidden-xs", href "#!/" ] [ text "Hedley" ] ]
-                , li [] [ i [ class "glyphicon glyphicon-user" ] [], a [ hrefVoid, onClick address (SetActivePage User) ] [ text "My account"] ]
-                , li [] [ i [ class "fa fa-map-marker" ] [], a [ hrefVoid, onClick address (SetActivePage <| Event Nothing) ] [ text "Events"] ]
-                , li [] [ i [ class "fa fa-file-o" ] [], a [ hrefVoid, onClick address (SetActivePage Article) ] [ text "Articles"] ]
-                , li [] [ i [ class "fa fa-exclamation-circle" ] [], a [ href "#!/error-page" ] [ text "PageNotFound (404)" ] ]
-                , li [] [ i [ class "fa fa-sign-out" ] [], a [ hrefVoid, onClick address Logout ] [ text "Logout" ] ]
+                  [ class "nav navbar-nav"]
+                  [ li [] [ a [ class "brand hidden-xs", href "#!/" ] [ text "Hedley" ] ]
+                  , li
+                      []
+                      [ i [ class "glyphicon glyphicon-user" ] []
+                      , a [ hrefVoid, onClick address (SetActivePage User) ] [ text "My account" ]
+                      ]
+                  , li
+                      []
+                      [ i [ class "fa fa-map-marker" ] []
+                      , a [ hrefVoid, onClick address (SetActivePage <| Event Nothing) ] [ text "Events" ]
+                      ]
+                  , li
+                      []
+                      [ i [ class "fa fa-file-o" ] []
+                      , a [ hrefVoid, onClick address (SetActivePage Article) ] [ text "Articles"]
+                      ]
+                  , li
+                      []
+                      [ i [ class "fa fa-exclamation-circle" ] []
+                      , a [ href "#!/error-page" ] [ text "PageNotFound (404)" ]
+                      ]
+                  , li
+                      []
+                      [ i [ class "fa fa-sign-out" ] []
+                      , a [ hrefVoid, onClick address Logout ] [ text "Logout" ]
+                      ]
                 ]
               ]
           ]
