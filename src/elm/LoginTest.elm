@@ -58,7 +58,7 @@ submitForm status =
       Login.initialModel
 
     model' =
-      { model | status <- status }
+      { model | status = status }
 
   in
     Login.update updateContext Login.SubmitForm model'

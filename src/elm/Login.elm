@@ -89,18 +89,18 @@ update context action model =
     UpdateName name ->
       let
         loginForm = model.loginForm
-        updatedLoginForm = { loginForm | name <- name }
+        updatedLoginForm = { loginForm | name = name }
       in
-        ( { model | loginForm <- updatedLoginForm }
+        ( { model | loginForm = updatedLoginForm }
         , Effects.none
         )
 
     UpdatePass pass ->
       let
         loginForm = model.loginForm
-        updatedLoginForm = { loginForm | pass <- pass }
+        updatedLoginForm = { loginForm | pass = pass }
       in
-        ( {model | loginForm <- updatedLoginForm }
+        ( {model | loginForm = updatedLoginForm }
         , Effects.none
         )
 
@@ -119,7 +119,7 @@ update context action model =
           then
             (model, Effects.none)
           else
-            ( { model | status <- Fetching }
+            ( { model | status = Fetching }
             , Effects.batch
               [ Task.succeed (SetUserMessage None) |> Effects.task
               , getJson url credentials
@@ -128,22 +128,22 @@ update context action model =
 
     SetAccessToken token ->
       ( { model
-        | accessToken <- token
+        | accessToken = token
         -- This is a good time also to hide the password.
-        , loginForm <- LoginForm model.loginForm.name ""
+        , loginForm = LoginForm model.loginForm.name ""
         }
       , Effects.none
       )
 
     SetUserMessage userMessage ->
-      ( { model | userMessage <- userMessage }
+      ( { model | userMessage = userMessage }
       , Effects.none
       )
 
     UpdateAccessTokenFromServer result ->
       case result of
         Ok token ->
-          ( { model | status <- Fetched }
+          ( { model | status = Fetched }
           , Task.succeed (SetAccessToken token) |> Effects.task
           )
         Err err ->
@@ -151,7 +151,7 @@ update context action model =
             message =
               getErrorMessageFromHttpResponse err
           in
-            ( { model | status <- HttpError err }
+            ( { model | status = HttpError err }
             , Task.succeed (SetUserMessage <| Error message) |> Effects.task
             )
 
@@ -163,7 +163,7 @@ update context action model =
           )
         Err err ->
           -- There was no access token in the storage, so show the login form
-          ( { model | hasAccessTokenInStorage <- False }
+          ( { model | hasAccessTokenInStorage = False }
           , Effects.none
           )
 
