@@ -37,12 +37,12 @@ update : Action -> Model -> (Model, Effects Action)
 update action model =
   case action of
     SetConfig backendConfig ->
-      ( { model | backendConfig <- backendConfig }
+      ( { model | backendConfig = backendConfig }
       , Effects.none
       )
 
     SetStatus status ->
-      ( { model | status <- status }
+      ( { model | status = status }
       , Effects.none
       )
 
