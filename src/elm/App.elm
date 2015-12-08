@@ -401,12 +401,12 @@ update action model =
 
 -- VIEW
 
-isCurrentPage activePage link =
+isCurrentPage activePage page =
   case activePage of
     Event companyId ->
-      link == (Event Nothing)
+      page == (Event Nothing)
     _->
-      activePage == link
+      activePage == page
 
 view : Signal.Address Action -> Model -> Html
 view address model =
@@ -504,8 +504,8 @@ footer =
 navbarLoggedIn : Signal.Address Action -> Model -> Html
 navbarLoggedIn address model =
   let
-    activeClass link =
-      [ ("active", isCurrentPage model.activePage link) ]
+    activeClass page =
+      [ ("active", isActivePage model.activePage page) ]
 
     childAddress =
       Signal.forwardTo address ChildUserAction
