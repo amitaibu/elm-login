@@ -10,7 +10,7 @@ import Effects exposing (Effects)
 import Event exposing (Model, initialModel, update)
 import GithubAuth exposing (Model)
 import Html exposing (a, div, h2, i, li, node, span, text, ul, button, Html)
-import Html.Attributes exposing (class, id, href, style, target, attribute)
+import Html.Attributes exposing (class, classList, id, href, style, target, attribute)
 import Html.Events exposing (onClick)
 import Json.Encode as JE exposing (string, Value)
 import Login exposing (Model, initialModel, update)
@@ -401,20 +401,12 @@ update action model =
 
 -- VIEW
 
-isActiveLink activePage link =
-  if activePage == link
-    then
-      class "active"
-    else
-      case activePage of
-        Event companyId ->
-          if link == (Event Nothing)
-            then
-              class "active"
-            else
-              class ""
-        _ ->
-          class ""
+isCurrentPage activePage link =
+  case activePage of
+    Event companyId ->
+      link == (Event Nothing)
+    _->
+      activePage == link
 
 view : Signal.Address Action -> Model -> Html
 view address model =
@@ -551,22 +543,22 @@ navbarLoggedIn address model =
                   [ class "nav navbar-nav"]
                   [ li [] [ a [ class "brand hidden-xs", href "#!/" ] [ text "Hedley" ] ]
                   , li
-                      [ isActiveLink model.activePage User ]
+                      [ classList [("active", (isCurrentPage model.activePage User))] ]
                       [ i [ class "glyphicon glyphicon-user" ] []
                       , a [ hrefVoid, onClick address (SetActivePage User) ] [ text "My account" ]
                       ]
                   , li
-                      [ isActiveLink model.activePage (Event Nothing) ]
+                      [ classList [("active", (isCurrentPage model.activePage (Event Nothing)))] ]
                       [ i [ class "fa fa-map-marker" ] []
                       , a [ hrefVoid, onClick address (SetActivePage <| Event Nothing) ] [ text "Events" ]
                       ]
                   , li
-                      [ isActiveLink model.activePage Article ]
+                      [ classList [("active", (isCurrentPage model.activePage Article))] ]
                       [ i [ class "fa fa-file-o" ] []
                       , a [ hrefVoid, onClick address (SetActivePage Article) ] [ text "Articles"]
                       ]
                   , li
-                      [ isActiveLink model.activePage PageNotFound ]
+                      [  classList [("active", (isCurrentPage model.activePage PageNotFound))] ]
                       [ i [ class "fa fa-exclamation-circle" ] []
                       , a [ href "#!/error-page" ] [ text "PageNotFound (404)" ]
                       ]
