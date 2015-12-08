@@ -401,7 +401,7 @@ update action model =
 
 -- VIEW
 
-isCurrentPage activePage page =
+isActivePage activePage page =
   case activePage of
     Event companyId ->
       page == (Event Nothing)
