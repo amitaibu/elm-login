@@ -401,6 +401,13 @@ update action model =
 
 -- VIEW
 
+isActiveLink address model page =
+    if model.activePage == page
+      then
+        class "active"
+      else
+        class ""
+
 view : Signal.Address Action -> Model -> Html
 view address model =
   if model.status == ConfigError
@@ -538,22 +545,22 @@ navbarLoggedIn address model =
                   , li
                       []
                       [ i [ class "glyphicon glyphicon-user" ] []
-                      , a [ hrefVoid, onClick address (SetActivePage User) ] [ text "My account" ]
+                      , a [ isActiveLink address model User, hrefVoid, onClick address (SetActivePage User) ] [ text "My account" ]
                       ]
                   , li
                       []
                       [ i [ class "fa fa-map-marker" ] []
-                      , a [ hrefVoid, onClick address (SetActivePage <| Event Nothing) ] [ text "Events" ]
+                      , a [ isActiveLink address model (Event Nothing), hrefVoid, onClick address (SetActivePage <| Event Nothing) ] [ text "Events" ]
                       ]
                   , li
                       []
                       [ i [ class "fa fa-file-o" ] []
-                      , a [ hrefVoid, onClick address (SetActivePage Article) ] [ text "Articles"]
+                      , a [ isActiveLink address model Article, hrefVoid, onClick address (SetActivePage Article) ] [ text "Articles"]
                       ]
                   , li
                       []
                       [ i [ class "fa fa-exclamation-circle" ] []
-                      , a [ href "#!/error-page" ] [ text "PageNotFound (404)" ]
+                      , a [ isActiveLink address model PageNotFound, href "#!/error-page" ] [ text "PageNotFound (404)" ]
                       ]
                   , li
                       []

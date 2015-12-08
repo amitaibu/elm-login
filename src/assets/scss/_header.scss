@@ -81,6 +81,10 @@
           &.brand {
             @extend .brand;
           }
+
+          &.active {
+            text-decoration: underline;
+          }
         }
       }
     }
