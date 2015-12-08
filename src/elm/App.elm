@@ -401,7 +401,7 @@ update action model =
 
 -- VIEW
 
-isActiveLink address model page =
+isActiveLink model page =
     if model.activePage == page
       then
         class "active"
@@ -545,22 +545,22 @@ navbarLoggedIn address model =
                   , li
                       []
                       [ i [ class "glyphicon glyphicon-user" ] []
-                      , a [ isActiveLink address model User, hrefVoid, onClick address (SetActivePage User) ] [ text "My account" ]
+                      , a [ isActiveLink model User, hrefVoid, onClick address (SetActivePage User) ] [ text "My account" ]
                       ]
                   , li
                       []
                       [ i [ class "fa fa-map-marker" ] []
-                      , a [ isActiveLink address model (Event Nothing), hrefVoid, onClick address (SetActivePage <| Event Nothing) ] [ text "Events" ]
+                      , a [ isActiveLink model (Event Nothing), hrefVoid, onClick address (SetActivePage <| Event Nothing) ] [ text "Events" ]
                       ]
                   , li
                       []
                       [ i [ class "fa fa-file-o" ] []
-                      , a [ isActiveLink address model Article, hrefVoid, onClick address (SetActivePage Article) ] [ text "Articles"]
+                      , a [ isActiveLink model Article, hrefVoid, onClick address (SetActivePage Article) ] [ text "Articles"]
                       ]
                   , li
                       []
                       [ i [ class "fa fa-exclamation-circle" ] []
-                      , a [ isActiveLink address model PageNotFound, href "#!/error-page" ] [ text "PageNotFound (404)" ]
+                      , a [ isActiveLink model PageNotFound, href "#!/error-page" ] [ text "PageNotFound (404)" ]
                       ]
                   , li
                       []
