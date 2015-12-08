@@ -81,9 +81,14 @@
           &.brand {
             @extend .brand;
           }
+        }
 
-          &.active {
-            text-decoration: underline;
+        &.active {
+
+          a,
+          i {
+            color: $blue;
+            background: none;
           }
         }
       }

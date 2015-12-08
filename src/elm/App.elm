@@ -551,24 +551,24 @@ navbarLoggedIn address model =
                   [ class "nav navbar-nav"]
                   [ li [] [ a [ class "brand hidden-xs", href "#!/" ] [ text "Hedley" ] ]
                   , li
-                      []
+                      [ isActiveLink model.activePage User ]
                       [ i [ class "glyphicon glyphicon-user" ] []
-                      , a [ isActiveLink model.activePage User, hrefVoid, onClick address (SetActivePage User) ] [ text "My account" ]
+                      , a [ hrefVoid, onClick address (SetActivePage User) ] [ text "My account" ]
                       ]
                   , li
-                      []
+                      [ isActiveLink model.activePage (Event Nothing) ]
                       [ i [ class "fa fa-map-marker" ] []
-                      , a [ isActiveLink model.activePage (Event Nothing), hrefVoid, onClick address (SetActivePage <| Event Nothing) ] [ text "Events" ]
+                      , a [ hrefVoid, onClick address (SetActivePage <| Event Nothing) ] [ text "Events" ]
                       ]
                   , li
-                      []
+                      [ isActiveLink model.activePage Article ]
                       [ i [ class "fa fa-file-o" ] []
-                      , a [ isActiveLink model.activePage Article, hrefVoid, onClick address (SetActivePage Article) ] [ text "Articles"]
+                      , a [ hrefVoid, onClick address (SetActivePage Article) ] [ text "Articles"]
                       ]
                   , li
-                      []
+                      [ isActiveLink model.activePage PageNotFound ]
                       [ i [ class "fa fa-exclamation-circle" ] []
-                      , a [ isActiveLink model.activePage PageNotFound, href "#!/error-page" ] [ text "PageNotFound (404)" ]
+                      , a [ href "#!/error-page" ] [ text "PageNotFound (404)" ]
                       ]
                   , li
                       []
