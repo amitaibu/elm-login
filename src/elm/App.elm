@@ -406,7 +406,15 @@ isActiveLink model page =
       then
         class "active"
       else
-        class ""
+        case model.activePage of
+          Event companyId ->
+            if page == (Event Nothing)
+              then
+                class "active"
+              else
+                class ""
+          _ ->
+            class ""
 
 view : Signal.Address Action -> Model -> Html
 view address model =
