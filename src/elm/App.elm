@@ -401,20 +401,20 @@ update action model =
 
 -- VIEW
 
-isActiveLink model page =
-    if model.activePage == page
-      then
-        class "active"
-      else
-        case model.activePage of
-          Event companyId ->
-            if page == (Event Nothing)
-              then
-                class "active"
-              else
-                class ""
-          _ ->
-            class ""
+isActiveLink activePage link =
+  if activePage == link
+    then
+      class "active"
+    else
+      case activePage of
+        Event companyId ->
+          if link == (Event Nothing)
+            then
+              class "active"
+            else
+              class ""
+        _ ->
+          class ""
 
 view : Signal.Address Action -> Model -> Html
 view address model =
@@ -553,22 +553,22 @@ navbarLoggedIn address model =
                   , li
                       []
                       [ i [ class "glyphicon glyphicon-user" ] []
-                      , a [ isActiveLink model User, hrefVoid, onClick address (SetActivePage User) ] [ text "My account" ]
+                      , a [ isActiveLink model.activePage User, hrefVoid, onClick address (SetActivePage User) ] [ text "My account" ]
                       ]
                   , li
                       []
                       [ i [ class "fa fa-map-marker" ] []
-                      , a [ isActiveLink model (Event Nothing), hrefVoid, onClick address (SetActivePage <| Event Nothing) ] [ text "Events" ]
+                      , a [ isActiveLink model.activePage (Event Nothing), hrefVoid, onClick address (SetActivePage <| Event Nothing) ] [ text "Events" ]
                       ]
                   , li
                       []
                       [ i [ class "fa fa-file-o" ] []
-                      , a [ isActiveLink model Article, hrefVoid, onClick address (SetActivePage Article) ] [ text "Articles"]
+                      , a [ isActiveLink model.activePage Article, hrefVoid, onClick address (SetActivePage Article) ] [ text "Articles"]
                       ]
                   , li
                       []
                       [ i [ class "fa fa-exclamation-circle" ] []
-                      , a [ isActiveLink model PageNotFound, href "#!/error-page" ] [ text "PageNotFound (404)" ]
+                      , a [ isActiveLink model.activePage PageNotFound, href "#!/error-page" ] [ text "PageNotFound (404)" ]
                       ]
                   , li
                       []
