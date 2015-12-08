@@ -504,6 +504,9 @@ footer =
 navbarLoggedIn : Signal.Address Action -> Model -> Html
 navbarLoggedIn address model =
   let
+    activeClass link =
+      [ ("active", isCurrentPage model.activePage link) ]
+
     childAddress =
       Signal.forwardTo address ChildUserAction
 
@@ -543,22 +546,22 @@ navbarLoggedIn address model =
                   [ class "nav navbar-nav"]
                   [ li [] [ a [ class "brand hidden-xs", href "#!/" ] [ text "Hedley" ] ]
                   , li
-                      [ classList [("active", (isCurrentPage model.activePage User))] ]
+                      [ classList (activeClass User) ]
                       [ i [ class "glyphicon glyphicon-user" ] []
                       , a [ hrefVoid, onClick address (SetActivePage User) ] [ text "My account" ]
                       ]
                   , li
-                      [ classList [("active", (isCurrentPage model.activePage (Event Nothing)))] ]
+                      [ classList (activeClass (Event Nothing)) ]
                       [ i [ class "fa fa-map-marker" ] []
                       , a [ hrefVoid, onClick address (SetActivePage <| Event Nothing) ] [ text "Events" ]
                       ]
                   , li
-                      [ classList [("active", (isCurrentPage model.activePage Article))] ]
+                      [ classList (activeClass Article) ]
                       [ i [ class "fa fa-file-o" ] []
                       , a [ hrefVoid, onClick address (SetActivePage Article) ] [ text "Articles"]
                       ]
                   , li
-                      [  classList [("active", (isCurrentPage model.activePage PageNotFound))] ]
+                      [  classList (activeClass PageNotFound) ]
                       [ i [ class "fa fa-exclamation-circle" ] []
                       , a [ href "#!/error-page" ] [ text "PageNotFound (404)" ]
                       ]
