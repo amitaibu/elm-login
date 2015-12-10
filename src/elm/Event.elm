@@ -1,6 +1,7 @@
 module Event where
 
 import Config exposing (cacheTtl)
+import Counter exposing (..)
 import Config.Model exposing (BackendConfig)
 import Company exposing (Model)
 import Dict exposing (Dict)
@@ -55,6 +56,7 @@ type alias Model =
   -- @todo: Make (Maybe String)
   , filterString : String
   , leaflet : Leaflet.Model.Model
+  , counter : Counter.Model
   }
 
 initialModel : Model
@@ -66,6 +68,7 @@ initialModel =
   , selectedAuthor = Nothing
   , filterString = ""
   , leaflet = Leaflet.Model.initialModel
+  , counter = 0
   }
 
 init : (Model, Effects Action)
@@ -86,6 +89,7 @@ type Action
   -- Select event might get values from JS (i.e. selecting a leaflet marker)
   -- so we allow passing a Maybe Int, instead of just Int.
   | SelectCompany (Maybe CompanyId)
+  | UpdateCounter
   | SelectEvent (Maybe Int)
   | UnSelectEvent
   | SelectAuthor Int
@@ -95,6 +99,7 @@ type Action
 
   -- Child actions
   | ChildLeafletAction Leaflet.Update.Action
+  | ChildCounterAction Counter.Action
 
   -- Page
   | Activate (Maybe CompanyId)
@@ -161,6 +166,13 @@ update context action model =
           ( {model | status <- HttpError msg}
           , Effects.none
           )
+    UpdateCounter ->
+        let
+            (childModel, childEffects) = Counter.update Counter.Increment model.counter
+            in
+            ( {model | counter <- childModel }
+            , Effects.map ChildCounterAction childEffects
+            )
 
     SelectCompany maybeCompanyId ->
       let
@@ -291,7 +303,8 @@ view context address model =
               [ div [class "h2"] [ text "Companies"]
               , companyListForSelect address context.companies model.selectedCompany
               ]
-
+          , div []
+            [Counter.view model.counter]
           , div []
               [ div [class "h2"] [ text "Event Authors"]
               , ul [] (viewEventsByAuthors address model.events model.selectedAuthor)
@@ -353,6 +366,7 @@ companyListForSelect address companies selectedCompany  =
     select
       [ value selectedText
       , on "change" targetValue (\str -> Signal.message address <| SelectCompany <| textToMaybe str)
+      , on "input" targetValue (\str -> Signal.message address <| UpdateCounter)
       ]
       (List.map getOption companies')
 
