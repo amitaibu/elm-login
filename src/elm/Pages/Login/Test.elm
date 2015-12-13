@@ -1,7 +1,6 @@
 module Pages.Login.Test where
 
-import ElmTest.Assertion exposing (..)
-import ElmTest.Test exposing (..)
+import ElmTest exposing (..)
 
 import Config.Model exposing (initialBackendConfig)
 import Effects exposing (Effects)
