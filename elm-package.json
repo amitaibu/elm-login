@@ -5,7 +5,8 @@
     "license": "BSD3",
     "source-directories": [
         "src/elm",
-        "srv/vendor/elm-param-parsing/src",
+        "src/vendor/elm-base64",
+        "src/vendor/elm-param-parsing/src",
         "src/vendor/elm-storage/src",
         "src/vendor/elm-web-api/src"
     ],
