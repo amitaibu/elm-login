@@ -35,7 +35,7 @@ type alias Context =
   , backendConfig : BackendConfig
   }
 
-update : Context -> Action -> Model -> (Model, Effects Action, Maybe Model)
+update : Context -> Action -> Model -> (Model, Effects Action, Maybe Article.Model)
 update context action model =
   case action of
     ResetForm ->

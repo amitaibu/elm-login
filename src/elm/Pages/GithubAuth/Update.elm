@@ -8,7 +8,7 @@ import Json.Decode as JD exposing ((:=))
 import Json.Encode as JE exposing (..)
 import Pages.GithubAuth.Model as GithubAuth exposing (initialModel, Model)
 import Task exposing (map)
-import UrlParameterParser exposing (ParseResult, parseSearchString)
+-- import UrlParameterParser exposing (ParseResult, parseSearchString)
 import WebAPI.Location exposing (location)
 
 type alias AccessToken = String
@@ -77,16 +77,17 @@ getCodeFromUrl =
       SetError "code property is missing form URL."
 
     getAction location =
-      case (parseSearchString location.search) of
-        UrlParameterParser.UrlParams dict ->
-          case (Dict.get "code" dict) of
-            Just val ->
-              AuthorizeUser val
-            Nothing ->
-              errAction
-
-        UrlParameterParser.Error _ ->
-          errAction
+      errAction
+      -- case (parseSearchString location.search) of
+      --   UrlParameterParser.UrlParams dict ->
+      --     case (Dict.get "code" dict) of
+      --       Just val ->
+      --         AuthorizeUser val
+      --       Nothing ->
+      --         errAction
+      --
+      --   UrlParameterParser.Error _ ->
+      --     errAction
 
     actionTask =
       Task.map getAction WebAPI.Location.location

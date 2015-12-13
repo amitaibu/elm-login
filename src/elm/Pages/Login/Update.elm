@@ -2,7 +2,7 @@ module Pages.Login.Update where
 
 import Pages.Login.Model exposing (initialModel, Model)
 
-import Base64 exposing (encode)
+-- import Base64 exposing (encode)
 import Config.Model exposing (BackendConfig)
 import Effects exposing (Effects)
 import Http exposing (Error)
@@ -130,12 +130,15 @@ getInputFromStorage =
 
 encodeCredentials : (String, String) -> String
 encodeCredentials (name, pass) =
-  let
-     base64 = Base64.encode(name ++ ":" ++ pass)
-  in
-    case base64 of
-     Ok result -> result
-     Err err -> ""
+  -- let
+  --    base64 = Base64.encode(name ++ ":" ++ pass)
+  -- in
+  --   case base64 of
+  --    Ok result -> result
+  --    Err err -> ""
+
+  -- @todo: Change
+  ""
 
 getJson : String -> String -> Effects Action
 getJson url credentials =
