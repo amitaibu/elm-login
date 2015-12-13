@@ -61,7 +61,7 @@ submitForm status =
       Pages.Login.Model.initialModel
 
     model' =
-      { model | status <- status }
+      { model | status = status }
 
   in
     Pages.Login.Update.update updateContext Pages.Login.Update.SubmitForm model'

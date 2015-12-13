@@ -39,8 +39,8 @@ update context action model =
   case action of
     ResetForm ->
       ( { model
-        | articleForm <- initialArticleForm
-        , postStatus <- ArticleForm.Ready
+        | articleForm = initialArticleForm
+        , postStatus = ArticleForm.Ready
         }
       , Effects.none
       , Nothing
@@ -52,15 +52,15 @@ update context action model =
           model.articleForm
 
         articleForm' =
-          { articleForm | image <- maybeVal }
+          { articleForm | image = maybeVal }
       in
-        ( { model | articleForm <- articleForm' }
+        ( { model | articleForm = articleForm' }
         , Effects.none
         , Nothing
         )
 
     SetUserMessage userMessage ->
-      ( { model | userMessage <- userMessage }
+      ( { model | userMessage = userMessage }
       , Effects.none
       , Nothing
       )
@@ -75,7 +75,7 @@ update context action model =
       in
         if model.postStatus == ArticleForm.Ready
           then
-            ( { model | postStatus <- ArticleForm.Busy }
+            ( { model | postStatus = ArticleForm.Busy }
             , postArticle url context.accessToken model.articleForm
             , Nothing
             )
@@ -93,9 +93,9 @@ update context action model =
           model.articleForm
 
         articleForm' =
-          { articleForm | body <- val }
+          { articleForm | body = val }
       in
-        ( { model | articleForm <- articleForm' }
+        ( { model | articleForm = articleForm' }
         , Effects.none
         , Nothing
         )
@@ -106,9 +106,9 @@ update context action model =
           model.articleForm
 
         articleForm' =
-          { articleForm | label <- val }
+          { articleForm | label = val }
       in
-        ( { model | articleForm <- articleForm' }
+        ( { model | articleForm = articleForm' }
         , Effects.none
         , Nothing
         )
@@ -117,7 +117,7 @@ update context action model =
       case result of
         Ok article ->
           -- Append the new article to the articles list.
-          ( { model | postStatus <- ArticleForm.Done }
+          ( { model | postStatus = ArticleForm.Done }
           -- We can reset the form, as it was posted successfully.
           , Task.succeed ResetForm |> Effects.task
           -- Return the article to the parent component.
