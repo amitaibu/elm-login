@@ -28,13 +28,14 @@ type Action
   | UpdatePostArticle (Result Http.Error Article.Model)
 
 
+type alias Model = ArticleForm.Model
 
-type alias UpdateContext =
+type alias Context =
   { accessToken : String
   , backendConfig : BackendConfig
   }
 
-update : UpdateContext -> Action -> ArticleForm.Model -> (ArticleForm.Model, Effects Action, Maybe Article.Model)
+update : Context -> Action -> Model -> (Model, Effects Action, Maybe Model)
 update context action model =
   case action of
     ResetForm ->
