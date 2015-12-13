@@ -6,7 +6,7 @@
     "source-directories": [
         "src/elm",
         "src/vendor/elm-base64",
-        "srv/vendor/elm-param-parsing",
+        "srv/vendor/elm-param-parsing/src",
         "src/vendor/elm-storage/src",
         "src/vendor/elm-web-api/src"
     ],
