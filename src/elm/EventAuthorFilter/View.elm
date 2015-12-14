@@ -46,7 +46,7 @@ viewEventsByAuthors events address selectedAuthor =
             authorSelect
 
     viewAuthor (author, count) =
-      li [] [ getText author count ]
+      li [] [getText author count]
   in
     -- Get HTML from the grouped events
     groupEventsByAuthors events |>
