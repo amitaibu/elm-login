@@ -9,15 +9,10 @@ import Html exposing (a, div, input, text, select, span, li, option, ul, Html)
 import Html.Attributes exposing (class, hidden, href, id, placeholder, selected, style, value)
 import Html.Events exposing (on, onClick, targetValue)
 
-import Debug
-
 type alias Model = EventAuthorFilter.Model
 
 view : List Event -> Signal.Address Action -> Model -> Html
 view events address selectedAuthor =
-  let
-    _ = Debug.log "events" events
-  in
   div []
     [ div [class "h2"] [ text "Event Authors"]
     , ul [] (viewEventsByAuthors events address selectedAuthor)
