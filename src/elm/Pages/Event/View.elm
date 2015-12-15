@@ -32,13 +32,7 @@ view context address model =
       [ div [class "row"]
         [ div [class "col-md-3"]
             [ (EventCompanyFilter.View.view context.companies childEventCompanyFilterAddress model.selectedCompany)
-            -- , (EventAuthorFilter.View.view model.events childEventAuthorFilterAddress model.selectedAuthor)
-
-            , div []
-                [ div [class "h2"] [ text "Event list"]
-                , (viewFilterString address model)
-                , (viewListEvents address model)
-                ]
+            , (EventAuthorFilter.View.view model.events childEventAuthorFilterAddress model.selectedAuthor)
             ]
 
         , div [class "col-md-9"]
