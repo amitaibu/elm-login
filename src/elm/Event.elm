@@ -290,18 +290,25 @@ leafletMarkers model =
     |> List.map (\event -> Leaflet.Model.Marker event.id event.marker.lat event.marker.lng)
 
 -- VIEW
-{-viewClicksrString : Model -> Html
+viewClicksrString : Model -> Html
 viewClicksrString model=
-  span [class  "badge", style [("float","left")]] [text model.clicks]-}
+  span [class  "badge", style [("float","right")]] [text (toString model.clicks)]
 
 view : ViewContext -> Signal.Address Action -> Model -> Html
-view context address model =
+view context address model = 
+  {-let
+    myLog =
+      log "model clicks: " model.clicks
+    bar x=
+      ("Companies" ++ " (" ++ (toString  x) ++ ")")
+    foo =
+      myLog |> bar
+  in-}
   div [class "container"]
     [ div [class "row"]
       [ div [class "col-md-3"]
           [ div []
-              [ div [class "h2"] [ text "Companies"]
-              {-, viewClicksrString model-}
+              [ div [class "h2" , style [("float","left")]] [ text "Companies",(viewClicksrString model) ]
               , companyListForSelect address context.companies model.selectedCompany
               ]
 
