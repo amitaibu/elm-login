@@ -17,6 +17,7 @@ import String exposing (length)
 import Task  exposing (andThen, Task)
 import TaskTutorial exposing (getCurrentTime)
 import Time exposing (Time)
+import Debug exposing (log)
 
 -- MODEL
 
@@ -50,6 +51,7 @@ type alias Model =
   { events : List Event
   , status : Status
   , selectedCompany : Maybe CompanyId
+  , clicks : Int
   , selectedEvent : Maybe Int
   , selectedAuthor : Maybe Int
   -- @todo: Make (Maybe String)
@@ -62,6 +64,7 @@ initialModel =
   { events = []
   , status = Init
   , selectedCompany = Nothing
+  , clicks = 0
   , selectedEvent = Nothing
   , selectedAuthor = Nothing
   , filterString = ""
@@ -179,8 +182,14 @@ update context action model =
                 else Nothing
             Nothing ->
               Nothing
+
+        addClick =
+          if(selectedCompany==Nothing)
+            then model.clicks
+            else model.clicks+1
+            
       in
-        ( { model | selectedCompany = selectedCompany }
+        ( { model | selectedCompany = selectedCompany , clicks = log "clicks : " addClick }
         , Task.succeed (GetData selectedCompany) |> Effects.task
         )
 
@@ -281,14 +290,25 @@ leafletMarkers model =
     |> List.map (\event -> Leaflet.Model.Marker event.id event.marker.lat event.marker.lng)
 
 -- VIEW
+viewClicksrString : Model -> Html
+viewClicksrString model=
+  span [class  "badge", style [("float","right")]] [text (toString model.clicks)]
 
 view : ViewContext -> Signal.Address Action -> Model -> Html
-view context address model =
+view context address model = 
+  {-let
+    myLog =
+      log "model clicks: " model.clicks
+    bar x=
+      ("Companies" ++ " (" ++ (toString  x) ++ ")")
+    foo =
+      myLog |> bar
+  in-}
   div [class "container"]
     [ div [class "row"]
       [ div [class "col-md-3"]
           [ div []
-              [ div [class "h2"] [ text "Companies"]
+              [ div [class "h2" , style [("float","left")]] [ text "Companies",(viewClicksrString model) ]
               , companyListForSelect address context.companies model.selectedCompany
               ]
 
