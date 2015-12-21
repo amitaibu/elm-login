@@ -5,7 +5,7 @@ import Config.Model exposing (BackendConfig)
 import Company.Model as Company exposing (Model)
 import Dict exposing (Dict)
 import Effects exposing (Effects)
-import Html exposing (a, div, input, text, select, span, li, option, ul, Html)
+import Html exposing (a, div, h3, i, input, text, select, span, li, option, ul, Html)
 import Html.Attributes exposing (class, hidden, href, id, placeholder, selected, style, value)
 import Html.Events exposing (on, onClick, targetValue)
 import Http
@@ -284,33 +284,63 @@ leafletMarkers model =
 
 view : ViewContext -> Signal.Address Action -> Model -> Html
 view context address model =
-  div [class "container"]
-    [ div [class "row"]
-      [ div [class "col-md-3"]
-          [ div []
-              [ div [class "h2"] [ text "Companies"]
-              , companyListForSelect address context.companies model.selectedCompany
-              ]
+  div
+    [ id "events-page"
+    , class "container"
+    ]
+    [ div
+        [ class "row" ]
+        [ div
+            [ class "col-md-3 first" ]
+            [ div
+                [ class "wrapper -suffix" ]
+                [ h3
+                    [ class "title" ]
+                    [ i [ class "fa fa-briefcase" ] []
+                    , text <| " " ++ "Companies"
+                    ]
+                , companyListForSelect address context.companies model.selectedCompany
+                ]
 
-          , div []
-              [ div [class "h2"] [ text "Event Authors"]
-              , ul [] (viewEventsByAuthors address model.events model.selectedAuthor)
-              , div [ hidden (isFetched model.status)] [ text "Loading..."]
-              ]
+            , div
+                [ class "wrapper -suffix" ]
+                [ h3
+                    [ class "title" ]
+                    [ i [ class "glyphicon glyphicon-user" ] []
+                    , text <| " " ++ "Event Authors"
+                    ]
+                , ul
+                    [ class "authors" ]
+                    (viewEventsByAuthors address model.events model.selectedAuthor)
+                , div [ hidden (isFetched model.status) ] [ text "Loading..." ]
+                ]
 
-          , div []
-              [ div [class "h2"] [ text "Event list"]
-              , (viewFilterString address model)
-              , (viewListEvents address model)
-              ]
-          ]
+            , div
+                [ class "wrapper -suffix" ]
+                [ h3
+                    [ class "title" ]
+                    [ i [ class "fa fa-map-marker" ] []
+                    , text <| " " ++ "Event List"
+                    ]
+                , (viewFilterString address model)
+                , (viewListEvents address model)
+                ]
+            ]
 
-      , div [class "col-md-9"]
-          [ div [class "h2"] [ text "Map"]
-          , div [ style mapStyle, id "map" ] []
-          , viewEventInfo model
-          ]
-      ]
+        , div
+            [ class "col-md-9 last" ]
+            [ div
+                [ class "wrapper -suffix" ]
+                [ h3
+                    [ class "title" ]
+                    [ i [ class "fa fa-globe" ] []
+                    ,  text <| " " ++ "Map"
+                    ]
+                , div [ style mapStyle, id "map" ] []
+                , viewEventInfo model
+                ]
+            ]
+        ]
     ]
 
 companyListForSelect : Signal.Address Action -> List Company.Model -> Maybe CompanyId -> Html
@@ -351,7 +381,8 @@ companyListForSelect address companies selectedCompany  =
       option [value <| toString company.id, selected (company.id == selectedId)] [ text company.label]
   in
     select
-      [ value selectedText
+      [ class "companies"
+      , value selectedText
       , on "change" targetValue (\str -> Signal.message address <| SelectCompany <| textToMaybe str)
       ]
       (List.map getOption companies')
@@ -396,8 +427,13 @@ viewEventsByAuthors address events selectedAuthor =
 
         authorUnselect =
           span []
-            [ a [ href "javascript:void(0);", onClick address (UnSelectAuthor) ] [ text "x " ]
-            , authorRaw
+            [ authorRaw
+            , a
+              [ class "unselect fa fa-minus-circle"
+              , href "javascript:void(0);"
+              , onClick address (UnSelectAuthor)
+              ]
+              []
             ]
       in
         case selectedAuthor of
@@ -446,13 +482,13 @@ viewFilterString : Signal.Address Action -> Model -> Html
 viewFilterString address model =
   div []
     [ input
-        [ placeholder "Filter events"
+        [ class "search form-control"
+        , placeholder "Filter events"
         , value model.filterString
         , on "input" targetValue (Signal.message address << FilterEvents)
         ]
         []
     ]
-
 
 viewListEvents : Signal.Address Action -> Model -> Html
 viewListEvents address model =
@@ -467,10 +503,17 @@ viewListEvents address model =
         [ a [ hrefVoid , onClick address (SelectEvent <| Just event.id) ] [ text event.label ] ]
 
     eventUnselect event =
-      li []
+      li
+        [ class "-active"]
         [ span []
-          [ a [ href "javascript:void(0);", onClick address (UnSelectEvent) ] [ text "x " ]
-          , text event.label
+          [ text event.label
+          , a
+              [
+              class "unselect fa fa-minus-circle"
+              , hrefVoid
+              , onClick address (UnSelectEvent)
+              ]
+              []
           ]
         ]
 
@@ -485,9 +528,9 @@ viewListEvents address model =
   in
     if not <| List.isEmpty filteredEvents
       then
-        ul [] (List.map getListItem filteredEvents)
+        ul [ class "events" ] (List.map getListItem filteredEvents)
       else
-        div [] [ text "No results found"]
+        div [ style [("margin" ,"8px 0")] ] [ text "No results found"]
 
 
 
