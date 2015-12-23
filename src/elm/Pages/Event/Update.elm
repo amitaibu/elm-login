@@ -78,6 +78,15 @@ update context action model =
           EventList.Update.update act model.eventList
       in
         ( { model | eventList = childModel }
+        , Task.succeed (ChildLeafletAction <| Leaflet.Update.SetMarkers model.events) |> Effects.task
+        )
+
+    ChildLeafletAction act ->
+      let
+        childModel =
+          Leaflet.Update.update act model.leaflet
+      in
+        ( {model | leaflet = childModel }
         , Effects.none
         )
 
@@ -131,15 +140,6 @@ update context action model =
           ( {model | status = Event.HttpError msg}
           , Effects.none
           )
-
-    ChildLeafletAction act ->
-      let
-        childModel =
-          Leaflet.Update.update act model.leaflet
-      in
-        ( {model | leaflet = childModel }
-        , Effects.none
-        )
 
     Activate maybeCompanyId ->
       let
