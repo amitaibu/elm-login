@@ -14,6 +14,7 @@ type alias Context =
   { authorFilter : EventAuthorFilter.Model
   , events : List Event
   }
+
 type alias Model = EventList.Model
 
 view : Context -> Signal.Address Action -> Model -> Html
@@ -21,12 +22,13 @@ view context address model =
   let
     events' =
       filterByAuthorAndSearchString context.events context.authorFilter model.filterString
+
   in
-  div []
-      [ div [class "h2"] [ text "Event list"]
-      , (viewFilterString address model)
-      , (viewListEvents context.events address model)
-      ]
+    div []
+        [ div [class "h2"] [ text "Event list"]
+        , (viewFilterString address model)
+        , (viewListEvents events' address model)
+        ]
 
 viewFilterString : Signal.Address Action -> Model -> Html
 viewFilterString address model =
