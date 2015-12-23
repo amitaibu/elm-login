@@ -41,13 +41,22 @@ elmApp.ports.mapManager.subscribe(function(model) {
 /**
  * Wait for selector to appear before invoking related functions.
  */
-function waitForElement(selector, fn, model) {
+function waitForElement(selector, fn, model, tryCount) {
+
+  // Repeat the timeout only maximum 5 times, which sohuld be enough for the
+  // element to appear.
+  tryCount = tryCount || 5;
+  --tryCount;
+  if (tryCount == 0) {
+    return;
+  }
 
   setTimeout(function() {
-    var result = fn.call(null, selector, model);
+
+    var result = fn.call(null, selector, model, tryCount);
     if (!result) {
       // Element still doesn't exist, so wait some more.
-      waitForElement(selector, fn, model);
+      waitForElement(selector, fn, model, tryCount);
     }
   }, 50);
 }
@@ -60,6 +69,8 @@ function waitForElement(selector, fn, model) {
  *   ro re-call this function.
  */
 function mapManager(selector, model) {
+  console.log(model.leaflet.showMap);
+
   if (!model.leaflet.showMap) {
     return true;
   }
