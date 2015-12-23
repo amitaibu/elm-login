@@ -10,7 +10,6 @@ import EventAuthorFilter.Update exposing (Action)
 import EventCompanyFilter.Update exposing (Action)
 import EventList.Update exposing (Action)
 import Http exposing (Error)
-import Leaflet.Model exposing (initialModel, Marker)
 import Leaflet.Update exposing (Action)
 import Pages.Event.Model as Event exposing (Model)
 import String exposing (length, trim)
@@ -135,32 +134,31 @@ update context action model =
 
     ChildLeafletAction act ->
       let
-        (childModel, childEffects) = Leaflet.Update.update act model.leaflet
+        childModel =
+          Leaflet.Update.update act model.leaflet
       in
         ( {model | leaflet = childModel }
-        , Effects.map ChildLeafletAction childEffects
+        , Effects.none
         )
 
     Activate maybeCompanyId ->
       let
-        (childModel, childEffects) =
+        childModel =
           Leaflet.Update.update Leaflet.Update.ToggleMap model.leaflet
 
       in
         ( { model | leaflet = childModel }
-        , Effects.batch
-            -- Get data without companies filtering.
-            [ Task.succeed (GetData Nothing) |> Effects.task
-            , Effects.map ChildLeafletAction childEffects
-            ]
+        -- Get data without companies filtering.
+        , Task.succeed (GetData Nothing) |> Effects.task
         )
 
     Deactivate ->
       let
-        (childModel, childEffects) = Leaflet.Update.update Leaflet.Update.ToggleMap model.leaflet
+        childModel =
+          Leaflet.Update.update Leaflet.Update.ToggleMap model.leaflet
       in
-        ( {model | leaflet = childModel }
-        , Effects.map ChildLeafletAction childEffects
+        ( { model | leaflet = childModel }
+        , Effects.none
         )
 
 
