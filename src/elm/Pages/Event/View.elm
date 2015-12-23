@@ -4,6 +4,7 @@ import Company.Model as Company exposing (Model)
 import Event.Model exposing (Author, Event)
 import EventAuthorFilter.View exposing (view)
 import EventCompanyFilter.View exposing (view)
+import EventList.View exposing (view)
 import Html exposing (a, div, input, text, select, span, li, option, ul, Html)
 import Html.Attributes exposing (class, hidden, href, id, placeholder, selected, style, value)
 import Html.Events exposing (on, onClick, targetValue)
@@ -27,19 +28,22 @@ view context address model =
 
     childEventCompanyFilterAddress =
       Signal.forwardTo address Pages.Event.Update.ChildEventCompanyFilterAction
+
+    childEventListAddress =
+        Signal.forwardTo address Pages.Event.Update.ChildEventListAction
   in
     div [class "container"]
       [ div [class "row"]
         [ div [class "col-md-3"]
             [ (EventCompanyFilter.View.view context.companies childEventCompanyFilterAddress model.eventCompanyFilter)
             , (EventAuthorFilter.View.view model.events childEventAuthorFilterAddress model.eventAuthorFilter)
+            , (EventList.View.view model.events childEventListAddress model.eventList)
             ]
 
         , div [class "col-md-9"]
             [ div [class "h2"] [ text "Map"]
             , div [ style mapStyle, id "map" ] []
             ]
-        , div [] [ text (toString model)]
         ]
       ]
 

@@ -73,7 +73,14 @@ update context action model =
           )
 
     ChildEventListAction act ->
-      (model, Effects.none)
+      let
+        -- The child component doesn't have effects.
+        childModel =
+          EventList.Update.update act model.eventList
+      in
+        ( { model | eventList = childModel }
+        , Effects.none
+        )
 
     GetData maybeCompanyId ->
       let
