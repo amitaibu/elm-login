@@ -76,9 +76,20 @@ update context action model =
         -- The child component doesn't have effects.
         childModel =
           EventList.Update.update act model.eventList
+
+        childAction =
+          case act of
+            EventList.Update.FilterEvents _ ->
+              Leaflet.Update.SetMarkers model.events
+
+            EventList.Update.SelectEvent val ->
+              Leaflet.Update.SelectMarker val
+
+            EventList.Update.UnSelectEvent ->
+              Leaflet.Update.UnselectMarker
       in
         ( { model | eventList = childModel }
-        , Task.succeed (ChildLeafletAction <| Leaflet.Update.SetMarkers model.events) |> Effects.task
+        , Task.succeed (ChildLeafletAction <| childAction) |> Effects.task
         )
 
     ChildLeafletAction act ->

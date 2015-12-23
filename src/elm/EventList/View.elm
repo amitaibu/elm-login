@@ -8,8 +8,6 @@ import Html exposing (a, div, input, text, select, span, li, option, ul, Html)
 import Html.Attributes exposing (class, hidden, href, id, placeholder, selected, style, value)
 import Html.Events exposing (on, onClick, targetValue)
 
-import Debug
-
 type alias Model = EventList.Model
 
 view : List Event -> Signal.Address Action -> Model -> Html
