@@ -14,7 +14,6 @@ import Http exposing (Error)
 import Leaflet.Update exposing (Action)
 import Pages.Event.Model as Event exposing (Model)
 import Pages.Event.Utils exposing (filterEventsByAuthor)
-import String exposing (length, trim)
 import Task  exposing (andThen, succeed)
 import TaskTutorial exposing (getCurrentTime)
 import Time exposing (Time)
@@ -66,12 +65,21 @@ update context action model =
         )
 
     ChildEventCompanyFilterAction act ->
-      -- Reach into the selected company, and invoke getting the data.
-      case act of
-        EventCompanyFilter.Update.SelectCompany maybeCompanyId ->
-          ( model
-          , Task.succeed (GetData maybeCompanyId) |> Effects.task
-          )
+      let
+        childModel =
+          EventCompanyFilter.Update.update context.companies act model.eventCompanyFilter
+
+        maybeCompanyId =
+          -- Reach into the selected company, in order to invoke getting the
+          -- data from server.
+          case act of
+            EventCompanyFilter.Update.SelectCompany maybeCompanyId ->
+              maybeCompanyId
+
+      in
+        ( { model | eventCompanyFilter = childModel }
+        , Task.succeed (GetData maybeCompanyId) |> Effects.task
+        )
 
     ChildEventListAction act ->
       let

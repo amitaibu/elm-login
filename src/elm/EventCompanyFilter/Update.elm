@@ -11,19 +11,15 @@ init = initialModel
 type Action
   = SelectCompany (Maybe Int)
 
-type alias Context =
-  { companies : List Company.Model
-  }
-
 type alias Model = EventCompanyFilter.Model
 
-update : Context -> Action -> Model -> Model
-update context action model =
+update : List Company.Model -> Action -> Model -> Model
+update companies action model =
   case action of
     SelectCompany maybeCompanyId ->
       let
         isValidCompany val =
-          context.companies
+          companies
             |> List.filter (\company -> company.id == val)
             |> List.length
 
