@@ -69,8 +69,6 @@ function waitForElement(selector, fn, model, tryCount) {
  *   ro re-call this function.
  */
 function mapManager(selector, model) {
-  console.log(model.leaflet.showMap);
-
   if (!model.leaflet.showMap) {
     return true;
   }
