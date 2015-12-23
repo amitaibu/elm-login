@@ -1,16 +1,13 @@
 module Pages.Event.View where
 
 import Company.Model as Company exposing (Model)
-import Event.Model exposing (Author, Event)
 import EventAuthorFilter.View exposing (view)
 import EventCompanyFilter.View exposing (view)
 import EventList.View exposing (view)
 import Html exposing (a, div, input, text, select, span, li, option, ul, Html)
 import Html.Attributes exposing (class, hidden, href, id, placeholder, selected, style, value)
-import Html.Events exposing (on, onClick, targetValue)
 import Pages.Event.Model exposing (initialModel, Model)
 import Pages.Event.Update exposing (Action)
-import String exposing (length)
 
 type alias Action = Pages.Event.Update.Action
 type alias CompanyId = Int
@@ -53,10 +50,3 @@ mapStyle =
   [ ("width", "600px")
   , ("height", "400px")
   ]
-
-
-isFetched : Pages.Event.Model.Status -> Bool
-isFetched status =
-  case status of
-    Pages.Event.Model.Fetched _ _ -> True
-    _ -> False
