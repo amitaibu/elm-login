@@ -5,6 +5,7 @@ import App.View exposing (view)
 import ArticleForm.Model exposing (PostStatus)
 import ArticleForm.Update exposing (Action)
 import Effects exposing (Never)
+import EventList.Update exposing (Action)
 import Pages.Event.Update exposing (Action)
 import Leaflet.Model exposing (Model)
 import Pages.Article.Update exposing (Action)
@@ -22,7 +23,7 @@ app =
         [ messages.signal
         , Signal.map (App.Update.ChildArticleAction << Pages.Article.Update.ChildArticleFormAction << ArticleForm.Update.SetImageId) dropzoneUploadedFile
         , Signal.map (App.Update.ChildArticleAction << Pages.Article.Update.ChildArticleFormAction << ArticleForm.Update.UpdateBody) ckeditor
-        -- , Signal.map (App.Update.ChildEventAction << Pages.Event.Update.SelectEvent) selectEvent
+        , Signal.map (App.Update.ChildEventAction << Pages.Event.Update.ChildEventListAction << EventList.Update.SelectEvent) selectEvent
         ]
     }
 
