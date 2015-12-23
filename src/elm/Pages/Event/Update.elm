@@ -109,17 +109,17 @@ update context action model =
         getFx =
           (model, getDataFromCache model.status maybeCompanyId)
       in
-      case model.status of
-        Event.Fetching id ->
-          if id == maybeCompanyId
-            -- We are already fetching this data
-            then noFx
-            -- We are fetching data, but for a different company ID,
-            -- so we need to re-fetch.
-            else getFx
+        case model.status of
+          Event.Fetching id ->
+            if id == maybeCompanyId
+              -- We are already fetching this data
+              then noFx
+              -- We are fetching data, but for a different company ID,
+              -- so we need to re-fetch.
+              else getFx
 
-        _ ->
-          getFx
+          _ ->
+            getFx
 
     GetDataFromServer maybeCompanyId ->
       let
@@ -129,7 +129,7 @@ update context action model =
         url =
           backendUrl ++ "/api/v1.0/events"
       in
-        ( { model | status = Event.Fetching maybeCompanyId}
+        ( { model | status = Event.Fetching maybeCompanyId }
         , getJson url maybeCompanyId context.accessToken
         )
 
@@ -147,7 +147,7 @@ update context action model =
           )
 
         Err msg ->
-          ( {model | status = Event.HttpError msg}
+          ( { model | status = Event.HttpError msg }
           , Effects.none
           )
 
