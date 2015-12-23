@@ -1,21 +1,31 @@
 module EventList.View (view) where
 
 import Event.Model as Event exposing (Event)
+import EventAuthorFilter.Model as EventAuthorFilter exposing (Model)
 import EventList.Model as EventList exposing (initialModel, Model)
 import EventList.Update exposing (Action)
+import EventList.Utils exposing (filterByAuthorAndSearchString)
 
 import Html exposing (a, div, input, text, select, span, li, option, ul, Html)
 import Html.Attributes exposing (class, hidden, href, id, placeholder, selected, style, value)
 import Html.Events exposing (on, onClick, targetValue)
 
+type alias Context =
+  { authorFilter : EventAuthorFilter.Model
+  , events : List Event
+  }
 type alias Model = EventList.Model
 
-view : List Event -> Signal.Address Action -> Model -> Html
-view events address model =
+view : Context -> Signal.Address Action -> Model -> Html
+view context address model =
+  let
+    events' =
+      filterByAuthorAndSearchString context.events context.authorFilter model.filterString
+  in
   div []
       [ div [class "h2"] [ text "Event list"]
       , (viewFilterString address model)
-      , (viewListEvents events address model)
+      , (viewListEvents context.events address model)
       ]
 
 viewFilterString : Signal.Address Action -> Model -> Html

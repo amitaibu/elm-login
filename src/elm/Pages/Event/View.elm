@@ -28,13 +28,18 @@ view context address model =
 
     childEventListAddress =
         Signal.forwardTo address Pages.Event.Update.ChildEventListAction
+
+    eventListContext =
+      { authorFilter = model.eventAuthorFilter
+      , events = model.events
+      }
   in
     div [class "container"]
       [ div [class "row"]
         [ div [class "col-md-3"]
             [ (EventCompanyFilter.View.view context.companies childEventCompanyFilterAddress model.eventCompanyFilter)
             , (EventAuthorFilter.View.view model.events childEventAuthorFilterAddress model.eventAuthorFilter)
-            , (EventList.View.view model.events childEventListAddress model.eventList)
+            , (EventList.View.view eventListContext childEventListAddress model.eventList)
             ]
 
         , div [class "col-md-9"]

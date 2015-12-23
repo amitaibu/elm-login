@@ -75,7 +75,7 @@ update context action model =
       let
         -- The child component doesn't have effects.
         childModel =
-          EventList.Update.update act model.eventList
+          EventList.Update.update model.eventAuthorFilter act model.eventList
 
         childAction =
           case act of

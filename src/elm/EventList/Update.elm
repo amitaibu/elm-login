@@ -1,11 +1,10 @@
 module EventList.Update where
 
-import Event.Model as Event exposing (Event)
+import EventAuthorFilter.Model as EventAuthorFilter exposing (Model)
+import Event.Model exposing (Event)
 import EventList.Model as EventList exposing (initialModel, Model)
+import EventList.Utils exposing (filterByAuthorAndSearchString)
 import String exposing (length)
-
-init : Model
-init = initialModel
 
 type Action
   = FilterEvents String
@@ -14,9 +13,14 @@ type Action
   | SelectEvent (Maybe Int)
   | UnSelectEvent
 
+type alias Model = EventList.Model
 
-update : Action -> Model -> Model
-update action model =
+init : Model
+init = initialModel
+
+
+update : EventAuthorFilter.Model -> Action -> Model -> Model
+update authorFilter action model =
   case action of
     FilterEvents val ->
       let
@@ -48,36 +52,3 @@ update action model =
 
     UnSelectEvent ->
       { model | selectedEvent = Nothing }
-
--- -- Build the Leaflet's markers data from the events
--- leafletMarkers : Model -> List Leaflet.Model.Marker
--- leafletMarkers model =
---   filterListEvents model
---     |> List.map (\event -> Leaflet.Model.Marker event.id event.marker.lat event.marker.lng)
---
-
--- -- In case an author or string-filter is selected, filter the events.
--- filterListEvents : Model -> List Event
--- filterListEvents model =
---   let
---     authorFilter : List Event -> List Event
---     authorFilter events =
---       case model.eventAuthorFilter of
---         Just id ->
---           List.filter (\event -> event.author.id == id) events
---
---         Nothing ->
---           events
---
---     stringFilter : List Event -> List Event
---     stringFilter events =
---       if String.length (String.trim model.filterString) > 0
---         then
---           List.filter (\event -> String.contains (String.trim (String.toLower model.filterString)) (String.toLower event.label)) events
---
---         else
---           events
---
---   in
---     authorFilter model.events
---      |> stringFilter
