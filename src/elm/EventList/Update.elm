@@ -1,10 +1,7 @@
 module EventList.Update where
 
-import EventAuthorFilter.Model as EventAuthorFilter exposing (Model)
 import Event.Model exposing (Event)
 import EventList.Model as EventList exposing (initialModel, Model)
-import EventList.Utils exposing (filterByAuthorAndSearchString)
-import String exposing (length)
 
 type Action
   = FilterEvents String
@@ -19,8 +16,8 @@ init : Model
 init = initialModel
 
 
-update : EventAuthorFilter.Model -> Action -> Model -> Model
-update authorFilter action model =
+update : List Event -> Action -> Model -> Model
+update events action model =
   case action of
     FilterEvents val ->
       let

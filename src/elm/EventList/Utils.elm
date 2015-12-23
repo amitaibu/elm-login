@@ -1,30 +1,10 @@
-module EventList.Utils (filterByAuthorAndSearchString) where
+module EventList.Utils (filterEventsByString) where
 
-import EventAuthorFilter.Model as EventAuthorFilter exposing (Model)
 import Event.Model exposing (Event)
-import String exposing (length)
+import String exposing (isEmpty, trim, toLower)
 
-
--- In case an author or string-filter is selected, filter the events.
-filterByAuthorAndSearchString : List Event -> EventAuthorFilter.Model -> String -> List Event
-filterByAuthorAndSearchString events authorFilter filterString =
-  let
-    events' =
-      filterByAuthor events authorFilter
-  in
-     filterByString events' filterString
-
-filterByAuthor : List Event -> EventAuthorFilter.Model -> List Event
-filterByAuthor events authorFilter =
-  case authorFilter of
-    Just id ->
-      List.filter (\event -> event.author.id == id) events
-
-    Nothing ->
-      events
-
-filterByString : List Event -> String -> List Event
-filterByString events filterString =
+filterEventsByString : List Event -> String -> List Event
+filterEventsByString events filterString =
   let
     filterString' =
       String.trim filterString

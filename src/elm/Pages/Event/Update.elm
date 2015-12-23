@@ -12,6 +12,7 @@ import EventList.Update exposing (Action)
 import Http exposing (Error)
 import Leaflet.Update exposing (Action)
 import Pages.Event.Model as Event exposing (Model)
+import Pages.Event.Utils exposing (filterEventsByAuthor)
 import String exposing (length, trim)
 import Task  exposing (andThen, succeed)
 import TaskTutorial exposing (getCurrentTime)
@@ -73,9 +74,12 @@ update context action model =
 
     ChildEventListAction act ->
       let
+        filteredEvents =
+          filterEventsByAuthor model.events model.eventAuthorFilter
+
         -- The child component doesn't have effects.
         childModel =
-          EventList.Update.update model.eventAuthorFilter act model.eventList
+          EventList.Update.update filteredEvents act model.eventList
 
         childAction =
           case act of

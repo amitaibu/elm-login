@@ -8,6 +8,7 @@ import Html exposing (a, div, input, text, select, span, li, option, ul, Html)
 import Html.Attributes exposing (class, hidden, href, id, placeholder, selected, style, value)
 import Pages.Event.Model exposing (initialModel, Model)
 import Pages.Event.Update exposing (Action)
+import Pages.Event.Utils exposing (filterEventsByAuthor)
 
 type alias Action = Pages.Event.Update.Action
 type alias CompanyId = Int
@@ -29,17 +30,16 @@ view context address model =
     childEventListAddress =
         Signal.forwardTo address Pages.Event.Update.ChildEventListAction
 
-    eventListContext =
-      { authorFilter = model.eventAuthorFilter
-      , events = model.events
-      }
+    filteredEvents =
+      filterEventsByAuthor model.events model.eventAuthorFilter
+
   in
     div [class "container"]
       [ div [class "row"]
         [ div [class "col-md-3"]
             [ (EventCompanyFilter.View.view context.companies childEventCompanyFilterAddress model.eventCompanyFilter)
             , (EventAuthorFilter.View.view model.events childEventAuthorFilterAddress model.eventAuthorFilter)
-            , (EventList.View.view eventListContext childEventListAddress model.eventList)
+            , (EventList.View.view filteredEvents childEventListAddress model.eventList)
             ]
 
         , div [class "col-md-9"]
