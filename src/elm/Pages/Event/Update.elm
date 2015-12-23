@@ -132,8 +132,7 @@ update context action model =
             | events = events
             , status = Event.Fetched maybeCompanyId timestamp
             }
-          -- , Task.succeed (FilterEvents model.filterString) |> Effects.task
-          , Effects.none
+          , Task.succeed (ChildLeafletAction <| Leaflet.Update.SetMarkers events) |> Effects.task
           )
 
         Err msg ->
