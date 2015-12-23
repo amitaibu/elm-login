@@ -9,6 +9,7 @@ import Event.Model exposing (Event)
 import EventAuthorFilter.Update exposing (Action)
 import EventCompanyFilter.Update exposing (Action)
 import EventList.Update exposing (Action)
+import EventList.Utils exposing (filterEventsByString)
 import Http exposing (Error)
 import Leaflet.Update exposing (Action)
 import Pages.Event.Model as Event exposing (Model)
@@ -74,17 +75,18 @@ update context action model =
 
     ChildEventListAction act ->
       let
-        filteredEvents =
+        filteredEventsByAuthor =
           filterEventsByAuthor model.events model.eventAuthorFilter
 
         -- The child component doesn't have effects.
         childModel =
-          EventList.Update.update filteredEvents act model.eventList
+          EventList.Update.update filteredEventsByAuthor act model.eventList
 
         childAction =
           case act of
-            EventList.Update.FilterEvents _ ->
-              Leaflet.Update.SetMarkers model.events
+            EventList.Update.FilterEvents val ->
+              -- Filter out the events, before sending the events' markers.
+              Leaflet.Update.SetMarkers (filterEventsByString filteredEventsByAuthor val)
 
             EventList.Update.SelectEvent val ->
               Leaflet.Update.SelectMarker val
