@@ -166,7 +166,11 @@ update context action model =
               | events = events
               , status = Event.Fetched maybeCompanyId timestamp
               }
-            , Task.succeed (ChildLeafletAction <| Leaflet.Update.SetMarkers filteredEvents) |> Effects.task
+            , Effects.batch
+              [ Task.succeed (ChildLeafletAction <| Leaflet.Update.SetMarkers filteredEvents) |> Effects.task
+              , Task.succeed (ChildEventAuthorFilterAction EventAuthorFilter.Update.UnSelectAuthor) |> Effects.task
+              , Task.succeed (ChildEventListAction EventList.Update.UnSelectEvent) |> Effects.task
+              ]
             )
 
         Err msg ->
