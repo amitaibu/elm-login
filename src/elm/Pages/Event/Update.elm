@@ -186,7 +186,10 @@ update context action model =
 
       in
         ( { model | leaflet = childModel }
-        , Task.succeed (GetData model.eventCompanyFilter) |> Effects.task
+        , Effects.batch
+          [ Task.succeed (GetData maybeCompanyId) |> Effects.task
+          , Task.succeed (ChildEventCompanyFilterAction <| EventCompanyFilter.Update.SelectCompany maybeCompanyId) |> Effects.task
+          ]
         )
 
     Deactivate ->
