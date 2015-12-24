@@ -18,8 +18,6 @@ import Task  exposing (andThen, succeed)
 import TaskTutorial exposing (getCurrentTime)
 import Time exposing (Time)
 
-import Debug
-
 type alias Id = Int
 type alias CompanyId = Int
 type alias Model = Event.Model
