@@ -154,12 +154,20 @@ update context action model =
     UpdateDataFromServer result maybeCompanyId timestamp ->
       case result of
         Ok events ->
-          ( {model
-            | events = events
-            , status = Event.Fetched maybeCompanyId timestamp
-            }
-          , Task.succeed (ChildLeafletAction <| Leaflet.Update.SetMarkers events) |> Effects.task
-          )
+          let
+            filteredEventsByAuthor =
+              filterEventsByAuthor events model.eventAuthorFilter
+
+            filteredEvents =
+              filterEventsByString filteredEventsByAuthor model.eventList.filterString
+
+          in
+            ( { model
+              | events = events
+              , status = Event.Fetched maybeCompanyId timestamp
+              }
+            , Task.succeed (ChildLeafletAction <| Leaflet.Update.SetMarkers filteredEvents) |> Effects.task
+            )
 
         Err msg ->
           ( { model | status = Event.HttpError msg }
