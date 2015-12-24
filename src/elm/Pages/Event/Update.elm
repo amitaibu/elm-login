@@ -61,7 +61,8 @@ update context action model =
           EventAuthorFilter.Update.update act model.eventAuthorFilter
       in
         ( { model | eventAuthorFilter = childModel }
-        , Effects.none
+        -- Filter out the events, before sending the events' markers.
+        , Task.succeed (ChildLeafletAction <| Leaflet.Update.SetMarkers (filterEventsByAuthor model.events childModel)) |> Effects.task
         )
 
     ChildEventCompanyFilterAction act ->

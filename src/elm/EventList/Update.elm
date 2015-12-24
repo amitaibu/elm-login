@@ -20,29 +20,7 @@ update : List Event -> Action -> Model -> Model
 update events action model =
   case action of
     FilterEvents val ->
-      let
-        model' = { model | filterString = val }
-
-        selectedEvent' =
-          case model.selectedEvent of
-            Just val ->
-              -- Determine if the selected event is visible and not filtered
-              -- out.
-              -- let
-              --   isSelectedEvent =
-              --     filterListEvents model'
-              --       |> List.filter (\event -> event.id == val)
-              --       |> List.length
-              -- in
-              --   if isSelectedEvent > 0
-              --     then model.selectedEvent
-              --     else Nothing
-              Just val
-
-            Nothing ->
-              Nothing
-      in
-        { model' | selectedEvent = selectedEvent' }
+      { model | filterString = val }
 
     SelectEvent val ->
       { model | selectedEvent = val }
