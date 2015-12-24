@@ -16,8 +16,6 @@ view events address eventAuthorFilter =
   div []
     [ div [class "h2"] [ text "Event Authors"]
     , ul [] (viewEventsByAuthors events address eventAuthorFilter)
-    -- @todo: Add fetching to context
-    -- , div [ hidden (isFetched model.status)] [ text "Loading..."]
     ]
 
 viewEventsByAuthors : List Event -> Signal.Address Action -> Maybe Int -> List Html
