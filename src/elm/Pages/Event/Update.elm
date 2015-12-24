@@ -18,6 +18,8 @@ import Task  exposing (andThen, succeed)
 import TaskTutorial exposing (getCurrentTime)
 import Time exposing (Time)
 
+import Debug
+
 type alias Id = Int
 type alias CompanyId = Int
 type alias Model = Event.Model
@@ -160,16 +162,15 @@ update context action model =
 
             filteredEvents =
               filterEventsByString filteredEventsByAuthor model.eventList.filterString
-
           in
             ( { model
               | events = events
               , status = Event.Fetched maybeCompanyId timestamp
               }
             , Effects.batch
-              [ Task.succeed (ChildLeafletAction <| Leaflet.Update.SetMarkers filteredEvents) |> Effects.task
-              , Task.succeed (ChildEventAuthorFilterAction EventAuthorFilter.Update.UnSelectAuthor) |> Effects.task
+              [ Task.succeed (ChildEventAuthorFilterAction EventAuthorFilter.Update.UnSelectAuthor) |> Effects.task
               , Task.succeed (ChildEventListAction EventList.Update.UnSelectEvent) |> Effects.task
+              , Task.succeed (ChildEventListAction <| EventList.Update.FilterEvents "") |> Effects.task
               ]
             )
 
@@ -185,8 +186,7 @@ update context action model =
 
       in
         ( { model | leaflet = childModel }
-        -- Get data without companies filtering.
-        , Task.succeed (GetData Nothing) |> Effects.task
+        , Task.succeed (GetData model.eventCompanyFilter) |> Effects.task
         )
 
     Deactivate ->
