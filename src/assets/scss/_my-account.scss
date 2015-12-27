@@ -10,34 +10,12 @@
   }
 
   .companies {
-    display: inline-block;
     list-style: none;
-    padding: 0;
     margin-bottom: 20px;
+    padding: 0;
 
     li {
-      position: relative;
-      float: left;
-      margin-left: 14px;
-      padding: 5px 9px 5px 12px;
-      border-radius: 3px;
-      border: 1px solid $gray;
-      @extend .shadow;
-
-      &:before {
-        content: "";
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        width: 6px;
-        background: rgba(95, 144, 187, 0.19);
-        border-right: 1px solid $gray;
-      }
-
-      &:first-child {
-        margin-left: 0;
-      }
+      margin-top: 5px;
     }
   }
 }

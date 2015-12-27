@@ -1,0 +1,68 @@
+#events-page {
+
+  .unselect {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 7px;
+    color: $error;
+    line-height: 36px;
+    font-size: 18px;
+    text-decoration: none;
+    border-left: 1px solid #E2E2E2;
+    padding-left: 8px;
+    transition: color 0.2s ease-in;
+
+    &:hover {
+      color: $error-light;
+    }
+  }
+
+  .first .wrapper:nth-child(n+2) {
+    margin-top: 30px;
+  }
+
+  .events li,
+  .authors li {
+    position: relative;
+  }
+
+  .companies {
+    margin: 10px 0;
+    padding: 4px;
+    width: 100%;
+    border-radius: 3px;
+    color:$blue;
+    background: white;
+  }
+
+  input.search {
+    margin-top: 13px;
+    border-radius: 3px;
+    color: $blue;
+  }
+
+  .authors,
+  .events {
+    list-style: none;
+    margin-bottom: 15px;
+    padding: 0;
+
+    li {
+      margin-top: 10px;
+      padding: 5px 9px;
+      border-bottom: 1px solid #E2E2E2;
+      transition: background 0.2s ease-in;
+      @extend .shadow;
+
+      &.-active {
+        background: $light-blue;
+        border-bottom: 1px solid #BFD7EB;
+
+        .unselect {
+          border-left: 1px solid #BFD7EB;
+        }
+      }
+    }
+  }
+}
