@@ -10,12 +10,26 @@
   }
 
   .companies {
-    list-style: none;
+    max-width: 141px;
+    margin-top: 15px;
     margin-bottom: 20px;
-    padding: 0;
+    padding-left: 22px;
 
     li {
-      margin-top: 5px;
+      position: relative;
+      margin-top: 11px;
+      padding-bottom: 7px;
+
+      &:before {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: -17px;
+        right: 0;
+        height: 1px;
+        margin-left: -4px;
+        border-bottom: 1px solid rgba(95, 144, 187, 0.28);
+      }
     }
   }
 }
