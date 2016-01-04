@@ -17,7 +17,7 @@ view events address eventAuthorFilter =
     [ class "wrapper -suffix" ]
     [ h3
       [ class "title" ]
-      [ i [ class "fa fa-briefcase" ] []
+      [ i [ class "glyphicon glyphicon-user" ] []
       , text <| " " ++ "Event Authors"
       ]
     , ul [] (viewEventsByAuthors events address eventAuthorFilter)

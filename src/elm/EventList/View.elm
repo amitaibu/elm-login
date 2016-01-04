@@ -17,7 +17,7 @@ view events address model =
     [ class "wrapper -suffix" ]
     [ h3
       [ class "title" ]
-      [ i [ class "fa fa-briefcase" ] []
+      [ i [ class "fa fa-map-marker" ] []
       , text <| " " ++ "Event List"
       ]
       , (viewFilterString address model)
