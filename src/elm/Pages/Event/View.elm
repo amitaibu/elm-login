@@ -34,9 +34,12 @@ view context address model =
       filterEventsByAuthor model.events model.eventAuthorFilter
 
   in
-    div [class "container"]
+    div
+      [ id "events-page"
+      , class "container"
+      ]
       [ div [class "row"]
-        [ div [class "col-md-3"]
+        [ div [class "col-md-3 first"]
             [ (EventCompanyFilter.View.view context.companies childEventCompanyFilterAddress model.eventCompanyFilter)
             , (EventAuthorFilter.View.view model.events childEventAuthorFilterAddress model.eventAuthorFilter)
             , (EventList.View.view filteredEvents childEventListAddress model.eventList)

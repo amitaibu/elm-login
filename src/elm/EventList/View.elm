@@ -5,7 +5,7 @@ import EventList.Model as EventList exposing (initialModel, Model)
 import EventList.Update exposing (Action)
 import EventList.Utils exposing (filterEventsByString)
 
-import Html exposing (a, div, input, text, select, span, li, option, ul, Html)
+import Html exposing (h3, a, i, div, input, text, select, span, li, option, ul, Html)
 import Html.Attributes exposing (class, hidden, href, id, placeholder, selected, style, value)
 import Html.Events exposing (on, onClick, targetValue)
 
@@ -13,8 +13,13 @@ type alias Model = EventList.Model
 
 view : List Event -> Signal.Address Action -> Model -> Html
 view events address model =
-  div []
-      [ div [class "h2"] [ text "Event list"]
+  div
+    [ class "wrapper -suffix" ]
+    [ h3
+      [ class "title" ]
+      [ i [ class "fa fa-briefcase" ] []
+      , text <| " " ++ "Event List"
+      ]
       , (viewFilterString address model)
       , (viewListEvents events address model)
       ]
