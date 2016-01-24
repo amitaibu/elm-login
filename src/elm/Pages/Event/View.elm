@@ -48,21 +48,16 @@ view context address model =
         , div
             [ class "col-md-9 last"]
             [ div
-              [ class "wrapper -suffix" ]
+              [ class "map-container wrapper -suffix" ]
               [ h3
                   [ class "title" ]
                   [ i [ class "fa fa-globe" ] []
                   , text <| " " ++ "Map"
                   ]
-              , div [ style mapStyle, id "map" ] []
+              , div
+                  [ class "map-wrapper" ]
+                  [ div [ id "map"] [] ]
               ]
             ]
         ]
       ]
-
-
-mapStyle : List (String, String)
-mapStyle =
-  [ ("width", "600px")
-  , ("height", "400px")
-  ]
