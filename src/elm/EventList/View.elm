@@ -14,7 +14,8 @@ type alias Model = EventList.Model
 view : List Event -> Signal.Address Action -> Model -> Html
 view events address model =
   div
-    [ class "wrapper -suffix" ]
+    [ id "events"
+    , class "wrapper -suffix" ]
     [ h3
       [ class "title" ]
       [ i [ class "fa fa-map-marker" ] []

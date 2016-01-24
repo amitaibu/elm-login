@@ -1,5 +1,9 @@
 #events-page {
 
+  #events {
+    margin-bottom: 35px;
+  }
+
   .unselect {
     position: absolute;
     top: 0;
@@ -68,10 +72,6 @@
 
   .map-container {
     padding-bottom: 26px;
-
-    @media (max-width : 767px) {
-      margin-top: 30px;
-    }
 
     .map-wrapper {
       position: relative;
