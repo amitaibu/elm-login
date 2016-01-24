@@ -59,7 +59,8 @@ companyListForSelect address companies eventCompanyFilter  =
       option [value <| toString company.id, selected (company.id == selectedId)] [ text company.label]
   in
     select
-      [ value selectedText
+      [ class "companies"
+      , value selectedText
       , on "change" targetValue (\str -> Signal.message address <| EventCompanyFilter.Update.SelectCompany <| textToMaybe str)
       ]
       (List.map getOption companies')
