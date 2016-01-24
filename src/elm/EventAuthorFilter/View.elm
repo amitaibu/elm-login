@@ -20,7 +20,7 @@ view events address eventAuthorFilter =
       [ i [ class "glyphicon glyphicon-user" ] []
       , text <| " " ++ "Event Authors"
       ]
-    , ul [] (viewEventsByAuthors events address eventAuthorFilter)
+    , ul [ class "authors" ] (viewEventsByAuthors events address eventAuthorFilter)
     ]
 
 viewEventsByAuthors : List Event -> Signal.Address Action -> Maybe Int -> List Html
@@ -37,7 +37,11 @@ viewEventsByAuthors events address eventAuthorFilter =
 
         authorUnselect =
           span []
-            [ a [ href "javascript:void(0);", onClick address (EventAuthorFilter.Update.UnSelectAuthor) ] [ text "x " ]
+            [ a
+              [ class "unselect fa fa-minus-circle"
+              , href "javascript:void(0);"
+              , onClick address (EventAuthorFilter.Update.UnSelectAuthor)
+              ] []
             , authorRaw
             ]
       in

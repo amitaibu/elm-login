@@ -22,11 +22,6 @@
     margin-top: 30px;
   }
 
-  .events li,
-  .authors li {
-    position: relative;
-  }
-
   .companies {
     margin: 10px 0;
     padding: 4px;
@@ -37,7 +32,7 @@
   }
 
   input.search {
-    margin-top: 13px;
+    margin-top: 18px;
     border-radius: 3px;
     color: $blue;
   }
@@ -45,15 +40,20 @@
   .authors,
   .events {
     list-style: none;
-    margin-bottom: 15px;
+    margin: 15px 0;
     padding: 0;
 
     li {
+      position: relative;
       margin-top: 10px;
       padding: 5px 9px;
-      border-bottom: 1px solid #E2E2E2;
+      border: 1px solid #E2E2E2;
+      border-radius: 5px;
       transition: background 0.2s ease-in;
-      @extend .shadow;
+
+      &:first-child {
+        margin-top: 0;
+      }
 
       &.-active {
         background: $light-blue;

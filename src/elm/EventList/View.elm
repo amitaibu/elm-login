@@ -28,7 +28,8 @@ viewFilterString : Signal.Address Action -> Model -> Html
 viewFilterString address model =
   div []
     [ input
-        [ placeholder "Filter events"
+        [ class "search form-control"
+        , placeholder "Filter events"
         , value model.filterString
         , on "input" targetValue (Signal.message address << EventList.Update.FilterEvents)
         ]
@@ -52,7 +53,11 @@ viewListEvents events address model =
     eventUnselect event =
       li []
         [ span []
-          [ a [ href "javascript:void(0);", onClick address (EventList.Update.UnSelectEvent) ] [ text "x " ]
+          [ a
+            [ class "unselect fa fa-minus-circle"
+            , href "javascript:void(0);"
+            , onClick address (EventList.Update.UnSelectEvent)
+            ] []
           , text event.label
           ]
         ]
@@ -72,4 +77,4 @@ viewListEvents events address model =
       then
         div [] [ text "No results found"]
       else
-        ul [] (List.map getListItem filteredEvents)
+        ul [ class "authors" ] (List.map getListItem filteredEvents)
