@@ -24,6 +24,7 @@ view events address model =
       , (viewListEvents events address model)
       ]
 
+
 viewFilterString : Signal.Address Action -> Model -> Html
 viewFilterString address model =
   div []
@@ -75,6 +76,6 @@ viewListEvents events address model =
   in
     if List.isEmpty filteredEvents
       then
-        div [] [ text "No results found"]
+        div [] [ text "No results found" ]
       else
         ul [ class "authors" ] (List.map getListItem filteredEvents)
