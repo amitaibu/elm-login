@@ -1,6 +1,11 @@
-module ArticleForm.Model where
+module ArticleForm.Model (..) where
 
-type PostStatus = Busy | Done | Ready
+
+type PostStatus
+  = Busy
+  | Done
+  | Ready
+
 
 type alias ArticleForm =
   { label : String
@@ -9,15 +14,18 @@ type alias ArticleForm =
   , show : Bool
   }
 
+
 type UserMessage
   = None
   | Error String
+
 
 type alias Model =
   { articleForm : ArticleForm
   , postStatus : PostStatus
   , userMessage : UserMessage
   }
+
 
 initialArticleForm : ArticleForm
 initialArticleForm =
@@ -26,6 +34,7 @@ initialArticleForm =
   , image = Nothing
   , show = True
   }
+
 
 initialModel : Model
 initialModel =

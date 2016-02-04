@@ -1,4 +1,5 @@
-module Leaflet.Model where
+module Leaflet.Model (..) where
+
 
 type alias Marker =
   { id : Int
@@ -6,11 +7,13 @@ type alias Marker =
   , lng : Float
   }
 
+
 type alias Model =
   { markers : List Marker
   , selectedMarker : Maybe Int
   , showMap : Bool
   }
+
 
 initialModel : Model
 initialModel =

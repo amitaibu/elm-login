@@ -1,9 +1,11 @@
-module EventList.Model where
+module EventList.Model (..) where
+
 
 type alias Model =
   { filterString : String
   , selectedEvent : Maybe Int
   }
+
 
 initialModel : Model
 initialModel =

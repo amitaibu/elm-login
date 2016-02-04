@@ -1,6 +1,9 @@
-module Article.Model where
+module Article.Model (..) where
 
-type alias Id = Int
+
+type alias Id =
+  Int
+
 
 type alias Model =
   { author : Author
@@ -9,6 +12,7 @@ type alias Model =
   , image : Maybe String
   , label : String
   }
+
 
 type alias Author =
   { id : Id

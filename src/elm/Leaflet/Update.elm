@@ -1,11 +1,13 @@
-module Leaflet.Update where
+module Leaflet.Update (..) where
 
 import Event.Model exposing (Event)
 import Leaflet.Model as Leaflet exposing (initialModel, Marker, Model)
 
+
 init : Model
 init =
   initialModel
+
 
 type Action
   = SelectMarker (Maybe Int)
@@ -28,6 +30,7 @@ update action model =
 
     UnselectMarker ->
       { model | selectedMarker = Nothing }
+
 
 eventToMarkers : List Event -> List Leaflet.Marker
 eventToMarkers events =

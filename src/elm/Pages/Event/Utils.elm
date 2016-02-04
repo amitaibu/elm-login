@@ -1,7 +1,8 @@
-module Pages.Event.Utils where
+module Pages.Event.Utils (..) where
 
 import EventAuthorFilter.Model as EventAuthorFilter exposing (Model)
 import Event.Model exposing (Event)
+
 
 filterEventsByAuthor : List Event -> EventAuthorFilter.Model -> List Event
 filterEventsByAuthor events authorFilter =

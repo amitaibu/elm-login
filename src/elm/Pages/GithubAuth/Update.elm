@@ -1,4 +1,4 @@
-module Pages.GithubAuth.Update where
+module Pages.GithubAuth.Update (..) where
 
 import Config.Model exposing (BackendConfig)
 import Dict exposing (get)
@@ -11,9 +11,12 @@ import Task exposing (map)
 import UrlParameterParser exposing (ParseResult, parseSearchString)
 import WebAPI.Location exposing (location)
 
-type alias AccessToken = String
 
-init : (Model, Effects Action)
+type alias AccessToken =
+  String
+
+
+init : ( Model, Effects Action )
 init =
   ( initialModel
   , Effects.none
@@ -27,15 +30,17 @@ type Action
   | SetAccessToken AccessToken
   | UpdateAccessTokenFromServer (Result Http.Error AccessToken)
 
+
 type alias UpdateContext =
   { backendConfig : BackendConfig
   }
 
-update : UpdateContext -> Action -> Model -> (Model, Effects Action)
+
+update : UpdateContext -> Action -> Model -> ( Model, Effects Action )
 update context action model =
   case action of
     Activate ->
-      (model, getCodeFromUrl)
+      ( model, getCodeFromUrl )
 
     AuthorizeUser code ->
       let
@@ -62,13 +67,17 @@ update context action model =
           ( { model | status = GithubAuth.Fetched }
           , Task.succeed (SetAccessToken token) |> Effects.task
           )
+
         Err msg ->
           ( { model | status = GithubAuth.HttpError msg }
-          -- @todo: Improve.
+            -- @todo: Improve.
           , Task.succeed (SetError "HTTP error") |> Effects.task
           )
 
+
+
 -- EFFECTS
+
 
 getCodeFromUrl : Effects Action
 getCodeFromUrl =
@@ -82,6 +91,7 @@ getCodeFromUrl =
           case (Dict.get "code" dict) of
             Just val ->
               AuthorizeUser val
+
             Nothing ->
               errAction
 
@@ -99,7 +109,7 @@ getJson backendUrl code =
   Http.post
     decodeAccessToken
     (backendUrl ++ "/auth/github")
-    (Http.string <| dataToJson code )
+    (Http.string <| dataToJson code)
     |> Task.toResult
     |> Task.map UpdateAccessTokenFromServer
     |> Effects.task
@@ -109,8 +119,9 @@ dataToJson : String -> String
 dataToJson code =
   JE.encode 0
     <| JE.object
-        [ ("code", JE.string code) ]
+        [ ( "code", JE.string code ) ]
+
 
 decodeAccessToken : JD.Decoder AccessToken
 decodeAccessToken =
-  JD.at ["access_token"] <| JD.string
+  JD.at [ "access_token" ] <| JD.string

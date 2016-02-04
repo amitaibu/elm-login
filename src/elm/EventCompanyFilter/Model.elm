@@ -1,6 +1,10 @@
-module EventCompanyFilter.Model where
+module EventCompanyFilter.Model (..) where
 
-type alias Model = Maybe Int
+
+type alias Model =
+  Maybe Int
+
 
 initialModel : Model
-initialModel = Nothing
+initialModel =
+  Nothing

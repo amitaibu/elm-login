@@ -1,6 +1,7 @@
-module Utils.Http where
+module Utils.Http (..) where
 
 import Http exposing (Error)
+
 
 getErrorMessageFromHttpResponse : Http.Error -> String
 getErrorMessageFromHttpResponse err =
@@ -12,7 +13,7 @@ getErrorMessageFromHttpResponse err =
       if code == 401 then
         "Wrong username or password"
       else if code == 429 then
-         "Too many login requests with the wrong username or password. Wait a few hours before trying again"
+        "Too many login requests with the wrong username or password. Wait a few hours before trying again"
       else if code >= 500 then
         "Some error has occured on the server"
       else

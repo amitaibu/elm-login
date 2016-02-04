@@ -1,4 +1,4 @@
-module Pages.Event.Update where
+module Pages.Event.Update (..) where
 
 import Config exposing (cacheTtl)
 import Config.Model exposing (BackendConfig)
@@ -14,33 +14,41 @@ import Http exposing (Error)
 import Leaflet.Update exposing (Action)
 import Pages.Event.Model as Event exposing (Model)
 import Pages.Event.Utils exposing (filterEventsByAuthor)
-import Task  exposing (andThen, succeed)
+import Task exposing (andThen, succeed)
 import TaskTutorial exposing (getCurrentTime)
 import Time exposing (Time)
 
-type alias Id = Int
-type alias CompanyId = Int
-type alias Model = Event.Model
 
-init : (Model, Effects Action)
+type alias Id =
+  Int
+
+
+type alias CompanyId =
+  Int
+
+
+type alias Model =
+  Event.Model
+
+
+init : ( Model, Effects Action )
 init =
   ( Event.initialModel
   , Effects.none
   )
+
 
 type Action
   = NoOp
   | GetData (Maybe CompanyId)
   | GetDataFromServer (Maybe CompanyId)
   | UpdateDataFromServer (Result Http.Error (List Event)) (Maybe CompanyId) Time.Time
-
-  -- Child actions
+    -- Child actions
   | ChildEventAuthorFilterAction EventAuthorFilter.Update.Action
   | ChildEventCompanyFilterAction EventCompanyFilter.Update.Action
   | ChildEventListAction EventList.Update.Action
   | ChildLeafletAction Leaflet.Update.Action
-
-  -- Page
+    -- Page
   | Activate (Maybe CompanyId)
   | Deactivate
 
@@ -51,7 +59,8 @@ type alias Context =
   , companies : List Company.Model
   }
 
-update : Context -> Action -> Model -> (Model, Effects Action)
+
+update : Context -> Action -> Model -> ( Model, Effects Action )
 update context action model =
   case action of
     ChildEventAuthorFilterAction act ->
@@ -61,7 +70,7 @@ update context action model =
           EventAuthorFilter.Update.update act model.eventAuthorFilter
       in
         ( { model | eventAuthorFilter = childModel }
-        -- Filter out the events, before sending the events' markers.
+          -- Filter out the events, before sending the events' markers.
         , Task.succeed (ChildLeafletAction <| Leaflet.Update.SetMarkers (filterEventsByAuthor model.events childModel)) |> Effects.task
         )
 
@@ -76,7 +85,6 @@ update context action model =
           case act of
             EventCompanyFilter.Update.SelectCompany maybeCompanyId ->
               maybeCompanyId
-
       in
         ( { model | eventCompanyFilter = childModel }
         , Task.succeed (GetData maybeCompanyId) |> Effects.task
@@ -112,26 +120,29 @@ update context action model =
         childModel =
           Leaflet.Update.update act model.leaflet
       in
-        ( {model | leaflet = childModel }
+        ( { model | leaflet = childModel }
         , Effects.none
         )
 
     GetData maybeCompanyId ->
       let
         noFx =
-          (model, Effects.none)
+          ( model, Effects.none )
 
         getFx =
-          (model, getDataFromCache model.status maybeCompanyId)
+          ( model, getDataFromCache model.status maybeCompanyId )
       in
         case model.status of
           Event.Fetching id ->
-            if id == maybeCompanyId
+            if
+              id == maybeCompanyId
               -- We are already fetching this data
-              then noFx
+            then
+              noFx
               -- We are fetching data, but for a different company ID,
               -- so we need to re-fetch.
-              else getFx
+            else
+              getFx
 
           _ ->
             getFx
@@ -149,7 +160,7 @@ update context action model =
         )
 
     NoOp ->
-      (model, Effects.none)
+      ( model, Effects.none )
 
     UpdateDataFromServer result maybeCompanyId timestamp ->
       case result of
@@ -162,14 +173,14 @@ update context action model =
               filterEventsByString filteredEventsByAuthor model.eventList.filterString
           in
             ( { model
-              | events = events
-              , status = Event.Fetched maybeCompanyId timestamp
+                | events = events
+                , status = Event.Fetched maybeCompanyId timestamp
               }
             , Effects.batch
-              [ Task.succeed (ChildEventAuthorFilterAction EventAuthorFilter.Update.UnSelectAuthor) |> Effects.task
-              , Task.succeed (ChildEventListAction EventList.Update.UnSelectEvent) |> Effects.task
-              , Task.succeed (ChildEventListAction <| EventList.Update.FilterEvents "") |> Effects.task
-              ]
+                [ Task.succeed (ChildEventAuthorFilterAction EventAuthorFilter.Update.UnSelectAuthor) |> Effects.task
+                , Task.succeed (ChildEventListAction EventList.Update.UnSelectEvent) |> Effects.task
+                , Task.succeed (ChildEventListAction <| EventList.Update.FilterEvents "") |> Effects.task
+                ]
             )
 
         Err msg ->
@@ -181,13 +192,12 @@ update context action model =
       let
         childModel =
           Leaflet.Update.update Leaflet.Update.ToggleMap model.leaflet
-
       in
         ( { model | leaflet = childModel }
         , Effects.batch
-          [ Task.succeed (GetData maybeCompanyId) |> Effects.task
-          , Task.succeed (ChildEventCompanyFilterAction <| EventCompanyFilter.Update.SelectCompany maybeCompanyId) |> Effects.task
-          ]
+            [ Task.succeed (GetData maybeCompanyId) |> Effects.task
+            , Task.succeed (ChildEventCompanyFilterAction <| EventCompanyFilter.Update.SelectCompany maybeCompanyId) |> Effects.task
+            ]
         )
 
     Deactivate ->
@@ -200,7 +210,9 @@ update context action model =
         )
 
 
+
 -- EFFECTS
+
 
 getDataFromCache : Event.Status -> Maybe CompanyId -> Effects Action
 getDataFromCache status maybeCompanyId =
@@ -211,19 +223,20 @@ getDataFromCache status maybeCompanyId =
     actionTask =
       case status of
         Event.Fetched id fetchTime ->
-          if id == maybeCompanyId
-            then
-              Task.map (\currentTime ->
-                if fetchTime + Config.cacheTtl > currentTime
-                  then NoOp
-                  else GetDataFromServer maybeCompanyId
-              ) getCurrentTime
-            else
-              getFx
+          if id == maybeCompanyId then
+            Task.map
+              (\currentTime ->
+                if fetchTime + Config.cacheTtl > currentTime then
+                  NoOp
+                else
+                  GetDataFromServer maybeCompanyId
+              )
+              getCurrentTime
+          else
+            getFx
 
         _ ->
           getFx
-
   in
     Effects.task actionTask
 
@@ -232,31 +245,32 @@ getJson : String -> Maybe CompanyId -> String -> Effects Action
 getJson url maybeCompanyId accessToken =
   let
     params =
-      [ ("access_token", accessToken) ]
+      [ ( "access_token", accessToken ) ]
 
     params' =
       case maybeCompanyId of
         Just id ->
           -- Filter by company
-          ("filter[company]", toString id) :: params
+          ( "filter[company]", toString id ) :: params
 
         Nothing ->
           params
-
 
     encodedUrl =
       Http.url url params'
 
     httpTask =
-      Task.toResult <|
-        Http.get Event.Decoder.decode encodedUrl
+      Task.toResult
+        <| Http.get Event.Decoder.decode encodedUrl
 
     actionTask =
-      httpTask `andThen` (\result ->
-        Task.map (\timestamp ->
-          UpdateDataFromServer result maybeCompanyId timestamp
-        ) getCurrentTime
-      )
-
+      httpTask
+        `andThen` (\result ->
+                    Task.map
+                      (\timestamp ->
+                        UpdateDataFromServer result maybeCompanyId timestamp
+                      )
+                      getCurrentTime
+                  )
   in
     Effects.task actionTask

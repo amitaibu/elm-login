@@ -1,4 +1,4 @@
-module ArticleList.Update where
+module ArticleList.Update (..) where
 
 import Article.Decoder exposing (decode)
 import Article.Model as Article exposing (Model)
@@ -8,15 +8,17 @@ import Config.Model exposing (BackendConfig)
 import Effects exposing (Effects)
 import Http exposing (post, Error)
 import Json.Decode as JD exposing ((:=))
-import Task  exposing (andThen, Task)
+import Task exposing (andThen, Task)
 import TaskTutorial exposing (getCurrentTime)
 import Time exposing (Time)
 
-init : (ArticleList.Model.Model, Effects Action)
+
+init : ( ArticleList.Model.Model, Effects Action )
 init =
   ( initialModel
   , Effects.none
   )
+
 
 type Action
   = AppendArticle Article.Model
@@ -26,13 +28,13 @@ type Action
   | UpdateDataFromServer (Result Http.Error (List Article.Model)) Time.Time
 
 
-
 type alias UpdateContext =
   { accessToken : String
   , backendConfig : BackendConfig
   }
 
-update : UpdateContext -> Action -> ArticleList.Model.Model -> (ArticleList.Model.Model, Effects Action)
+
+update : UpdateContext -> Action -> ArticleList.Model.Model -> ( ArticleList.Model.Model, Effects Action )
 update context action model =
   case action of
     AppendArticle article ->
@@ -54,7 +56,6 @@ update context action model =
         , effects
         )
 
-
     GetDataFromServer ->
       let
         backendUrl =
@@ -67,13 +68,12 @@ update context action model =
         , getJson url context.accessToken
         )
 
-
     UpdateDataFromServer result timestamp' ->
       case result of
         Ok articles ->
           ( { model
-            | articles = articles
-            , status = ArticleList.Model.Fetched timestamp'
+              | articles = articles
+              , status = ArticleList.Model.Fetched timestamp'
             }
           , Effects.none
           )
@@ -84,9 +84,12 @@ update context action model =
           )
 
     NoOp ->
-      (model, Effects.none)
+      ( model, Effects.none )
+
+
 
 -- EFFECTS
+
 
 getDataFromCache : ArticleList.Model.Status -> Effects Action
 getDataFromCache status =
@@ -94,15 +97,17 @@ getDataFromCache status =
     actionTask =
       case status of
         ArticleList.Model.Fetched fetchTime ->
-          Task.map (\currentTime ->
-            if fetchTime + Config.cacheTtl > currentTime
-              then NoOp
-              else GetDataFromServer
-          ) getCurrentTime
+          Task.map
+            (\currentTime ->
+              if fetchTime + Config.cacheTtl > currentTime then
+                NoOp
+              else
+                GetDataFromServer
+            )
+            getCurrentTime
 
         _ ->
           Task.succeed GetDataFromServer
-
   in
     Effects.task actionTask
 
@@ -111,27 +116,30 @@ getJson : String -> String -> Effects Action
 getJson url accessToken =
   let
     params =
-      [ ("access_token", accessToken)
-      , ("sort", "-id")
+      [ ( "access_token", accessToken )
+      , ( "sort", "-id" )
       ]
 
-    encodedUrl = Http.url url params
+    encodedUrl =
+      Http.url url params
 
     httpTask =
-      Task.toResult <|
-        Http.get decodeData encodedUrl
+      Task.toResult
+        <| Http.get decodeData encodedUrl
 
     actionTask =
-      httpTask `andThen` (\result ->
-        Task.map (\timestamp' ->
-          UpdateDataFromServer result timestamp'
-        ) getCurrentTime
-      )
-
+      httpTask
+        `andThen` (\result ->
+                    Task.map
+                      (\timestamp' ->
+                        UpdateDataFromServer result timestamp'
+                      )
+                      getCurrentTime
+                  )
   in
     Effects.task actionTask
 
 
 decodeData : JD.Decoder (List Article.Model)
 decodeData =
-  JD.at ["data"] <| JD.list <| Article.Decoder.decode
+  JD.at [ "data" ] <| JD.list <| Article.Decoder.decode

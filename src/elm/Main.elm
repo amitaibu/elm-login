@@ -1,3 +1,5 @@
+module Main (..) where
+
 import App.Model as App exposing (Model)
 import App.Router exposing (delta2update, location2action)
 import App.Update exposing (init, update)
@@ -27,16 +29,20 @@ app =
         ]
     }
 
+
 main =
   app.html
 
+
 messages : Signal.Mailbox App.Update.Action
 messages =
-    Signal.mailbox App.Update.NoOp
+  Signal.mailbox App.Update.NoOp
+
 
 port tasks : Signal (Task.Task Never ())
 port tasks =
   app.tasks
+
 
 port routeTasks : Signal (Task () ())
 port routeTasks =
@@ -48,12 +54,16 @@ port routeTasks =
     , location2action = App.Router.location2action
     }
 
+
+
 -- Interactions with Leaflet maps
+
 
 type alias LeafletPort =
   { leaflet : Leaflet.Model.Model
   , events : List Int
   }
+
 
 port mapManager : Signal LeafletPort
 port mapManager =
@@ -68,13 +78,16 @@ port mapManager =
       { events = List.map .id <| getEvents model
       , leaflet = getLeaflet model
       }
-
   in
     Signal.map getLeafletPort app.model
 
+
 port selectEvent : Signal (Maybe Int)
 
+
+
 -- Dropzone
+
 
 type alias ActivePagePort =
   { accessToken : String
@@ -83,23 +96,40 @@ type alias ActivePagePort =
   , postStatus : String
   }
 
+
 port activePage : Signal ActivePagePort
 port activePage =
   let
     pageAsString page =
       case page of
-        App.Article -> "Article"
-        App.Event _ -> "Event"
-        App.GithubAuth -> "GithubAuth"
-        App.Login -> "Login"
-        App.PageNotFound -> "PageNotFound"
-        App.User -> "User"
+        App.Article ->
+          "Article"
+
+        App.Event _ ->
+          "Event"
+
+        App.GithubAuth ->
+          "GithubAuth"
+
+        App.Login ->
+          "Login"
+
+        App.PageNotFound ->
+          "PageNotFound"
+
+        App.User ->
+          "User"
 
     postStatusAsString status =
       case status of
-        ArticleForm.Model.Busy -> "Busy"
-        ArticleForm.Model.Done -> "Done"
-        ArticleForm.Model.Ready -> "Ready"
+        ArticleForm.Model.Busy ->
+          "Busy"
+
+        ArticleForm.Model.Done ->
+          "Done"
+
+        ArticleForm.Model.Ready ->
+          "Ready"
 
     getPortData model =
       { accessToken = model.accessToken
@@ -110,6 +140,6 @@ port activePage =
   in
     Signal.map getPortData app.model
 
-port dropzoneUploadedFile : Signal (Maybe Int)
 
+port dropzoneUploadedFile : Signal (Maybe Int)
 port ckeditor : Signal String

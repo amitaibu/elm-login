@@ -1,12 +1,15 @@
-module Config.Model where
+module Config.Model (..) where
+
 
 type alias BackendConfig =
   { backendUrl : String
   , githubClientId : String
-  , name : String
-  -- Url information
+  , name :
+      String
+      -- Url information
   , hostname : String
   }
+
 
 initialBackendConfig : BackendConfig
 initialBackendConfig =
@@ -16,10 +19,12 @@ initialBackendConfig =
   , hostname = ""
   }
 
+
 type alias Model =
   { backendConfig : BackendConfig
   , error : Bool
   }
+
 
 initialModel : Model
 initialModel =

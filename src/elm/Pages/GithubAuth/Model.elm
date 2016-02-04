@@ -1,10 +1,14 @@
-module Pages.GithubAuth.Model where
+module Pages.GithubAuth.Model (..) where
 
 import Http exposing (Error)
 
-type alias AccessToken = String
 
-type Status = Init
+type alias AccessToken =
+  String
+
+
+type Status
+  = Init
   | Error String
   | Fetching
   | Fetched
@@ -12,10 +16,11 @@ type Status = Init
 
 
 type alias Model =
-  { accessToken: AccessToken
+  { accessToken : AccessToken
   , status : Status
   , code : Maybe String
   }
+
 
 initialModel : Model
 initialModel =

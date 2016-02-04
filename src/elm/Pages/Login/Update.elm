@@ -1,24 +1,27 @@
-module Pages.Login.Update where
+module Pages.Login.Update (..) where
 
 import Pages.Login.Model exposing (initialModel, Model)
-
 import Base64 exposing (encode)
 import Config.Model exposing (BackendConfig)
 import Effects exposing (Effects)
 import Http exposing (Error)
 import Json.Decode as JD exposing ((:=))
 import Storage exposing (getItem)
-import Task exposing  (Task)
+import Task exposing (Task)
 import Utils.Http exposing (getErrorMessageFromHttpResponse)
 
-type alias AccessToken = String
 
-init : (Model, Effects Action)
+type alias AccessToken =
+  String
+
+
+init : ( Model, Effects Action )
 init =
   ( initialModel
-  -- Try to get an existing access token.
+    -- Try to get an existing access token.
   , getInputFromStorage
   )
+
 
 type Action
   = UpdateAccessTokenFromServer (Result Http.Error AccessToken)
@@ -29,17 +32,22 @@ type Action
   | SetUserMessage Pages.Login.Model.UserMessage
   | SubmitForm
 
+
 type alias Context =
   { backendConfig : BackendConfig
   }
 
-update : Context -> Action -> Model -> (Model, Effects Action)
+
+update : Context -> Action -> Model -> ( Model, Effects Action )
 update context action model =
   case action of
     UpdateName name ->
       let
-        loginForm = model.loginForm
-        updatedLoginForm = { loginForm | name = name }
+        loginForm =
+          model.loginForm
+
+        updatedLoginForm =
+          { loginForm | name = name }
       in
         ( { model | loginForm = updatedLoginForm }
         , Effects.none
@@ -47,10 +55,13 @@ update context action model =
 
     UpdatePass pass ->
       let
-        loginForm = model.loginForm
-        updatedLoginForm = { loginForm | pass = pass }
+        loginForm =
+          model.loginForm
+
+        updatedLoginForm =
+          { loginForm | pass = pass }
       in
-        ( {model | loginForm = updatedLoginForm }
+        ( { model | loginForm = updatedLoginForm }
         , Effects.none
         )
 
@@ -63,24 +74,25 @@ update context action model =
           backendUrl ++ "/api/login-token"
 
         credentials : String
-        credentials = encodeCredentials(model.loginForm.name, model.loginForm.pass)
+        credentials =
+          encodeCredentials ( model.loginForm.name, model.loginForm.pass )
       in
-        if model.status == Pages.Login.Model.Fetching || model.status == Pages.Login.Model.Fetched
-          then
-            (model, Effects.none)
-          else
-            ( { model | status = Pages.Login.Model.Fetching }
-            , Effects.batch
+        if model.status == Pages.Login.Model.Fetching || model.status == Pages.Login.Model.Fetched then
+          ( model, Effects.none )
+        else
+          ( { model | status = Pages.Login.Model.Fetching }
+          , Effects.batch
               [ Task.succeed (SetUserMessage Pages.Login.Model.None) |> Effects.task
               , getJson url credentials
               ]
-            )
+          )
 
     SetAccessToken token ->
       ( { model
-        | accessToken = token
-        -- This is a good time also to hide the password.
-        , loginForm = Pages.Login.Model.LoginForm model.loginForm.name ""
+          | accessToken =
+              token
+              -- This is a good time also to hide the password.
+          , loginForm = Pages.Login.Model.LoginForm model.loginForm.name ""
         }
       , Effects.none
       )
@@ -96,6 +108,7 @@ update context action model =
           ( { model | status = Pages.Login.Model.Fetched }
           , Task.succeed (SetAccessToken token) |> Effects.task
           )
+
         Err err ->
           let
             message =
@@ -111,6 +124,7 @@ update context action model =
           ( model
           , Task.succeed (SetAccessToken token) |> Effects.task
           )
+
         Err err ->
           -- There was no access token in the storage, so show the login form
           ( { model | hasAccessTokenInStorage = False }
@@ -126,22 +140,30 @@ getInputFromStorage =
     |> Effects.task
 
 
+
 -- EFFECTS
 
-encodeCredentials : (String, String) -> String
-encodeCredentials (name, pass) =
+
+encodeCredentials : ( String, String ) -> String
+encodeCredentials ( name, pass ) =
   let
-     base64 = Base64.encode(name ++ ":" ++ pass)
+    base64 =
+      Base64.encode (name ++ ":" ++ pass)
   in
     case base64 of
-     Ok result -> result
-     Err err -> ""
+      Ok result ->
+        result
+
+      Err err ->
+        ""
+
 
 getJson : String -> String -> Effects Action
 getJson url credentials =
-  Http.send Http.defaultSettings
+  Http.send
+    Http.defaultSettings
     { verb = "GET"
-    , headers = [("Authorization", "Basic " ++ credentials)]
+    , headers = [ ( "Authorization", "Basic " ++ credentials ) ]
     , url = url
     , body = Http.empty
     }
@@ -153,4 +175,4 @@ getJson url credentials =
 
 decodeAccessToken : JD.Decoder AccessToken
 decodeAccessToken =
-  JD.at ["access_token"] <| JD.string
+  JD.at [ "access_token" ] <| JD.string

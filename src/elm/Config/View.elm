@@ -1,11 +1,14 @@
-module Config.View where
+module Config.View (..) where
 
 import Html exposing (div, h2, text, Html)
 import Html.Attributes exposing (class)
 
+
 -- A plain function that always returns the error message
+
+
 view : Html
-view  =
+view =
   div
     [ class "config-error" ]
     [ h2 [] [ text "Configuration error" ]
