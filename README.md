@@ -6,7 +6,7 @@ An Elm single page application. The server side code is [here](https://github.co
 
 [Read more](http://www.gizra.com/content/elm-hedley-overview/) about this project.
 
-## Install
+## Install -- 
 
 Install Elm v0.16.0 (`npm install -g elm@0.16.0`)
 
