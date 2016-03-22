@@ -10,12 +10,17 @@ init = initialModel
 
 type Action
   = SelectCompany (Maybe Int)
+--  | Increase
 
 type alias Model = EventCompanyFilter.Model
 
 update : List Company.Model -> Action -> Model -> Model
 update companies action model =
   case action of
+
+--    Increase
+--        -> Nothing
+
     SelectCompany maybeCompanyId ->
       let
         isValidCompany val =
