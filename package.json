@@ -41,7 +41,9 @@
   "engines": {
     "node": ">0.10.0"
   },
-  "scripts": {},
+  "scripts": {
+    "postinstall": "bower install && elm-package install -y"
+  },
   "main": "gulpfile.js",
   "repository": {
     "type": "git",
