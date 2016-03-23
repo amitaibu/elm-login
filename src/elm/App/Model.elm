@@ -29,6 +29,7 @@ type alias Model =
   , config : Config.Model
   , configError : Bool
   , companies : List Company.Model
+  , companyChangeCounter : Int
   , events : Event.Model
   , githubAuth: GithubAuth.Model
   , login: Login.Model
@@ -45,6 +46,7 @@ initialModel =
   , config = Config.initialModel
   , configError = False
   , companies = []
+  , companyChangeCounter = 0
   , events = Event.initialModel
   , githubAuth = GithubAuth.initialModel
   , login = Login.initialModel
