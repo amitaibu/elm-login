@@ -58,9 +58,10 @@ companyListForSelect address companies eventCompanyFilter  =
     getOption company =
       option [value <| toString company.id, selected (company.id == selectedId)] [ text company.label]
   in
+    div [class "lambda-is-massive"] [
     select
       [ class "companies"
       , value selectedText
       , on "change" targetValue (\str -> Signal.message address <| EventCompanyFilter.Update.SelectCompany <| textToMaybe str)
       ]
-      (List.map getOption companies')
+      (List.map getOption companies'), span [class "company-counter"] [text (toString eventCompanyFilter)]]

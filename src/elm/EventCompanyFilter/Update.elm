@@ -29,7 +29,7 @@ update companies action model =
             Just val ->
               -- Make sure the given company ID is a valid one.
               if ((isValidCompany val) > 0)
-                then Just val
+                then Just val 
                 else Nothing
             Nothing ->
               Nothing
