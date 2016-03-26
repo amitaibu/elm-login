@@ -12,7 +12,7 @@ Install Elm v0.16.0 (`npm install -g elm@0.16.0`)
 
 ```
 npm install
-
+elm-package install -y
 ```
 
 Execute with `gulp`

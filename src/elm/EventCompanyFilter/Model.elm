@@ -1,6 +1,6 @@
 module EventCompanyFilter.Model where
 
-type alias Model = Maybe Int 
+type alias Model = {counter: Int , val: Maybe Int}
 
 initialModel : Model
-initialModel = Nothing
+initialModel = {counter=0, val=Nothing}
