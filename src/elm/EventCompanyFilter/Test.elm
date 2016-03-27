@@ -11,9 +11,9 @@ type alias Model = EventCompanyFilter.Model
 selectCompanySuite : Test
 selectCompanySuite =
   suite "SelectCompany action"
-    [ test "no company" (assertEqual Nothing (selectCompany Nothing))
-    , test "valid company" (assertEqual (Just 1) (selectCompany <| Just 1))
-    , test "invalid company" (assertEqual Nothing (selectCompany <| Just 100))
+    [ test "no company" (assertEqual ({counter=0, companyId=Nothing}) (selectCompany Nothing))
+    , test "valid company" (assertEqual ({counter=1,companyId=Just 1}) (selectCompany <| Just 1))
+    , test "invalid company" (assertEqual ({counter=0,companyId=Nothing}) (selectCompany <| Just 100))
     ]
 
 selectCompany : Maybe Int -> Model
