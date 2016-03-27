@@ -11,7 +11,7 @@ import String exposing (toInt)
 
 type alias Model = EventCompanyFilter.Model
 
-view : List Company.Model -> Signal.Address Action -> Model -> Html
+-- view : List Company.Model -> Signal.Address Action -> Model -> Html
 view companies address model =
   div
     [ class "wrapper -suffix" ]
@@ -23,11 +23,11 @@ view companies address model =
     , companyListForSelect address companies model
     ]
 
-companyListForSelect : Signal.Address Action -> List Company.Model -> Model -> Html
+-- companyListForSelect : Signal.Address Action -> List Company.Model -> Model -> Html
 companyListForSelect address companies eventCompanyFilter  =
   let
     selectedText =
-      case eventCompanyFilter of
+      case eventCompanyFilter.companyId of
         Just id -> toString id
         Nothing -> ""
 
@@ -49,19 +49,19 @@ companyListForSelect address companies eventCompanyFilter  =
 
     -- The selected company ID.
     selectedId =
-      case eventCompanyFilter of
+      case (eventCompanyFilter.companyId) of
         Just id ->
-          id
+            {counter=eventCompanyFilter.counter, companyId=id}
         Nothing ->
-          0
+            {counter=eventCompanyFilter.counter, companyId=0}
 
     getOption company =
-      option [value <| toString company.id, selected (company.id == selectedId)] [ text company.label]
+      option [value <| toString company.id, selected (company.id == selectedId.companyId)] [ text company.label]
   in
     div [class "lambda-is-massive"] [
     select
       [ class "companies"
       , value selectedText
-      , on "change" targetValue (\str -> Signal.message address <| EventCompanyFilter.Update.SelectCompany <| textToMaybe str)
+      , on "change" targetValue (\str -> Signal.message address <| EventCompanyFilter.Update.SelectCompany <| (textToMaybe str))
       ]
-      (List.map getOption companies'), span [class "company-counter"] [text (toString eventCompanyFilter)]]
+      (List.map getOption companies'), span [class "company-counter"] [text (toString (eventCompanyFilter.counter))]]
