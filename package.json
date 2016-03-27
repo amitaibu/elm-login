@@ -7,7 +7,7 @@
   "devDependencies": {
     "browser-sync": "1.9.2",
     "del": "1.2.1",
-    "gulp": "3.9.0",
+    "gulp": "3.9.1",
     "gulp-autoprefixer": "2.3.1",
     "gulp-cache": "0.2.10",
     "gulp-cached": "1.0.1",
@@ -35,10 +35,13 @@
     "gulp-useref": "1.3.0",
     "jshint-stylish": "1.0.2",
     "merge-stream": "0.1.8",
+    "node-sass": "3.4.2",
     "wiredep": "2.2.2"
   },
   "engines": {
     "node": ">0.10.0"
   },
-  "scripts": {}
+  "scripts": {
+    "postinstall": "bower install"
+  }
 }

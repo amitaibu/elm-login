@@ -29,10 +29,14 @@
   .companies {
     margin: 10px 0;
     padding: 4px;
-    width: 100%;
+    width: 90%;
     border-radius: 3px;
     color:$blue;
     background: white;
+  }
+  .company-counter {
+    margin-left: 5px;
+    border: 1px solid #E2E2E2;
   }
 
   input.search {

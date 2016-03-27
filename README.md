@@ -11,7 +11,7 @@ An Elm single page application. The server side code is [here](https://github.co
 Install Elm v0.16.0 (`npm install -g elm@0.16.0`)
 
 ```
-npm install && bower install
+npm install
 elm-package install -y
 ```
 
