@@ -29,7 +29,7 @@
   .companies {
     margin: 10px 0;
     padding: 4px;
-    width: 100%;
+    width: 80%;
     border-radius: 3px;
     color:$blue;
     background: white;
@@ -86,5 +86,12 @@
         margin: 0px;
       }
     }
+  }
+
+  .counter {
+    display: inline-block;
+    width: 20%;
+    text-align: center;
+    font-weight: bold;
   }
 }
