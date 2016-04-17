@@ -21,13 +21,14 @@ view companies address model =
         , text <| " " ++ "Companies"
         ]
     , companyListForSelect address companies model
+    , companyCounter address model
     ]
 
 companyListForSelect : Signal.Address Action -> List Company.Model -> Model -> Html
 companyListForSelect address companies eventCompanyFilter  =
   let
     selectedText =
-      case eventCompanyFilter of
+      case eventCompanyFilter.companyid of
         Just id -> toString id
         Nothing -> ""
 
@@ -49,7 +50,7 @@ companyListForSelect address companies eventCompanyFilter  =
 
     -- The selected company ID.
     selectedId =
-      case eventCompanyFilter of
+      case eventCompanyFilter.companyid of
         Just id ->
           id
         Nothing ->
@@ -64,3 +65,11 @@ companyListForSelect address companies eventCompanyFilter  =
       , on "change" targetValue (\str -> Signal.message address <| EventCompanyFilter.Update.SelectCompany <| textToMaybe str)
       ]
       (List.map getOption companies')
+
+
+companyCounter : Signal.Address Action -> Model -> Html
+companyCounter address eventCompanyFilter  =
+
+  span
+    [ class "counter" ]
+    [ text ( toString eventCompanyFilter.counter) ]
