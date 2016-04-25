@@ -63,6 +63,5 @@ companyListForSelect address companies eventCompanyFilter  =
       [ class "companies"
       , value selectedText
       , on "change" targetValue (\str -> Signal.message address <| EventCompanyFilter.Update.SelectCompany <| textToMaybe str)
-   --   , on "input" targetValue (\str -> Signal.message address <| EventCompanyFilter.Update.ResetCounter)
       ]
       (List.map getOption companies')
