@@ -5,17 +5,16 @@ import Article.Model as Article exposing (Author, Model)
 import ArticleForm.Model as ArticleForm exposing (initialArticleForm, initialModel, ArticleForm, Model, UserMessage)
 
 import Config.Model exposing (BackendConfig)
-import Effects exposing (Effects)
 import Http exposing (post, Error)
 import Json.Decode as JD exposing ((:=))
 import Json.Encode as JE exposing (string)
 import Task exposing (andThen, Task)
 import Utils.Http exposing (getErrorMessageFromHttpResponse)
 
-init : (ArticleForm.Model, Effects Msg)
+init : (ArticleForm.Model, Cmd Msg)
 init =
   ( initialModel
-  , Effects.none
+  , Cmd.none
   )
 
 type Msg
@@ -35,7 +34,7 @@ type alias Context =
   , backendConfig : BackendConfig
   }
 
-update : Context -> Msg -> Model -> (Model, Effects Msg, Maybe Article.Model)
+update : Context -> Msg -> Model -> (Model, Cmd Msg, Maybe Article.Model)
 update context action model =
   case action of
     ResetForm ->
@@ -43,7 +42,7 @@ update context action model =
         | articleForm = initialArticleForm
         , postStatus = ArticleForm.Ready
         }
-      , Effects.none
+      , Cmd.none
       , Nothing
       )
 
@@ -56,13 +55,13 @@ update context action model =
           { articleForm | image = maybeVal }
       in
         ( { model | articleForm = articleForm' }
-        , Effects.none
+        , Cmd.none
         , Nothing
         )
 
     SetUserMessage userMessage ->
       ( { model | userMessage = userMessage }
-      , Effects.none
+      , Cmd.none
       , Nothing
       )
 
@@ -83,7 +82,7 @@ update context action model =
 
           else
             ( model
-            , Effects.none
+            , Cmd.none
             , Nothing
             )
 
@@ -97,7 +96,7 @@ update context action model =
           { articleForm | body = val }
       in
         ( { model | articleForm = articleForm' }
-        , Effects.none
+        , Cmd.none
         , Nothing
         )
 
@@ -110,7 +109,7 @@ update context action model =
           { articleForm | label = val }
       in
         ( { model | articleForm = articleForm' }
-        , Effects.none
+        , Cmd.none
         , Nothing
         )
 
@@ -120,21 +119,21 @@ update context action model =
           -- Append the new article to the articles list.
           ( { model | postStatus = ArticleForm.Done }
           -- We can reset the form, as it was posted successfully.
-          , Task.succeed ResetForm |> Effects.task
+          , Task.succeed ResetForm |> Cmd.task
           -- Return the article to the parent component.
           , Just article
           )
 
         Err err ->
           ( model
-          , Task.succeed (SetUserMessage <| ArticleForm.Error (getErrorMessageFromHttpResponse err)) |> Effects.task
+          , Task.succeed (SetUserMessage <| ArticleForm.Error (getErrorMessageFromHttpResponse err)) |> Cmd.task
           , Nothing
           )
 
 
 -- EFFECTS
 
-postArticle : String -> String -> ArticleForm.ArticleForm -> Effects Msg
+postArticle : String -> String -> ArticleForm.ArticleForm -> Cmd Msg
 postArticle url accessToken data =
   let
     params =
@@ -149,7 +148,7 @@ postArticle url accessToken data =
       (Http.string <| dataToJson data )
       |> Task.toResult
       |> Task.map UpdatePostArticle
-      |> Effects.task
+      |> Cmd.task
 
 
 dataToJson : ArticleForm.ArticleForm -> String

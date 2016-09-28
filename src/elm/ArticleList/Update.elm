@@ -5,16 +5,15 @@ import Article.Model as Article exposing (Model)
 import ArticleList.Model exposing (initialModel, Model)
 import Config exposing (cacheTtl)
 import Config.Model exposing (BackendConfig)
-import Effects exposing (Effects)
 import Http exposing (post, Error)
 import Json.Decode as JD exposing ((:=))
 import Task  exposing (andThen, Task)
 import Time exposing (Time)
 
-init : (ArticleList.Model.Model, Effects Msg)
+init : (ArticleList.Model.Model, Cmd Msg)
 init =
   ( initialModel
-  , Effects.none
+  , Cmd.none
   )
 
 type Msg
@@ -31,12 +30,12 @@ type alias UpdateContext =
   , backendConfig : BackendConfig
   }
 
-update : UpdateContext -> Msg -> ArticleList.Model.Model -> (ArticleList.Model.Model, Effects Msg)
+update : UpdateContext -> Msg -> ArticleList.Model.Model -> (ArticleList.Model.Model, Cmd Msg)
 update context action model =
   case action of
     AppendArticle article ->
       ( { model | articles = article :: model.articles }
-      , Effects.none
+      , Cmd.none
       )
 
     GetData ->
@@ -44,7 +43,7 @@ update context action model =
         effects =
           case model.status of
             ArticleList.Model.Fetching ->
-              Effects.none
+              Cmd.none
 
             _ ->
               getDataFromCache model.status
@@ -74,20 +73,20 @@ update context action model =
             | articles = articles
             , status = ArticleList.Model.Fetched timestamp'
             }
-          , Effects.none
+          , Cmd.none
           )
 
         Err err ->
           ( { model | status = ArticleList.Model.HttpError err }
-          , Effects.none
+          , Cmd.none
           )
 
     NoOp ->
-      (model, Effects.none)
+      (model, Cmd.none)
 
 -- EFFECTS
 
-getDataFromCache : ArticleList.Model.Status -> Effects Msg
+getDataFromCache : ArticleList.Model.Status -> Cmd Msg
 getDataFromCache status =
   let
     actionTask =
@@ -103,10 +102,10 @@ getDataFromCache status =
           Task.succeed GetDataFromServer
 
   in
-    Effects.task actionTask
+    Cmd.task actionTask
 
 
-getJson : String -> String -> Effects Msg
+getJson : String -> String -> Cmd Msg
 getJson url accessToken =
   let
     params =
@@ -128,7 +127,7 @@ getJson url accessToken =
       )
 
   in
-    Effects.task actionTask
+    Cmd.task actionTask
 
 
 decodeData : JD.Decoder (List Article.Model)

@@ -1,7 +1,6 @@
 module Pages.User.Decoder exposing (..)
 
 import Company.Model as Company exposing (Model)
-import Effects exposing (Effects, Never)
 import Http exposing (Error)
 import Json.Decode as Json exposing ((:=))
 import String

@@ -4,7 +4,6 @@ import Pages.Login.Model exposing (initialModel, Model)
 
 import Base64 exposing (encode)
 import Config.Model exposing (BackendConfig)
-import Effects exposing (Effects)
 import Http exposing (Error)
 import Json.Decode as JD exposing ((:=))
 import Storage exposing (getItem)
@@ -13,7 +12,7 @@ import Utils.Http exposing (getErrorMessageFromHttpResponse)
 
 type alias AccessToken = String
 
-init : (Model, Effects Msg)
+init : (Model, Cmd Msg)
 init =
   ( initialModel
   -- Try to get an existing access token.
@@ -33,7 +32,7 @@ type alias Context =
   { backendConfig : BackendConfig
   }
 
-update : Context -> Msg -> Model -> (Model, Effects Msg)
+update : Context -> Msg -> Model -> (Model, Cmd Msg)
 update context action model =
   case action of
     UpdateName name ->
@@ -42,7 +41,7 @@ update context action model =
         updatedLoginForm = { loginForm | name = name }
       in
         ( { model | loginForm = updatedLoginForm }
-        , Effects.none
+        , Cmd.none
         )
 
     UpdatePass pass ->
@@ -51,7 +50,7 @@ update context action model =
         updatedLoginForm = { loginForm | pass = pass }
       in
         ( {model | loginForm = updatedLoginForm }
-        , Effects.none
+        , Cmd.none
         )
 
     SubmitForm ->
@@ -67,11 +66,11 @@ update context action model =
       in
         if model.status == Pages.Login.Model.Fetching || model.status == Pages.Login.Model.Fetched
           then
-            (model, Effects.none)
+            (model, Cmd.none)
           else
             ( { model | status = Pages.Login.Model.Fetching }
-            , Effects.batch
-              [ Task.succeed (SetUserMessage Pages.Login.Model.None) |> Effects.task
+            , Cmd.batch
+              [ Task.succeed (SetUserMessage Pages.Login.Model.None) |> Cmd.task
               , getJson url credentials
               ]
             )
@@ -82,19 +81,19 @@ update context action model =
         -- This is a good time also to hide the password.
         , loginForm = Pages.Login.Model.LoginForm model.loginForm.name ""
         }
-      , Effects.none
+      , Cmd.none
       )
 
     SetUserMessage userMessage ->
       ( { model | userMessage = userMessage }
-      , Effects.none
+      , Cmd.none
       )
 
     UpdateAccessTokenFromServer result ->
       case result of
         Ok token ->
           ( { model | status = Pages.Login.Model.Fetched }
-          , Task.succeed (SetAccessToken token) |> Effects.task
+          , Task.succeed (SetAccessToken token) |> Cmd.task
           )
         Err err ->
           let
@@ -102,28 +101,28 @@ update context action model =
               getErrorMessageFromHttpResponse err
           in
             ( { model | status = Pages.Login.Model.HttpError err }
-            , Task.succeed (SetUserMessage <| Pages.Login.Model.Error message) |> Effects.task
+            , Task.succeed (SetUserMessage <| Pages.Login.Model.Error message) |> Cmd.task
             )
 
     UpdateAccessTokenFromStorage result ->
       case result of
         Ok token ->
           ( model
-          , Task.succeed (SetAccessToken token) |> Effects.task
+          , Task.succeed (SetAccessToken token) |> Cmd.task
           )
         Err err ->
           -- There was no access token in the storage, so show the login form
           ( { model | hasAccessTokenInStorage = False }
-          , Effects.none
+          , Cmd.none
           )
 
 
-getInputFromStorage : Effects Msg
+getInputFromStorage : Cmd Msg
 getInputFromStorage =
   Storage.getItem "access_token" JD.string
     |> Task.toResult
     |> Task.map UpdateAccessTokenFromStorage
-    |> Effects.task
+    |> Cmd.task
 
 
 -- EFFECTS
@@ -137,7 +136,7 @@ encodeCredentials (name, pass) =
      Ok result -> result
      Err err -> ""
 
-getJson : String -> String -> Effects Msg
+getJson : String -> String -> Cmd Msg
 getJson url credentials =
   Http.send Http.defaultSettings
     { verb = "GET"
@@ -148,7 +147,7 @@ getJson url credentials =
     |> Http.fromJson decodeAccessToken
     |> Task.toResult
     |> Task.map UpdateAccessTokenFromServer
-    |> Effects.task
+    |> Cmd.task
 
 
 decodeAccessToken : JD.Decoder AccessToken

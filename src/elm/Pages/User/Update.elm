@@ -2,7 +2,6 @@ module Pages.User.Update exposing (..)
 
 import Config.Model exposing (BackendConfig)
 import Company.Model as Company exposing (initialModel, Model)
-import Effects exposing (Effects, Never)
 import Http exposing (Error)
 import Pages.User.Model as User exposing (Model)
 import Pages.User.Decoder exposing (decode)
@@ -23,17 +22,17 @@ type Msg
   | SetAccessToken AccessToken
   | UpdateDataFromServer (Result Http.Error (Id, String, List Company.Model))
 
-init : (Model, Effects Msg)
+init : (Model, Cmd Msg)
 init =
   ( User.initialModel
-  , Effects.none
+  , Cmd.none
   )
 
-update : UpdateContext -> Msg -> Model -> (Model, Effects Msg)
+update : UpdateContext -> Msg -> Model -> (Model, Cmd Msg)
 update context action model =
   case action of
     NoOp _ ->
-      (model, Effects.none)
+      (model, Cmd.none)
 
     GetDataFromServer ->
       let
@@ -45,7 +44,7 @@ update context action model =
       in
         if model.status == User.Fetching || model.status == User.Fetched
           then
-            (model, Effects.none)
+            (model, Cmd.none)
           else
             ( { model | status = User.Fetching }
             , getJson url context.accessToken
@@ -63,7 +62,7 @@ update context action model =
                 , name = User.LoggedIn name
                 , companies = companies
               }
-            , Effects.none
+            , Cmd.none
             )
           Err msg ->
             let
@@ -72,11 +71,11 @@ update context action model =
                   Http.BadResponse code _ ->
                     if (code == 401)
                       -- Token is wrong, so remove any existing one.
-                      then Task.succeed (SetAccessToken "") |> Effects.task
-                      else Effects.none
+                      then Task.succeed (SetAccessToken "") |> Cmd.task
+                      else Cmd.none
 
                   _ ->
-                    Effects.none
+                    Cmd.none
 
             in
             ( { model' | status = User.HttpError msg }
@@ -85,12 +84,12 @@ update context action model =
 
     SetAccessToken accessToken ->
       ( {model | accessToken = accessToken}
-      , Effects.none
+      , Cmd.none
       )
 
--- Effects
+-- Cmd
 
-getJson : String -> AccessToken -> Effects Action
+getJson : String -> AccessToken -> Cmd Action
 getJson url accessToken =
   let
     encodedUrl = Http.url url [ ("access_token", accessToken) ]
@@ -98,4 +97,4 @@ getJson url accessToken =
     Http.get decode encodedUrl
       |> Task.toResult
       |> Task.map UpdateDataFromServer
-      |> Effects.task
+      |> Cmd.task

@@ -4,7 +4,6 @@ import App.Update exposing (init, update)
 import App.View exposing (view)
 import ArticleForm.Model exposing (PostStatus)
 import ArticleForm.Update exposing (Msg)
-import Effects exposing (Never)
 import EventList.Update exposing (Msg)
 import Pages.Event.Update exposing (Msg)
 import Leaflet.Model exposing (Model)
@@ -14,18 +13,12 @@ import StartApp as StartApp
 import Task exposing (Task)
 
 
-app =
-  StartApp.start
-    { init = App.Update.init
-    , update = App.Update.update
-    , view = App.View.view
-    , inputs =
-        [ messages.signal
-        , Signal.map (App.Update.ChildArticleAction << Pages.Article.Update.ChildArticleFormAction << ArticleForm.Update.SetImageId) dropzoneUploadedFile
-        , Signal.map (App.Update.ChildArticleAction << Pages.Article.Update.ChildArticleFormAction << ArticleForm.Update.UpdateBody) ckeditor
-        , Signal.map (App.Update.ChildEventAction << Pages.Event.Update.ChildEventListAction << EventList.Update.SelectEvent) selectEvent
-        ]
-    }
+inputs =
+    [ messages.signal
+    , Signal.map (App.Update.ChildArticleAction << Pages.Article.Update.ChildArticleFormAction << ArticleForm.Update.SetImageId) dropzoneUploadedFile
+    , Signal.map (App.Update.ChildArticleAction << Pages.Article.Update.ChildArticleFormAction << ArticleForm.Update.UpdateBody) ckeditor
+    , Signal.map (App.Update.ChildEventAction << Pages.Event.Update.ChildEventListAction << EventList.Update.SelectEvent) selectEvent
+    ]
 
 main =
   app.html
@@ -34,9 +27,9 @@ messages : Signal.Mailbox App.Update.Msg
 messages =
     Signal.mailbox App.Update.NoOp
 
-port tasks : Signal (Task.Task Never ())
-port tasks =
-  app.tasks
+main =
+      Html.program
+          { init = App.Update.init, update = App.Update.update, view = App.View.view, subscriptions = inputs  }
 
 port routeTasks : Signal (Task () ())
 port routeTasks =

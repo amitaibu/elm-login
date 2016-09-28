@@ -3,7 +3,6 @@ module Pages.Event.Update exposing (..)
 import Config exposing (cacheTtl)
 import Config.Model exposing (BackendConfig)
 import Company.Model as Company exposing (Model)
-import Effects exposing (Effects)
 import Event.Decoder exposing (decode)
 import Event.Model exposing (Event)
 import EventAuthorFilter.Update exposing (Msg)
@@ -21,10 +20,10 @@ type alias Id = Int
 type alias CompanyId = Int
 type alias Model = Event.Model
 
-init : (Model, Effects Msg)
+init : (Model, Cmd Msg)
 init =
   ( Event.initialModel
-  , Effects.none
+  , Cmd.none
   )
 
 type Msg
@@ -50,7 +49,7 @@ type alias Context =
   , companies : List Company.Model
   }
 
-update : Context -> Msg -> Model -> (Model, Effects Msg)
+update : Context -> Msg -> Model -> (Model, Cmd Msg)
 update context action model =
   case action of
     ChildEventAuthorFilterAction act ->
@@ -61,7 +60,7 @@ update context action model =
       in
         ( { model | eventAuthorFilter = childModel }
         -- Filter out the events, before sending the events' markers.
-        , Task.succeed (ChildLeafletAction <| Leaflet.Update.SetMarkers (filterEventsByAuthor model.events childModel)) |> Effects.task
+        , Task.succeed (ChildLeafletAction <| Leaflet.Update.SetMarkers (filterEventsByAuthor model.events childModel)) |> Cmd.task
         )
 
     ChildEventCompanyFilterAction act ->
@@ -78,7 +77,7 @@ update context action model =
 
       in
         ( { model | eventCompanyFilter = childModel }
-        , Task.succeed (GetData maybeCompanyId) |> Effects.task
+        , Task.succeed (GetData maybeCompanyId) |> Cmd.task
         )
 
     ChildEventListAction act ->
@@ -103,7 +102,7 @@ update context action model =
               Leaflet.Update.UnselectMarker
       in
         ( { model | eventList = childModel }
-        , Task.succeed (ChildLeafletAction <| childAction) |> Effects.task
+        , Task.succeed (ChildLeafletAction <| childAction) |> Cmd.task
         )
 
     ChildLeafletAction act ->
@@ -112,13 +111,13 @@ update context action model =
           Leaflet.Update.update act model.leaflet
       in
         ( {model | leaflet = childModel }
-        , Effects.none
+        , Cmd.none
         )
 
     GetData maybeCompanyId ->
       let
         noFx =
-          (model, Effects.none)
+          (model, Cmd.none)
 
         getFx =
           (model, getDataFromCache model.status maybeCompanyId)
@@ -148,7 +147,7 @@ update context action model =
         )
 
     NoOp ->
-      (model, Effects.none)
+      (model, Cmd.none)
 
     UpdateDataFromServer result maybeCompanyId timestamp ->
       case result of
@@ -164,16 +163,16 @@ update context action model =
               | events = events
               , status = Event.Fetched maybeCompanyId timestamp
               }
-            , Effects.batch
-              [ Task.succeed (ChildEventAuthorFilterAction EventAuthorFilter.Update.UnSelectAuthor) |> Effects.task
-              , Task.succeed (ChildEventListAction EventList.Update.UnSelectEvent) |> Effects.task
-              , Task.succeed (ChildEventListAction <| EventList.Update.FilterEvents "") |> Effects.task
+            , Cmd.batch
+              [ Task.succeed (ChildEventAuthorFilterAction EventAuthorFilter.Update.UnSelectAuthor) |> Cmd.task
+              , Task.succeed (ChildEventListAction EventList.Update.UnSelectEvent) |> Cmd.task
+              , Task.succeed (ChildEventListAction <| EventList.Update.FilterEvents "") |> Cmd.task
               ]
             )
 
         Err msg ->
           ( { model | status = Event.HttpError msg }
-          , Effects.none
+          , Cmd.none
           )
 
     Activate maybeCompanyId ->
@@ -183,9 +182,9 @@ update context action model =
 
       in
         ( { model | leaflet = childModel }
-        , Effects.batch
-          [ Task.succeed (GetData maybeCompanyId) |> Effects.task
-          , Task.succeed (ChildEventCompanyFilterAction <| EventCompanyFilter.Update.SelectCompany maybeCompanyId) |> Effects.task
+        , Cmd.batch
+          [ Task.succeed (GetData maybeCompanyId) |> Cmd.task
+          , Task.succeed (ChildEventCompanyFilterAction <| EventCompanyFilter.Update.SelectCompany maybeCompanyId) |> Cmd.task
           ]
         )
 
@@ -195,13 +194,13 @@ update context action model =
           Leaflet.Update.update Leaflet.Update.ToggleMap model.leaflet
       in
         ( { model | leaflet = childModel }
-        , Effects.none
+        , Cmd.none
         )
 
 
 -- EFFECTS
 
-getDataFromCache : Event.Status -> Maybe CompanyId -> Effects Msg
+getDataFromCache : Event.Status -> Maybe CompanyId -> Cmd Msg
 getDataFromCache status maybeCompanyId =
   let
     getFx =
@@ -224,10 +223,10 @@ getDataFromCache status maybeCompanyId =
           getFx
 
   in
-    Effects.task actionTask
+    Cmd.task actionTask
 
 
-getJson : String -> Maybe CompanyId -> String -> Effects Msg
+getJson : String -> Maybe CompanyId -> String -> Cmd Msg
 getJson url maybeCompanyId accessToken =
   let
     params =
@@ -258,4 +257,4 @@ getJson url maybeCompanyId accessToken =
       )
 
   in
-    Effects.task actionTask
+    Cmd.task actionTask

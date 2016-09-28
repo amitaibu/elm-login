@@ -3,7 +3,6 @@ module Pages.Login.Test exposing (..)
 import ElmTest exposing (..)
 
 import Config.Model exposing (initialBackendConfig)
-import Effects exposing (Effects)
 import Http exposing (Error)
 import Pages.Login.Model exposing (initialModel, Model)
 import Pages.Login.Update exposing (Msg)
@@ -45,15 +44,15 @@ formSuite =
       , test "submit after another submit with errors" (assertEqual Pages.Login.Model.Fetching (.status <| fst(submitForm <| Pages.Login.Model.HttpError Http.NetworkError)))
       ]
 
-updateName : String -> (Model, Effects Msg)
+updateName : String -> (Model, Cmd Msg)
 updateName val =
   Pages.Login.Update.update updateContext (Pages.Login.Update.UpdateName val) Pages.Login.Model.initialModel
 
-updatePass : String -> (Model, Effects Msg)
+updatePass : String -> (Model, Cmd Msg)
 updatePass val =
   Pages.Login.Update.update updateContext (Pages.Login.Update.UpdatePass val) Pages.Login.Model.initialModel
 
-submitForm : Pages.Login.Model.Status -> (Model, Effects Msg)
+submitForm : Pages.Login.Model.Status -> (Model, Cmd Msg)
 submitForm status =
   let
     model =
@@ -65,7 +64,7 @@ submitForm status =
   in
     Pages.Login.Update.update updateContext Pages.Login.Update.SubmitForm model'
 
-setAccessToken : String -> (Model, Effects Msg)
+setAccessToken : String -> (Model, Cmd Msg)
 setAccessToken val =
   Pages.Login.Update.update updateContext (Pages.Login.Update.SetAccessToken val) Pages.Login.Model.initialModel
 

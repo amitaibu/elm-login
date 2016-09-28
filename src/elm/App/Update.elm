@@ -4,7 +4,6 @@ import App.Model as App exposing (initialModel, Model)
 
 import Config.Update exposing (init, Msg)
 import Company.Model as Company exposing (Model)
-import Effects exposing (Effects)
 import Json.Encode as JE exposing (string, Value)
 import String exposing (isEmpty)
 import Storage exposing (removeItem, setItem)
@@ -22,16 +21,16 @@ import Pages.User.Update exposing (Msg)
 type alias AccessToken = String
 type alias Model = App.Model
 
-initialEffects : List (Effects Msg)
-initialEffects =
-  [ Effects.map ChildConfigAction <| snd Config.Update.init
-  , Effects.map ChildLoginAction <| snd Pages.Login.Update.init
+initialCmd : List (Cmd Msg)
+initialCmd =
+  [ Cmd.map ChildConfigAction <| snd Config.Update.init
+  , Cmd.map ChildLoginAction <| snd Pages.Login.Update.init
   ]
 
-init : (Model, Effects Msg)
+init : (Model, Cmd Msg)
 init =
   ( App.initialModel
-  , Effects.batch initialEffects
+  , Cmd.batch initialCmd
   )
 
 type Msg
@@ -53,7 +52,7 @@ type Msg
   | NoOpSetAccessToken (Result AccessToken ())
 
 
-update : Msg -> Model -> (Model, Effects Msg)
+update : Msg -> Model -> (Model, Cmd Msg)
 update action model =
   case action of
     ChildArticleAction act ->
@@ -64,34 +63,34 @@ update action model =
           , backendConfig = (.config >> .backendConfig) model
           }
 
-        (childModel, childEffects) = Pages.Article.Update.update context act model.article
+        (childModel, childCmd) = Pages.Article.Update.update context act model.article
       in
         ( {model | article = childModel }
-        , Effects.map ChildArticleAction childEffects
+        , Cmd.map ChildArticleAction childCmd
         )
 
     ChildConfigAction act ->
       let
-        (childModel, childEffects) = Config.Update.update act model.config
+        (childModel, childCmd) = Config.Update.update act model.config
 
-        defaultEffects =
-          [ Effects.map ChildConfigAction childEffects ]
+        defaultCmd =
+          [ Cmd.map ChildConfigAction childCmd ]
 
         effects' =
           case act of
             Config.Update.SetError ->
               -- Set configuration error.
-              (Task.succeed SetConfigError |> Effects.task)
+              (Task.succeed SetConfigError |> Cmd.task)
               ::
-              defaultEffects
+              defaultCmd
             _ ->
-              defaultEffects
+              defaultCmd
 
       in
         ( { model
           | config = childModel
           }
-        , Effects.batch effects'
+        , Cmd.batch effects'
         )
 
     ChildEventAction act ->
@@ -103,10 +102,10 @@ update action model =
           , companies = model.companies
           }
 
-        (childModel, childEffects) = Pages.Event.Update.update context act model.events
+        (childModel, childCmd) = Pages.Event.Update.update context act model.events
       in
         ( {model | events = childModel }
-        , Effects.map ChildEventAction childEffects
+        , Cmd.map ChildEventAction childCmd
         )
 
     ChildGithubAuthAction act ->
@@ -115,13 +114,13 @@ update action model =
         context =
           { backendConfig = (.config >> .backendConfig) model }
 
-        (childModel, childEffects) = Pages.GithubAuth.Update.update context act model.githubAuth
+        (childModel, childCmd) = Pages.GithubAuth.Update.update context act model.githubAuth
 
         defaultEffect =
-          Effects.map ChildGithubAuthAction childEffects
+          Cmd.map ChildGithubAuthAction childCmd
 
         -- A convinence variable to hold the default effect as a list.
-        defaultEffects =
+        defaultCmd =
           [ defaultEffect ]
 
         effects' =
@@ -130,16 +129,16 @@ update action model =
             -- root property, and also get the user info, which will in turn
             -- redirect the user from the login page.
             Pages.GithubAuth.Update.SetAccessToken token ->
-              (Task.succeed (SetAccessToken token) |> Effects.task)
+              (Task.succeed (SetAccessToken token) |> Cmd.task)
               ::
-              defaultEffects
+              defaultCmd
 
             _ ->
-              defaultEffects
+              defaultCmd
 
       in
         ( {model | githubAuth = childModel }
-        , Effects.batch effects'
+        , Cmd.batch effects'
         )
 
     ChildLoginAction act ->
@@ -147,13 +146,13 @@ update action model =
         context =
           { backendConfig = (.config >> .backendConfig) model }
 
-        (childModel, childEffects) = Pages.Login.Update.update context act model.login
+        (childModel, childCmd) = Pages.Login.Update.update context act model.login
 
         defaultEffect =
-          Effects.map ChildLoginAction childEffects
+          Cmd.map ChildLoginAction childCmd
 
         -- A convinence variable to hold the default effect as a list.
-        defaultEffects =
+        defaultCmd =
           [ defaultEffect ]
 
         effects' =
@@ -162,18 +161,18 @@ update action model =
             -- -- root property, and also get the user info, which will in turn
             -- -- redirect the user from the login page.
             Pages.Login.Update.SetAccessToken token ->
-              (Task.succeed (SetAccessToken token) |> Effects.task)
+              (Task.succeed (SetAccessToken token) |> Cmd.task)
               ::
-              (Task.succeed (ChildUserAction Pages.User.Update.GetDataFromServer) |> Effects.task)
+              (Task.succeed (ChildUserAction Pages.User.Update.GetDataFromServer) |> Cmd.task)
               ::
-              defaultEffects
+              defaultCmd
 
             _ ->
-              defaultEffects
+              defaultCmd
 
       in
         ( {model | login = childModel }
-        , Effects.batch effects'
+        , Cmd.batch effects'
         )
 
 
@@ -184,12 +183,12 @@ update action model =
           , backendConfig = (.config >> .backendConfig) model
           }
 
-        (childModel, childEffects) = Pages.User.Update.update context act model.user
+        (childModel, childCmd) = Pages.User.Update.update context act model.user
 
         defaultEffect =
-          Effects.map ChildUserAction childEffects
+          Cmd.map ChildUserAction childCmd
 
-        defaultEffects =
+        defaultCmd =
           [ defaultEffect ]
 
         model' =
@@ -200,9 +199,9 @@ update action model =
             -- Bubble up the SetAccessToken to the App level.
             Pages.User.Update.SetAccessToken token ->
               ( model'
-              , (Task.succeed (SetAccessToken token) |> Effects.task)
+              , (Task.succeed (SetAccessToken token) |> Cmd.task)
                 ::
-                defaultEffects
+                defaultCmd
               )
 
             -- Act when user was successfully fetched from the server.
@@ -223,51 +222,51 @@ update action model =
                     -- User data was successfully fetched, so we can redirect to
                     -- the next page, and update their companies.
                     ( { model' | nextPage = Nothing }
-                    , (Task.succeed (UpdateCompanies companies) |> Effects.task)
+                    , (Task.succeed (UpdateCompanies companies) |> Cmd.task)
                       ::
-                      (Task.succeed (SetActivePage nextPage) |> Effects.task)
+                      (Task.succeed (SetActivePage nextPage) |> Cmd.task)
                       ::
-                      defaultEffects
+                      defaultCmd
                     )
 
                 Err _ ->
                   ( model'
-                  , defaultEffects
+                  , defaultCmd
                   )
 
             _ ->
               ( model'
-              , defaultEffects
+              , defaultCmd
               )
 
       in
-        (model'', Effects.batch effects')
+        (model'', Cmd.batch effects')
 
     Logout ->
       ( App.initialModel
-      , Effects.batch <| removeStorageItem :: initialEffects
+      , Cmd.batch <| removeStorageItem :: initialCmd
       )
 
     SetAccessToken accessToken ->
       let
-        defaultEffects =
+        defaultCmd =
           [sendInputToStorage accessToken]
 
         effects' =
           if (String.isEmpty accessToken)
             then
               -- Setting an empty access token should result with a logout.
-              (Task.succeed Logout |> Effects.task)
+              (Task.succeed Logout |> Cmd.task)
               ::
-              defaultEffects
+              defaultCmd
             else
-              (Task.succeed (ChildUserAction Pages.User.Update.GetDataFromServer) |> Effects.task)
+              (Task.succeed (ChildUserAction Pages.User.Update.GetDataFromServer) |> Cmd.task)
               ::
-              defaultEffects
+              defaultCmd
 
       in
         ( { model | accessToken = accessToken}
-        , Effects.batch effects'
+        , Cmd.batch effects'
         )
 
     SetActivePage page ->
@@ -297,27 +296,27 @@ update action model =
               -- Authenticated user.
               else (page, Nothing)
 
-        currentPageEffects =
+        currentPageCmd =
           case model.activePage of
             App.Event companyId ->
-              Task.succeed (ChildEventAction Pages.Event.Update.Deactivate) |> Effects.task
+              Task.succeed (ChildEventAction Pages.Event.Update.Deactivate) |> Cmd.task
 
             _ ->
-              Effects.none
+              Cmd.none
 
-        newPageEffects =
+        newPageCmd =
           case page' of
             App.Article ->
-              Task.succeed (ChildArticleAction Pages.Article.Update.Activate) |> Effects.task
+              Task.succeed (ChildArticleAction Pages.Article.Update.Activate) |> Cmd.task
 
             App.Event companyId ->
-              Task.succeed (ChildEventAction <| Pages.Event.Update.Activate companyId) |> Effects.task
+              Task.succeed (ChildEventAction <| Pages.Event.Update.Activate companyId) |> Cmd.task
 
             App.GithubAuth ->
-              Task.succeed (ChildGithubAuthAction Pages.GithubAuth.Update.Activate) |> Effects.task
+              Task.succeed (ChildGithubAuthAction Pages.GithubAuth.Update.Activate) |> Cmd.task
 
             _ ->
-              Effects.none
+              Cmd.none
 
       in
         if model.activePage == page'
@@ -325,45 +324,45 @@ update action model =
             -- Requesting the same page, so don't do anything.
             -- @todo: Because login and myAccount are under the same page (User)
             -- we set the nextPage here as-well.
-            ( { model | nextPage = nextPage }, Effects.none)
+            ( { model | nextPage = nextPage }, Cmd.none)
           else
             ( { model
               | activePage = page'
               , nextPage = nextPage
               }
-            , Effects.batch
-              [ currentPageEffects
-              , newPageEffects
+            , Cmd.batch
+              [ currentPageCmd
+              , newPageCmd
               ]
             )
 
     SetConfigError ->
       ( { model | configError = True}
-      , Effects.none
+      , Cmd.none
       )
 
     UpdateCompanies companies ->
       ( { model | companies = companies}
-      , Effects.none
+      , Cmd.none
       )
 
     -- NoOp actions
     _ ->
-      ( model, Effects.none )
+      ( model, Cmd.none )
 
 -- EFFECTS
 
-sendInputToStorage : String -> Effects Msg
+sendInputToStorage : String -> Cmd Msg
 sendInputToStorage val =
   Storage.setItem "access_token" (JE.string val)
     |> Task.toResult
     |> Task.map NoOpSetAccessToken
-    |> Effects.task
+    |> Cmd.task
 
 -- Task to remove the access token from localStorage.
-removeStorageItem : Effects Msg
+removeStorageItem : Cmd Msg
 removeStorageItem =
   Storage.removeItem "access_token"
     |> Task.toMaybe
     |> Task.map NoOpLogout
-    |> Effects.task
+    |> Cmd.task

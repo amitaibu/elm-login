@@ -2,7 +2,6 @@ module Pages.GithubAuth.Update exposing (..)
 
 import Config.Model exposing (BackendConfig)
 import Dict exposing (get)
-import Effects exposing (Effects)
 import Http exposing (Error)
 import Json.Decode as JD exposing ((:=))
 import Json.Encode as JE exposing (..)
@@ -13,10 +12,10 @@ import WebAPI.Location exposing (location)
 
 type alias AccessToken = String
 
-init : (Model, Effects Msg)
+init : (Model, Cmd Msg)
 init =
   ( initialModel
-  , Effects.none
+  , Cmd.none
   )
 
 
@@ -31,7 +30,7 @@ type alias UpdateContext =
   { backendConfig : BackendConfig
   }
 
-update : UpdateContext -> Msg -> Model -> (Model, Effects Msg)
+update : UpdateContext -> Msg -> Model -> (Model, Cmd Msg)
 update context action model =
   case action of
     Activate ->
@@ -48,29 +47,29 @@ update context action model =
 
     SetError msg ->
       ( { model | status = GithubAuth.Error msg }
-      , Effects.none
+      , Cmd.none
       )
 
     SetAccessToken token ->
       ( { model | accessToken = token }
-      , Effects.none
+      , Cmd.none
       )
 
     UpdateAccessTokenFromServer result ->
       case result of
         Ok token ->
           ( { model | status = GithubAuth.Fetched }
-          , Task.succeed (SetAccessToken token) |> Effects.task
+          , Task.succeed (SetAccessToken token) |> Cmd.task
           )
         Err msg ->
           ( { model | status = GithubAuth.HttpError msg }
           -- @todo: Improve.
-          , Task.succeed (SetError "HTTP error") |> Effects.task
+          , Task.succeed (SetError "HTTP error") |> Cmd.task
           )
 
 -- EFFECTS
 
-getCodeFromUrl : Effects Msg
+getCodeFromUrl : Cmd Msg
 getCodeFromUrl =
   let
     errAction =
@@ -91,10 +90,10 @@ getCodeFromUrl =
     actionTask =
       Task.map getAction WebAPI.Location.location
   in
-    Effects.task actionTask
+    Cmd.task actionTask
 
 
-getJson : String -> String -> Effects Msg
+getJson : String -> String -> Cmd Msg
 getJson backendUrl code =
   Http.post
     decodeAccessToken
@@ -102,7 +101,7 @@ getJson backendUrl code =
     (Http.string <| dataToJson code )
     |> Task.toResult
     |> Task.map UpdateAccessTokenFromServer
-    |> Effects.task
+    |> Cmd.task
 
 
 dataToJson : String -> String
