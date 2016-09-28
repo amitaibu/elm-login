@@ -1,38 +1,37 @@
-module Config.Update where
+module Config.Update exposing (..)
 
 import Config exposing (backends)
 import Config.Model exposing (initialModel, Model)
-import Effects exposing (Effects)
 import Task exposing (map)
 import WebAPI.Location exposing (location)
 
-init : (Model, Effects Action)
+init : (Model, Cmd Msg)
 init =
   ( initialModel
   , getConfigFromUrl
   )
 
-type Action
+type Msg
   = SetConfig Config.Model.BackendConfig
   | SetError
 
-update : Action -> Model -> (Model, Effects Action)
+update : Msg -> Model -> (Model, Cmd Msg)
 update action model =
   case action of
     SetConfig backendConfig ->
       ( { model | backendConfig = backendConfig }
-      , Effects.none
+      , Cmd.none
       )
 
     SetError ->
       ( { model | error = True }
-      , Effects.none
+      , Cmd.none
       )
 
 
 -- EFFECTS
 
-getConfigFromUrl : Effects Action
+getConfigFromUrl : Cmd Msg
 getConfigFromUrl =
   let
     getAction location =
@@ -48,4 +47,4 @@ getConfigFromUrl =
     actionTask =
       Task.map getAction WebAPI.Location.location
   in
-    Effects.task actionTask
+    Cmd.task actionTask

@@ -1,10 +1,10 @@
-module EventCompanyFilter.Test where
+module EventCompanyFilter.Test exposing (..)
 
 import ElmTest exposing (..)
 
 import Company.Model as Company exposing (Model)
 import EventCompanyFilter.Model as EventCompanyFilter exposing (initialModel, Model)
-import EventCompanyFilter.Update exposing (Action)
+import EventCompanyFilter.Update exposing (Msg)
 
 type alias Model = EventCompanyFilter.Model
 

@@ -1,4 +1,4 @@
-module Pages.Event.View where
+module Pages.Event.View exposing (..)
 
 import Company.Model as Company exposing (Model)
 import EventAuthorFilter.View exposing (view)
@@ -7,17 +7,17 @@ import EventList.View exposing (view)
 import Html exposing (h3, a, i, div, input, text, select, span, li, option, ul, Html)
 import Html.Attributes exposing (class, hidden, href, id, placeholder, selected, style, value)
 import Pages.Event.Model exposing (initialModel, Model)
-import Pages.Event.Update exposing (Action)
+import Pages.Event.Update exposing (Msg)
 import Pages.Event.Utils exposing (filterEventsByAuthor)
 
-type alias Action = Pages.Event.Update.Action
+type alias Msg = Pages.Event.Update.Msg
 type alias CompanyId = Int
 type alias Model = Pages.Event.Model.Model
 
 type alias Context =
   { companies : List Company.Model }
 
-view : Context -> Signal.Address Action -> Model -> Html
+view : Context -> Signal.Address Msg -> Model -> Html
 view context address model =
   let
 

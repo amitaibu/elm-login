@@ -1,4 +1,4 @@
-module ArticleList.Update where
+module ArticleList.Update exposing (..)
 
 import Article.Decoder exposing (decode)
 import Article.Model as Article exposing (Model)
@@ -9,16 +9,15 @@ import Effects exposing (Effects)
 import Http exposing (post, Error)
 import Json.Decode as JD exposing ((:=))
 import Task  exposing (andThen, Task)
-import TaskTutorial exposing (getCurrentTime)
 import Time exposing (Time)
 
-init : (ArticleList.Model.Model, Effects Action)
+init : (ArticleList.Model.Model, Effects Msg)
 init =
   ( initialModel
   , Effects.none
   )
 
-type Action
+type Msg
   = AppendArticle Article.Model
   | GetData
   | GetDataFromServer
@@ -32,7 +31,7 @@ type alias UpdateContext =
   , backendConfig : BackendConfig
   }
 
-update : UpdateContext -> Action -> ArticleList.Model.Model -> (ArticleList.Model.Model, Effects Action)
+update : UpdateContext -> Msg -> ArticleList.Model.Model -> (ArticleList.Model.Model, Effects Msg)
 update context action model =
   case action of
     AppendArticle article ->
@@ -88,7 +87,7 @@ update context action model =
 
 -- EFFECTS
 
-getDataFromCache : ArticleList.Model.Status -> Effects Action
+getDataFromCache : ArticleList.Model.Status -> Effects Msg
 getDataFromCache status =
   let
     actionTask =
@@ -98,7 +97,7 @@ getDataFromCache status =
             if fetchTime + Config.cacheTtl > currentTime
               then NoOp
               else GetDataFromServer
-          ) getCurrentTime
+          ) Time.now
 
         _ ->
           Task.succeed GetDataFromServer
@@ -107,7 +106,7 @@ getDataFromCache status =
     Effects.task actionTask
 
 
-getJson : String -> String -> Effects Action
+getJson : String -> String -> Effects Msg
 getJson url accessToken =
   let
     params =
@@ -125,7 +124,7 @@ getJson url accessToken =
       httpTask `andThen` (\result ->
         Task.map (\timestamp' ->
           UpdateDataFromServer result timestamp'
-        ) getCurrentTime
+        ) Time.now
       )
 
   in

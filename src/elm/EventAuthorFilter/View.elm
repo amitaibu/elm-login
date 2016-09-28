@@ -1,7 +1,7 @@
-module EventAuthorFilter.View where
+module EventAuthorFilter.View exposing (..)
 
 import EventAuthorFilter.Model as EventAuthorFilter exposing (initialModel, Model)
-import EventAuthorFilter.Update exposing (Action)
+import EventAuthorFilter.Update exposing (Msg)
 
 import Dict exposing (Dict)
 import Event.Model as Event exposing (Author, Event)
@@ -11,7 +11,7 @@ import Html.Events exposing (on, onClick, targetValue)
 
 type alias Model = EventAuthorFilter.Model
 
-view : List Event -> Signal.Address Action -> Model -> Html
+view : List Event -> Signal.Address Msg -> Model -> Html
 view events address eventAuthorFilter =
   div
     [ class "wrapper -suffix" ]
@@ -23,7 +23,7 @@ view events address eventAuthorFilter =
     , ul [ class "authors" ] (viewEventsByAuthors events address eventAuthorFilter)
     ]
 
-viewEventsByAuthors : List Event -> Signal.Address Action -> Maybe Int -> List Html
+viewEventsByAuthors : List Event -> Signal.Address Msg -> Maybe Int -> List Html
 viewEventsByAuthors events address eventAuthorFilter =
   let
     getText : Author -> Int -> Html

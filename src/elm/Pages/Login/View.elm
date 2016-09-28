@@ -1,7 +1,7 @@
-module Pages.Login.View where
+module Pages.Login.View exposing (..)
 
 import Pages.Login.Model exposing (initialModel, Model)
-import Pages.Login.Update exposing (Action)
+import Pages.Login.Update exposing (Msg)
 
 import Config.Model exposing (BackendConfig)
 import Html exposing (a, button, div, i, input, h2, hr, span, text, Html)
@@ -13,7 +13,7 @@ type alias ViewContext =
   { backendConfig : BackendConfig
   }
 
-view : ViewContext -> Signal.Address Action -> Model -> Html
+view : ViewContext -> Signal.Address Msg -> Model -> Html
 view context address model =
   let
     modelForm =

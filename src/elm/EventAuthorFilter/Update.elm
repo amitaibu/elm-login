@@ -1,15 +1,15 @@
-module EventAuthorFilter.Update where
+module EventAuthorFilter.Update exposing (..)
 
 import EventAuthorFilter.Model as EventAuthorFilter exposing (initialModel, Model)
 
 init : EventAuthorFilter.Model
 init = initialModel
 
-type Action
+type Msg
   = SelectAuthor Int
   | UnSelectAuthor
 
-update : Action -> Model -> Model
+update : Msg -> Model -> Model
 update action model =
   case action of
     SelectAuthor id ->

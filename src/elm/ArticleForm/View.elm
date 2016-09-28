@@ -1,13 +1,13 @@
-module ArticleForm.View where
+module ArticleForm.View exposing (..)
 
 import ArticleForm.Model exposing (initialModel, Model, UserMessage)
-import ArticleForm.Update exposing (Action)
+import ArticleForm.Update exposing (Msg)
 import Html exposing (i, button, div, label, h2, h3, input, img, li, text, textarea, span, ul, Html)
 import Html.Attributes exposing (action, class, id, disabled, name, placeholder, property, required, size, src, style, type', value)
 import Html.Events exposing (on, onClick, onSubmit, targetValue)
 import String exposing (toInt, toFloat)
 
-view : Signal.Address Action -> Model -> Html
+view : Signal.Address Msg -> Model -> Html
 view address model =
   div
     [ class "wrapper -suffix"]
@@ -23,7 +23,7 @@ viewUserMessage userMessage =
     ArticleForm.Model.Error message ->
       div [ style [("text-align", "center")] ] [ text message ]
 
-viewForm :Signal.Address Action -> Model -> Html
+viewForm :Signal.Address Msg -> Model -> Html
 viewForm address model =
   Html.form
     [ onSubmit address ArticleForm.Update.SubmitForm

@@ -1,7 +1,7 @@
-module App.Router where
+module App.Router exposing (..)
 
 import App.Model as App exposing (Model)
-import App.Update exposing (Action)
+import App.Update exposing (Msg)
 import Pages.Event.Router as Event exposing (delta2update, location2company)
 import RouteHash exposing (HashUpdate)
 
@@ -39,7 +39,7 @@ delta2update previous current =
 
 
 -- Here, we basically do the reverse of what delta2update does
-location2action : List String -> List Action
+location2action : List String -> List Msg
 location2action list =
   case list of
     ["auth", "github"] ->

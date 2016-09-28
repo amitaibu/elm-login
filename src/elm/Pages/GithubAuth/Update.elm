@@ -1,4 +1,4 @@
-module Pages.GithubAuth.Update where
+module Pages.GithubAuth.Update exposing (..)
 
 import Config.Model exposing (BackendConfig)
 import Dict exposing (get)
@@ -13,14 +13,14 @@ import WebAPI.Location exposing (location)
 
 type alias AccessToken = String
 
-init : (Model, Effects Action)
+init : (Model, Effects Msg)
 init =
   ( initialModel
   , Effects.none
   )
 
 
-type Action
+type Msg
   = Activate
   | AuthorizeUser String
   | SetError String
@@ -31,7 +31,7 @@ type alias UpdateContext =
   { backendConfig : BackendConfig
   }
 
-update : UpdateContext -> Action -> Model -> (Model, Effects Action)
+update : UpdateContext -> Msg -> Model -> (Model, Effects Msg)
 update context action model =
   case action of
     Activate ->
@@ -70,7 +70,7 @@ update context action model =
 
 -- EFFECTS
 
-getCodeFromUrl : Effects Action
+getCodeFromUrl : Effects Msg
 getCodeFromUrl =
   let
     errAction =
@@ -94,7 +94,7 @@ getCodeFromUrl =
     Effects.task actionTask
 
 
-getJson : String -> String -> Effects Action
+getJson : String -> String -> Effects Msg
 getJson backendUrl code =
   Http.post
     decodeAccessToken

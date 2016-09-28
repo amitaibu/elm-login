@@ -1,4 +1,4 @@
-module ArticleForm.Update where
+module ArticleForm.Update exposing (..)
 
 import Article.Decoder exposing (decode)
 import Article.Model as Article exposing (Author, Model)
@@ -12,13 +12,13 @@ import Json.Encode as JE exposing (string)
 import Task exposing (andThen, Task)
 import Utils.Http exposing (getErrorMessageFromHttpResponse)
 
-init : (ArticleForm.Model, Effects Action)
+init : (ArticleForm.Model, Effects Msg)
 init =
   ( initialModel
   , Effects.none
   )
 
-type Action
+type Msg
   = ResetForm
   | SubmitForm
   | SetImageId (Maybe Int)
@@ -35,7 +35,7 @@ type alias Context =
   , backendConfig : BackendConfig
   }
 
-update : Context -> Action -> Model -> (Model, Effects Action, Maybe Article.Model)
+update : Context -> Msg -> Model -> (Model, Effects Msg, Maybe Article.Model)
 update context action model =
   case action of
     ResetForm ->
@@ -134,7 +134,7 @@ update context action model =
 
 -- EFFECTS
 
-postArticle : String -> String -> ArticleForm.ArticleForm -> Effects Action
+postArticle : String -> String -> ArticleForm.ArticleForm -> Effects Msg
 postArticle url accessToken data =
   let
     params =

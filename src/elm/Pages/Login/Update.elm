@@ -1,4 +1,4 @@
-module Pages.Login.Update where
+module Pages.Login.Update exposing (..)
 
 import Pages.Login.Model exposing (initialModel, Model)
 
@@ -13,14 +13,14 @@ import Utils.Http exposing (getErrorMessageFromHttpResponse)
 
 type alias AccessToken = String
 
-init : (Model, Effects Action)
+init : (Model, Effects Msg)
 init =
   ( initialModel
   -- Try to get an existing access token.
   , getInputFromStorage
   )
 
-type Action
+type Msg
   = UpdateAccessTokenFromServer (Result Http.Error AccessToken)
   | UpdateAccessTokenFromStorage (Result String AccessToken)
   | UpdateName String
@@ -33,7 +33,7 @@ type alias Context =
   { backendConfig : BackendConfig
   }
 
-update : Context -> Action -> Model -> (Model, Effects Action)
+update : Context -> Msg -> Model -> (Model, Effects Msg)
 update context action model =
   case action of
     UpdateName name ->
@@ -118,7 +118,7 @@ update context action model =
           )
 
 
-getInputFromStorage : Effects Action
+getInputFromStorage : Effects Msg
 getInputFromStorage =
   Storage.getItem "access_token" JD.string
     |> Task.toResult
@@ -137,7 +137,7 @@ encodeCredentials (name, pass) =
      Ok result -> result
      Err err -> ""
 
-getJson : String -> String -> Effects Action
+getJson : String -> String -> Effects Msg
 getJson url credentials =
   Http.send Http.defaultSettings
     { verb = "GET"

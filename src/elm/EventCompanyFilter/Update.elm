@@ -1,4 +1,4 @@
-module EventCompanyFilter.Update where
+module EventCompanyFilter.Update exposing (..)
 
 import EventCompanyFilter.Model as EventCompanyFilter exposing (initialModel, Model)
 
@@ -8,12 +8,12 @@ import Company.Model as Company exposing (Model)
 init : Model
 init = initialModel
 
-type Action
+type Msg
   = SelectCompany (Maybe Int)
 
 type alias Model = EventCompanyFilter.Model
 
-update : List Company.Model -> Action -> Model -> Model
+update : List Company.Model -> Msg -> Model -> Model
 update companies action model =
   case action of
     SelectCompany maybeCompanyId ->

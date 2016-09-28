@@ -1,8 +1,8 @@
-module App.Update where
+module App.Update exposing (..)
 
 import App.Model as App exposing (initialModel, Model)
 
-import Config.Update exposing (init, Action)
+import Config.Update exposing (init, Msg)
 import Company.Model as Company exposing (Model)
 import Effects exposing (Effects)
 import Json.Encode as JE exposing (string, Value)
@@ -12,35 +12,35 @@ import Task exposing (succeed)
 
 -- Pages import
 
-import Pages.Article.Update exposing (Action)
-import Pages.Event.Update exposing (Action)
-import Pages.GithubAuth.Update exposing (Action)
-import Pages.Login.Update exposing (Action)
+import Pages.Article.Update exposing (Msg)
+import Pages.Event.Update exposing (Msg)
+import Pages.GithubAuth.Update exposing (Msg)
+import Pages.Login.Update exposing (Msg)
 import Pages.User.Model exposing (User)
-import Pages.User.Update exposing (Action)
+import Pages.User.Update exposing (Msg)
 
 type alias AccessToken = String
 type alias Model = App.Model
 
-initialEffects : List (Effects Action)
+initialEffects : List (Effects Msg)
 initialEffects =
   [ Effects.map ChildConfigAction <| snd Config.Update.init
   , Effects.map ChildLoginAction <| snd Pages.Login.Update.init
   ]
 
-init : (Model, Effects Action)
+init : (Model, Effects Msg)
 init =
   ( App.initialModel
   , Effects.batch initialEffects
   )
 
-type Action
-  = ChildArticleAction Pages.Article.Update.Action
-  | ChildConfigAction Config.Update.Action
-  | ChildEventAction Pages.Event.Update.Action
-  | ChildGithubAuthAction Pages.GithubAuth.Update.Action
-  | ChildLoginAction Pages.Login.Update.Action
-  | ChildUserAction Pages.User.Update.Action
+type Msg
+  = ChildArticleAction Pages.Article.Update.Msg
+  | ChildConfigAction Config.Update.Msg
+  | ChildEventAction Pages.Event.Update.Msg
+  | ChildGithubAuthAction Pages.GithubAuth.Update.Msg
+  | ChildLoginAction Pages.Login.Update.Msg
+  | ChildUserAction Pages.User.Update.Msg
   | Logout
   | SetAccessToken AccessToken
   | SetActivePage App.Page
@@ -53,7 +53,7 @@ type Action
   | NoOpSetAccessToken (Result AccessToken ())
 
 
-update : Action -> Model -> (Model, Effects Action)
+update : Msg -> Model -> (Model, Effects Msg)
 update action model =
   case action of
     ChildArticleAction act ->
@@ -353,7 +353,7 @@ update action model =
 
 -- EFFECTS
 
-sendInputToStorage : String -> Effects Action
+sendInputToStorage : String -> Effects Msg
 sendInputToStorage val =
   Storage.setItem "access_token" (JE.string val)
     |> Task.toResult
@@ -361,7 +361,7 @@ sendInputToStorage val =
     |> Effects.task
 
 -- Task to remove the access token from localStorage.
-removeStorageItem : Effects Action
+removeStorageItem : Effects Msg
 removeStorageItem =
   Storage.removeItem "access_token"
     |> Task.toMaybe

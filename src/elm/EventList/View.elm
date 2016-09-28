@@ -1,8 +1,8 @@
-module EventList.View (view) where
+module EventList.View exposing (view)
 
 import Event.Model as Event exposing (Event)
 import EventList.Model as EventList exposing (initialModel, Model)
-import EventList.Update exposing (Action)
+import EventList.Update exposing (Msg)
 import EventList.Utils exposing (filterEventsByString)
 
 import Html exposing (h3, a, i, div, input, text, select, span, li, option, ul, Html)
@@ -11,7 +11,7 @@ import Html.Events exposing (on, onClick, targetValue)
 
 type alias Model = EventList.Model
 
-view : List Event -> Signal.Address Action -> Model -> Html
+view : List Event -> Signal.Address Msg -> Model -> Html
 view events address model =
   div
     [ id "events"
@@ -26,7 +26,7 @@ view events address model =
       ]
 
 
-viewFilterString : Signal.Address Action -> Model -> Html
+viewFilterString : Signal.Address Msg -> Model -> Html
 viewFilterString address model =
   div []
     [ input
@@ -39,7 +39,7 @@ viewFilterString address model =
     ]
 
 
-viewListEvents : List Event -> Signal.Address Action -> Model -> Html
+viewListEvents : List Event -> Signal.Address Msg -> Model -> Html
 viewListEvents events address model =
   let
     filteredEvents =

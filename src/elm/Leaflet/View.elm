@@ -1,12 +1,12 @@
-module Leaflet.View where
+module Leaflet.View exposing (..)
 
 import Leaflet.Model exposing (initialModel, Model)
-import Leaflet.Update exposing (Action)
+import Leaflet.Update exposing (Msg)
 
 import Html exposing (div, span, Html)
 import Html.Attributes exposing (id, style)
 
-view : Signal.Address Action -> Model -> Html
+view : Signal.Address Msg -> Model -> Html
 view address model =
   if model.showMap
     then div [ style myStyle, id "map" ] []

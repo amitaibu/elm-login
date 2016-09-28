@@ -1,7 +1,7 @@
-module App.View where
+module App.View exposing (..)
 
 import App.Model as App exposing (initialModel, Model)
-import App.Update exposing (init, Action)
+import App.Update exposing (init, Msg)
 
 import Config.View exposing (view)
 import Html exposing (a, div, h2, i, li, node, span, text, ul, button, Html)
@@ -28,7 +28,7 @@ isActivePage activePage page =
     _->
       activePage == page
 
-view : Signal.Address Action -> Model -> Html
+view : Signal.Address Msg -> Model -> Html
 view address model =
   if model.configError == True
     then
@@ -42,7 +42,7 @@ view address model =
         , footer
         ]
 
-mainContent : Signal.Address Action -> Model -> Html
+mainContent : Signal.Address Msg -> Model -> Html
 mainContent address model =
   case model.activePage of
     App.Article ->
@@ -91,7 +91,7 @@ mainContent address model =
       in
         div [ style myStyle ] [ Pages.User.View.view childAddress model.user ]
 
-navbar : Signal.Address Action -> Model -> Html
+navbar : Signal.Address Msg -> Model -> Html
 navbar address model =
   case model.user.name of
     Pages.User.Model.Anonymous ->
@@ -120,7 +120,7 @@ footer =
   ]
 
 -- Navbar for Auth user.
-navbarLoggedIn : Signal.Address Action -> Model -> Html
+navbarLoggedIn : Signal.Address Msg -> Model -> Html
 navbarLoggedIn address model =
   let
     activeClass page =

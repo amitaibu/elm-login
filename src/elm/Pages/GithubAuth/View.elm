@@ -1,4 +1,4 @@
-module Pages.GithubAuth.View where
+module Pages.GithubAuth.View exposing (..)
 
 -- import Config.Model exposing (BackendConfig)
 -- import Dict exposing (get)
@@ -9,10 +9,10 @@ import Html.Attributes exposing (class, href, id)
 -- import Json.Decode as JD exposing ((:=))
 -- import Json.Encode as JE exposing (..)
 import Pages.GithubAuth.Model as GithubAuth exposing (initialModel, Model)
-import Pages.GithubAuth.Update exposing (Action)
+import Pages.GithubAuth.Update exposing (Msg)
 
 
-view : Signal.Address Action -> Model -> Html
+view : Signal.Address Msg -> Model -> Html
 view address model =
   let
     spinner =

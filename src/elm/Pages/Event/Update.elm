@@ -1,4 +1,4 @@
-module Pages.Event.Update where
+module Pages.Event.Update exposing (..)
 
 import Config exposing (cacheTtl)
 import Config.Model exposing (BackendConfig)
@@ -6,39 +6,38 @@ import Company.Model as Company exposing (Model)
 import Effects exposing (Effects)
 import Event.Decoder exposing (decode)
 import Event.Model exposing (Event)
-import EventAuthorFilter.Update exposing (Action)
-import EventCompanyFilter.Update exposing (Action)
-import EventList.Update exposing (Action)
+import EventAuthorFilter.Update exposing (Msg)
+import EventCompanyFilter.Update exposing (Msg)
+import EventList.Update exposing (Msg)
 import EventList.Utils exposing (filterEventsByString)
 import Http exposing (Error)
-import Leaflet.Update exposing (Action)
+import Leaflet.Update exposing (Msg)
 import Pages.Event.Model as Event exposing (Model)
 import Pages.Event.Utils exposing (filterEventsByAuthor)
 import Task  exposing (andThen, succeed)
-import TaskTutorial exposing (getCurrentTime)
 import Time exposing (Time)
 
 type alias Id = Int
 type alias CompanyId = Int
 type alias Model = Event.Model
 
-init : (Model, Effects Action)
+init : (Model, Effects Msg)
 init =
   ( Event.initialModel
   , Effects.none
   )
 
-type Action
+type Msg
   = NoOp
   | GetData (Maybe CompanyId)
   | GetDataFromServer (Maybe CompanyId)
   | UpdateDataFromServer (Result Http.Error (List Event)) (Maybe CompanyId) Time.Time
 
   -- Child actions
-  | ChildEventAuthorFilterAction EventAuthorFilter.Update.Action
-  | ChildEventCompanyFilterAction EventCompanyFilter.Update.Action
-  | ChildEventListAction EventList.Update.Action
-  | ChildLeafletAction Leaflet.Update.Action
+  | ChildEventAuthorFilterAction EventAuthorFilter.Update.Msg
+  | ChildEventCompanyFilterAction EventCompanyFilter.Update.Msg
+  | ChildEventListAction EventList.Update.Msg
+  | ChildLeafletAction Leaflet.Update.Msg
 
   -- Page
   | Activate (Maybe CompanyId)
@@ -51,7 +50,7 @@ type alias Context =
   , companies : List Company.Model
   }
 
-update : Context -> Action -> Model -> (Model, Effects Action)
+update : Context -> Msg -> Model -> (Model, Effects Msg)
 update context action model =
   case action of
     ChildEventAuthorFilterAction act ->
@@ -202,7 +201,7 @@ update context action model =
 
 -- EFFECTS
 
-getDataFromCache : Event.Status -> Maybe CompanyId -> Effects Action
+getDataFromCache : Event.Status -> Maybe CompanyId -> Effects Msg
 getDataFromCache status maybeCompanyId =
   let
     getFx =
@@ -217,7 +216,7 @@ getDataFromCache status maybeCompanyId =
                 if fetchTime + Config.cacheTtl > currentTime
                   then NoOp
                   else GetDataFromServer maybeCompanyId
-              ) getCurrentTime
+              ) Time.now
             else
               getFx
 
@@ -228,7 +227,7 @@ getDataFromCache status maybeCompanyId =
     Effects.task actionTask
 
 
-getJson : String -> Maybe CompanyId -> String -> Effects Action
+getJson : String -> Maybe CompanyId -> String -> Effects Msg
 getJson url maybeCompanyId accessToken =
   let
     params =
@@ -255,7 +254,7 @@ getJson url maybeCompanyId accessToken =
       httpTask `andThen` (\result ->
         Task.map (\timestamp ->
           UpdateDataFromServer result maybeCompanyId timestamp
-        ) getCurrentTime
+        ) Time.now
       )
 
   in

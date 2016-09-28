@@ -1,4 +1,4 @@
-module Leaflet.Update where
+module Leaflet.Update exposing (..)
 
 import Event.Model exposing (Event)
 import Leaflet.Model as Leaflet exposing (initialModel, Marker, Model)
@@ -7,14 +7,14 @@ init : Model
 init =
   initialModel
 
-type Action
+type Msg
   = SelectMarker (Maybe Int)
   | SetMarkers (List Event)
   | ToggleMap
   | UnselectMarker
 
 
-update : Action -> Model -> Model
+update : Msg -> Model -> Model
 update action model =
   case action of
     SelectMarker val ->

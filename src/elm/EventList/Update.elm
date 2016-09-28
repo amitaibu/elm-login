@@ -1,9 +1,9 @@
-module EventList.Update where
+module EventList.Update exposing (..)
 
 import Event.Model exposing (Event)
 import EventList.Model as EventList exposing (initialModel, Model)
 
-type Action
+type Msg
   = FilterEvents String
   -- Select event might get values from JS (i.e. selecting a leaflet marker)
   -- so we allow passing a Maybe Int, instead of just Int.
@@ -16,7 +16,7 @@ init : Model
 init = initialModel
 
 
-update : List Event -> Action -> Model -> Model
+update : List Event -> Msg -> Model -> Model
 update events action model =
   case action of
     FilterEvents val ->

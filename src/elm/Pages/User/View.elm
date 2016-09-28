@@ -1,13 +1,13 @@
-module Pages.User.View where
+module Pages.User.View exposing (..)
 
 import Company.Model as Company exposing (Model)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Pages.User.Model as User exposing (Model)
-import Pages.User.Update exposing (Action)
+import Pages.User.Update exposing (Msg)
 
 
-view : Signal.Address Action -> User.Model -> Html
+view : Signal.Address Msg -> User.Model -> Html
 view address model =
   case model.name of
     User.Anonymous ->

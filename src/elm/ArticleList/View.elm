@@ -1,9 +1,9 @@
-module ArticleList.View where
+module ArticleList.View exposing (..)
 
 import Article.Model exposing (Model)
 
 import ArticleList.Model exposing (initialModel, Model)
-import ArticleList.Update exposing (Action)
+import ArticleList.Update exposing (Msg)
 
 import Html exposing (i, button, div, label, h2, h3, input, img, li, text, textarea, span, ul, Html)
 import Html.Attributes exposing (action, class, id, disabled, name, placeholder, property, required, size, src, style, type', value)
@@ -16,7 +16,7 @@ type alias Article = Article.Model.Model
 
 type alias Model = ArticleList.Model.Model
 
-view : Signal.Address Action -> Model -> Html
+view : Signal.Address Msg -> Model -> Html
 view address model =
   viewRecentArticles model.articles
 

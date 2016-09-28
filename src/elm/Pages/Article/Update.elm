@@ -1,29 +1,29 @@
-module Pages.Article.Update where
+module Pages.Article.Update exposing (..)
 
-import ArticleForm.Update exposing (Action)
-import ArticleList.Update exposing (Action)
+import ArticleForm.Update exposing (Msg)
+import ArticleList.Update exposing (Msg)
 import Config.Model exposing (BackendConfig)
 import Effects exposing (Effects)
 import Pages.Article.Model exposing (Model)
 import Task exposing (succeed)
 
-type Action
+type Msg
   = Activate
-  | ChildArticleFormAction ArticleForm.Update.Action
-  | ChildArticleListAction ArticleList.Update.Action
+  | ChildArticleFormAction ArticleForm.Update.Msg
+  | ChildArticleListAction ArticleList.Update.Msg
 
 type alias UpdateContext =
   { accessToken : String
   , backendConfig : BackendConfig
   }
 
-init : (Model, Effects Action)
+init : (Model, Effects Msg)
 init =
   ( Pages.Article.Model.initialModel
   , Effects.none
   )
 
-update : UpdateContext -> Action -> Pages.Article.Model.Model -> (Pages.Article.Model.Model, Effects Action)
+update : UpdateContext -> Msg -> Pages.Article.Model.Model -> (Pages.Article.Model.Model, Effects Msg)
 update context action model =
   case action of
     Activate ->

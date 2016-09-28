@@ -3,12 +3,12 @@ import App.Router exposing (delta2update, location2action)
 import App.Update exposing (init, update)
 import App.View exposing (view)
 import ArticleForm.Model exposing (PostStatus)
-import ArticleForm.Update exposing (Action)
+import ArticleForm.Update exposing (Msg)
 import Effects exposing (Never)
-import EventList.Update exposing (Action)
-import Pages.Event.Update exposing (Action)
+import EventList.Update exposing (Msg)
+import Pages.Event.Update exposing (Msg)
 import Leaflet.Model exposing (Model)
-import Pages.Article.Update exposing (Action)
+import Pages.Article.Update exposing (Msg)
 import RouteHash
 import StartApp as StartApp
 import Task exposing (Task)
@@ -30,7 +30,7 @@ app =
 main =
   app.html
 
-messages : Signal.Mailbox App.Update.Action
+messages : Signal.Mailbox App.Update.Msg
 messages =
     Signal.mailbox App.Update.NoOp
 

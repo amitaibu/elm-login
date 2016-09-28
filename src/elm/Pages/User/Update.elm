@@ -1,4 +1,4 @@
-module Pages.User.Update where
+module Pages.User.Update exposing (..)
 
 import Config.Model exposing (BackendConfig)
 import Company.Model as Company exposing (initialModel, Model)
@@ -17,19 +17,19 @@ type alias UpdateContext =
   , backendConfig : BackendConfig
   }
 
-type Action
+type Msg
   = GetDataFromServer
   | NoOp (Maybe ())
   | SetAccessToken AccessToken
   | UpdateDataFromServer (Result Http.Error (Id, String, List Company.Model))
 
-init : (Model, Effects Action)
+init : (Model, Effects Msg)
 init =
   ( User.initialModel
   , Effects.none
   )
 
-update : UpdateContext -> Action -> Model -> (Model, Effects Action)
+update : UpdateContext -> Msg -> Model -> (Model, Effects Msg)
 update context action model =
   case action of
     NoOp _ ->

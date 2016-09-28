@@ -1,7 +1,7 @@
-module EventCompanyFilter.View where
+module EventCompanyFilter.View exposing (..)
 
 import EventCompanyFilter.Model as EventCompanyFilter exposing (initialModel, Model)
-import EventCompanyFilter.Update exposing (Action)
+import EventCompanyFilter.Update exposing (Msg)
 
 import Company.Model as Company exposing (Model)
 import Html exposing (h3, a, i, div, input, text, select, span, li, option, ul, Html)
@@ -11,7 +11,7 @@ import String exposing (toInt)
 
 type alias Model = EventCompanyFilter.Model
 
-view : List Company.Model -> Signal.Address Action -> Model -> Html
+view : List Company.Model -> Signal.Address Msg -> Model -> Html
 view companies address model =
   div
     [ class "wrapper -suffix" ]
@@ -23,7 +23,7 @@ view companies address model =
     , companyListForSelect address companies model
     ]
 
-companyListForSelect : Signal.Address Action -> List Company.Model -> Model -> Html
+companyListForSelect : Signal.Address Msg -> List Company.Model -> Model -> Html
 companyListForSelect address companies eventCompanyFilter  =
   let
     selectedText =
