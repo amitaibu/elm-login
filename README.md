@@ -1,6 +1,10 @@
 [![Build Status](https://travis-ci.org/Gizra/elm-hedley.svg?branch=master)](https://travis-ci.org/Gizra/elm-hedley)
 
-> elm-hedley
+# elm-hedley
+
+An Elm single page application. The server side code is [here](https://github.com/Gizra/hedley-server).
+
+[Read more](http://www.gizra.com/content/elm-hedley-overview/) about this project.
 
 ## Installation
 
@@ -13,8 +17,6 @@ Make sure the following are installed:
 ## Usage
 
 1. Serve locally, and watch file changes: `gulp`
-1. Prepare file for publishing (e.g. minify, and rev file names): `gulp publish`
-1. Deploy to GitHub's pages (`gh-pages` branch of your repository): `gulp deploy`
 
 ## Unit Tests
 
@@ -22,4 +24,4 @@ In order to view the tests on the browser Start elm reactor (elm-reactor) and na
 
 ## License
 
-MIT
+BSD3
