@@ -14,9 +14,6 @@ delta2url previous current =
         AccessDenied ->
             Nothing
 
-        Counter ->
-            Just <| UrlChange NewEntry "/#counter"
-
         Login ->
             Just <| UrlChange NewEntry "/#login"
 
@@ -34,9 +31,6 @@ location2messages location =
             case location.hash of
                 "" ->
                     []
-
-                "#counter" ->
-                    [ SetActivePage Counter ]
 
                 "#login" ->
                     [ SetActivePage Login ]
