@@ -8,14 +8,14 @@
     ],
     "exposed-modules": [],
     "dependencies": {
-        "elm-community/elm-test": "1.1.0 <= v < 2.0.0",
-        "elm-community/json-extra": "1.1.0 <= v < 2.0.0",
-        "elm-lang/core": "4.0.0 <= v < 5.0.0",
-        "elm-lang/html": "1.0.0 <= v < 2.0.0",
-        "elm-lang/navigation": "1.0.0 <= v < 2.0.0",
-        "evancz/elm-http": "3.0.1 <= v < 4.0.0",
-        "krisajenkins/remotedata": "2.4.0 <= v < 3.0.0",
+        "elm-community/elm-test": "3.1.0 <= v < 4.0.0",
+        "elm-community/json-extra": "2.0.0 <= v < 3.0.0",
+        "elm-lang/core": "5.0.0 <= v < 6.0.0",
+        "elm-lang/html": "2.0.0 <= v < 3.0.0",
+        "elm-lang/navigation": "2.0.1 <= v < 3.0.0",
+        "elm-lang/elm-http": "1.0.0 <= v < 2.0.0",
+        "krisajenkins/remotedata": "4.0.1 <= v < 5.0.0",
         "rgrempel/elm-route-url": "2.0.1 <= v < 3.0.0"
     },
-    "elm-version": "0.17.0 <= v < 0.18.0"
+    "elm-version": "0.18.0 <= v < 0.19.0"
 }
