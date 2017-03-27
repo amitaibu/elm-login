@@ -17,8 +17,6 @@ var elm  = require('gulp-elm');
 
 var fs = require('fs');
 
-var ga = require('gulp-ga');
-
 // merge is used to merge the output from two different streams into the same stream
 var merge = require("merge-stream");
 // Need a command for reloading webpages using BrowserSync
@@ -126,17 +124,6 @@ gulp.task('bower', function () {
     .pipe(gulp.dest("serve"));
 });
 
-gulp.task('ga', function(){
-  gulp.src('src/index.html')
-  .pipe(ga({
-    anonymizeIp: false,
-    sendPageView: true,
-    url: 'auto',
-    uid: 'UA-6558346-13'
-  }))
-  .pipe(gulp.dest('serve'));
-});
-
 
 // Optimizes all the CSS, HTML and concats the JS etc
 gulp.task("minify", ["styles"], function () {
@@ -172,7 +159,7 @@ gulp.task("minify", ["styles"], function () {
 gulp.task("deploy", [], function () {
   // Deploys your optimized site, you can change the settings in the html task if you want to
   return gulp.src("dist/**/*")
-    .pipe($.ghPages({branch: "gh-pages", cacheDir: ".publish"}));
+    .pipe($.ghPages({branch: "gh-pages"}));
 });
 
 gulp.task('elm-init', elm.init);
@@ -231,7 +218,7 @@ gulp.task("default", ["serve:dev", "watch"]);
 
 // Builds the site but doesnt serve it to you
 // @todo: Add "bower" here
-gulp.task("build", gulpSequence("clean:dev", ["styles", "copy:dev", "elm"], "ga"));
+gulp.task("build", gulpSequence("clean:dev", ["styles", "copy:dev", "elm"]));
 
 // Builds your site with the "build" command and then runs all the optimizations on
 // it and outputs it to "./dist"

@@ -2,11 +2,27 @@ language: node_js
 node_js:
   - "4.1"
 
+
+cache:
+  directories:
+    - sysconfcpus
+
 install:
-  - npm install -g elm@0.16.0 casperjs http-server
+  - npm install -g elm@~0.17.0 casperjs http-server
   - elm-package install -y
+  # Getting elm-make to run quicker.
+  # See https://github.com/elm-lang/elm-compiler/issues/1473#issuecomment-245704142
+  - |
+    if [ ! -d sysconfcpus/bin ];
+    then
+      git clone https://github.com/obmarg/libsysconfcpus.git;
+      cd libsysconfcpus;
+      ./configure --prefix=$TRAVIS_BUILD_DIR/sysconfcpus;
+      make && make install;
+      cd ..;
+    fi
 before_script:
-  - elm-make ./src/elm/TestRunner.elm --output test.html
+  - $TRAVIS_BUILD_DIR/sysconfcpus/bin/sysconfcpus -n 2 elm-make ./src/elm/TestRunner.elm --output test.html
   - http-server '.' &
   # Wait for compilation is done.
   - until $(curl --output /dev/null --silent --head --fail http://127.0.0.1:8080/test.html); do echo "." && sleep 1; done

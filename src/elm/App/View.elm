@@ -1,200 +1,147 @@
-module App.View where
-
-import App.Model as App exposing (initialModel, Model)
-import App.Update exposing (init, Action)
+module App.View exposing (..)
 
 import Config.View exposing (view)
-import Html exposing (a, div, h2, i, li, node, span, text, ul, button, Html)
-import Html.Attributes exposing (class, classList, id, href, style, target, attribute)
+import Html exposing (..)
+import Html.Attributes exposing (class, classList, href, src, style, target)
+import Html.App as Html
 import Html.Events exposing (onClick)
-
--- Pages import
-
-import Pages.Article.View exposing (view)
-import Pages.Event.View exposing (view)
-import Pages.GithubAuth.View exposing (view)
-import Pages.Login.View exposing (view)
-import Pages.PageNotFound.View exposing (view)
-import Pages.User.Model exposing (User)
-import Pages.User.View exposing (view)
-
-type alias Page = App.Page
-
-isActivePage : Page -> Page -> Bool
-isActivePage activePage page =
-  case activePage of
-    App.Event companyId ->
-      page == (App.Event Nothing)
-    _->
-      activePage == page
-
-view : Signal.Address Action -> Model -> Html
-view address model =
-  if model.configError == True
-    then
-      Config.View.view
-
-    else
-      div
-        []
-        [ (navbar address model)
-        , (mainContent address model)
-        , footer
-        ]
-
-mainContent : Signal.Address Action -> Model -> Html
-mainContent address model =
-  case model.activePage of
-    App.Article ->
-      let
-        childAddress =
-          Signal.forwardTo address App.Update.ChildArticleAction
-      in
-        div [ style myStyle ] [ Pages.Article.View.view childAddress model.article ]
-
-    App.Event companyId ->
-      let
-        childAddress =
-          Signal.forwardTo address App.Update.ChildEventAction
-
-        context =
-          { companies = model.companies }
-      in
-        div [ style myStyle ] [ Pages.Event.View.view context childAddress model.events ]
-
-    App.GithubAuth ->
-      let
-        childAddress =
-          Signal.forwardTo address App.Update.ChildGithubAuthAction
-      in
-        div [ style myStyle ] [ Pages.GithubAuth.View.view childAddress model.githubAuth ]
-
-    App.Login ->
-      let
-        childAddress =
-          Signal.forwardTo address App.Update.ChildLoginAction
-
-        context =
-          { backendConfig = (.config >> .backendConfig) model }
-
-      in
-        div [ style myStyle ] [ Pages.Login.View.view context childAddress model.login ]
-
-    App.PageNotFound ->
-      div [] [ Pages.PageNotFound.View.view ]
+import App.Model exposing (..)
+import App.Update exposing (..)
+import User.Model exposing (..)
+import Pages.Login.View exposing (..)
+import Pages.MyAccount.View exposing (..)
+import Pages.PageNotFound.View exposing (..)
+import RemoteData exposing (RemoteData(..), WebData)
 
 
-    App.User ->
-      let
-        childAddress =
-          Signal.forwardTo address App.Update.ChildUserAction
-      in
-        div [ style myStyle ] [ Pages.User.View.view childAddress model.user ]
+view : Model -> Html Msg
+view model =
+    case model.config of
+        Failure err ->
+            Config.View.view
 
-navbar : Signal.Address Action -> Model -> Html
-navbar address model =
-  case model.user.name of
-    Pages.User.Model.Anonymous ->
-      div [] []
-
-    Pages.User.Model.LoggedIn name ->
-      navbarLoggedIn address model
-
-footer : Html
-footer =
-
-  div [class "main-footer"]
-    [ div [class "container"]
-      [ span []
-        [ text "With "
-        , i [ class "fa fa-heart" ] []
-        , text " from "
-        , a [ href "http://gizra.com", target "_blank", class "gizra-logo" ] [text "gizra"]
-        , span [ class "divider" ] [ text "|" ]
-        , text "Backend powered by "
-        , a [ href "https://pantheon.io/", target "_blank" ] [ text "Pantheon" ]
-        , span [ class "divider" ] [text "|"]
-        , a [href "https://github.com/Gizra/elm-hedley", target "_blank"] [text "Github repo"]
-        ]
-      ]
-  ]
-
--- Navbar for Auth user.
-navbarLoggedIn : Signal.Address Action -> Model -> Html
-navbarLoggedIn address model =
-  let
-    activeClass page =
-      [ ("active", isActivePage model.activePage page) ]
-
-    childAddress =
-      Signal.forwardTo address App.Update.ChildUserAction
-
-    hrefVoid =
-      href "javascript:void(0);"
-
-
-    navCollapseButton =
-      let
-        iconBar index =
-          span [ class "icon-bar" ] []
-
-      in
-        button
-          [ class "navbar-toggle"
-          , attribute "data-toggle" "collapse"
-          , attribute "data-target" ".main-nav"
-          ]
-          [ span [ class "sr-only"] [ text "Menu" ]
-          , span [] ( List.map iconBar [0..2] )
-          ]
-
-  in
-    node "nav"
-      [ id "main-header"
-      , class "navbar navbar-default" ]
-      [ div
-          [ class "container" ]
-          [ div
-              [ class "navbar-header" ]
-              [ a [ class "brand visible-xs pull-left", href "#!/" ] [ text "Hedley" ]
-              , navCollapseButton
-              ]
-          , div
-              [ class "collapse navbar-collapse main-nav" ]
-              [ ul
-                  [ class "nav navbar-nav"]
-                  [ li [] [ a [ class "brand hidden-xs", href "#!/" ] [ text "Hedley" ] ]
-                  , li
-                      [ classList (activeClass App.User) ]
-                      [ i [ class "glyphicon glyphicon-user" ] []
-                      , a [ hrefVoid, onClick address (App.Update.SetActivePage App.User) ] [ text "My account" ]
-                      ]
-                  , li
-                      [ classList (activeClass (App.Event Nothing)) ]
-                      [ i [ class "fa fa-map-marker" ] []
-                      , a [ hrefVoid, onClick address (App.Update.SetActivePage <| App.Event Nothing) ] [ text "Events" ]
-                      ]
-                  , li
-                      [ classList (activeClass App.Article) ]
-                      [ i [ class "fa fa-file-o" ] []
-                      , a [ hrefVoid, onClick address (App.Update.SetActivePage App.Article) ] [ text "Articles"]
-                      ]
-                  , li
-                      [  classList (activeClass App.PageNotFound) ]
-                      [ i [ class "fa fa-exclamation-circle" ] []
-                      , a [ href "#!/error-page" ] [ text "PageNotFound (404)" ]
-                      ]
-                  , li
-                      []
-                      [ i [ class "fa fa-sign-out" ] []
-                      , a [ hrefVoid, onClick address App.Update.Logout ] [ text "Logout" ]
-                      ]
+        _ ->
+            div []
+                [ div [ class "ui container main" ]
+                    [ viewHeader model
+                    , viewMainContent model
+                    , pre [ class "ui padded secondary segment" ]
+                        [ div [] [ text <| "activePage: " ++ toString model.activePage ]
+                        , div [] [ text <| "pageLogin: " ++ toString model.pageLogin ]
+                        , div [] [ text <| "user: " ++ toString model.user ]
+                        , div [] [ text <| "config: " ++ toString model.config ]
+                        ]
+                    ]
+                , viewFooter
                 ]
-              ]
-          ]
-      ]
 
 
-myStyle : List (String, String)
-myStyle =
-  [ ("font-size", "1.2em") ]
+viewHeader : Model -> Html Msg
+viewHeader model =
+    let
+        navbar =
+            case model.user of
+                Success _ ->
+                    navbarAuthenticated
+
+                _ ->
+                    navbarAnonymous
+    in
+        div [ class "ui secondary pointing menu" ] (navbar model)
+
+
+navbarAnonymous : Model -> List (Html Msg)
+navbarAnonymous model =
+    [ a
+        [ classByPage Login model.activePage
+        , onClick <| SetActivePage Login
+        ]
+        [ text "Login" ]
+    , viewPageNotFoundItem model.activePage
+    ]
+
+
+navbarAuthenticated : Model -> List (Html Msg)
+navbarAuthenticated model =
+    [ a
+        [ classByPage MyAccount model.activePage
+        , onClick <| SetActivePage MyAccount
+        ]
+        [ text "My Account" ]
+    , viewPageNotFoundItem model.activePage
+    , div [ class "right menu" ]
+        [ viewAvatar model.user
+        , a
+            [ class "ui item"
+            , onClick <| Logout
+            ]
+            [ text "Logout" ]
+        ]
+    ]
+
+
+viewPageNotFoundItem : Page -> Html Msg
+viewPageNotFoundItem activePage =
+    a
+        [ classByPage PageNotFound activePage
+        , onClick <| SetActivePage PageNotFound
+        ]
+        [ text "404 page" ]
+
+
+viewAvatar : WebData User -> Html Msg
+viewAvatar user =
+    case user of
+        Success user' ->
+            a
+                [ onClick <| SetActivePage MyAccount
+                , class "ui item"
+                ]
+                [ img
+                    [ class "ui avatar image"
+                    , src user'.avatarUrl
+                    ]
+                    []
+                ]
+
+        _ ->
+            div [] []
+
+
+viewMainContent : Model -> Html Msg
+viewMainContent model =
+    case model.activePage of
+        AccessDenied ->
+            div [] [ text "Access denied" ]
+
+        Login ->
+            Html.map PageLogin (Pages.Login.View.view model.user model.pageLogin)
+
+        MyAccount ->
+            Pages.MyAccount.View.view model.user
+
+        PageNotFound ->
+            -- We don't need to pass any cmds, so we can call the view directly
+            Pages.PageNotFound.View.view
+
+
+viewFooter : Html Msg
+viewFooter =
+    div
+        [ class "ui inverted vertical footer segment form-page"
+        ]
+        [ div [ class "ui container" ]
+            [ div [] [ text "Copyright statement will be here" ]
+            ]
+        ]
+
+
+{-| Get menu items classes. This function gets the active page and checks if
+it is indeed the page used.
+-}
+classByPage : Page -> Page -> Attribute a
+classByPage page activePage =
+    classList
+        [ ( "item", True )
+        , ( "active", page == activePage )
+        ]

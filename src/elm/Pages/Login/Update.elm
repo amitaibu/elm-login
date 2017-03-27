@@ -1,156 +1,101 @@
-module Pages.Login.Update where
+module Pages.Login.Update exposing (update, Msg(..))
 
-import Pages.Login.Model exposing (initialModel, Model)
+import Config.Model exposing (BackendUrl)
+import Http
+import Regex exposing (regex, replace, HowMany(All))
+import String exposing (isEmpty)
+import Task
+import User.Decoder exposing (..)
+import User.Model exposing (..)
+import Pages.Login.Model as Login exposing (..)
+import RemoteData exposing (RemoteData(..), WebData)
 
-import Base64 exposing (encode)
-import Config.Model exposing (BackendConfig)
-import Effects exposing (Effects)
-import Http exposing (Error)
-import Json.Decode as JD exposing ((:=))
-import Storage exposing (getItem)
-import Task exposing  (Task)
-import Utils.Http exposing (getErrorMessageFromHttpResponse)
 
-type alias AccessToken = String
+type Msg
+    = FetchFail Http.Error
+    | FetchSucceed User
+    | SetLogin String
+    | TryLogin
 
-init : (Model, Effects Action)
+
+init : ( Model, Cmd Msg )
 init =
-  ( initialModel
-  -- Try to get an existing access token.
-  , getInputFromStorage
-  )
+    emptyModel ! []
 
-type Action
-  = UpdateAccessTokenFromServer (Result Http.Error AccessToken)
-  | UpdateAccessTokenFromStorage (Result String AccessToken)
-  | UpdateName String
-  | UpdatePass String
-  | SetAccessToken AccessToken
-  | SetUserMessage Pages.Login.Model.UserMessage
-  | SubmitForm
 
-type alias Context =
-  { backendConfig : BackendConfig
-  }
+update : BackendUrl -> WebData User -> Msg -> Model -> ( Model, Cmd Msg, WebData User )
+update backendUrl user msg model =
+    case msg of
+        FetchSucceed github ->
+            ( model, Cmd.none, Success github )
 
-update : Context -> Action -> Model -> (Model, Effects Action)
-update context action model =
-  case action of
-    UpdateName name ->
-      let
-        loginForm = model.loginForm
-        updatedLoginForm = { loginForm | name = name }
-      in
-        ( { model | loginForm = updatedLoginForm }
-        , Effects.none
-        )
+        FetchFail err ->
+            ( model, Cmd.none, Failure err )
 
-    UpdatePass pass ->
-      let
-        loginForm = model.loginForm
-        updatedLoginForm = { loginForm | pass = pass }
-      in
-        ( {model | loginForm = updatedLoginForm }
-        , Effects.none
-        )
+        SetLogin login ->
+            let
+                -- Remove spaces from login.
+                noSpacesLogin =
+                    replace All (regex " ") (\_ -> "") login
 
-    SubmitForm ->
-      let
-        backendUrl =
-          (.backendConfig >> .backendUrl) context
+                userStatus =
+                    getUserStatusFromNameChange user model.login noSpacesLogin
+            in
+                ( { model | login = noSpacesLogin }, Cmd.none, userStatus )
 
+        TryLogin ->
+            let
+                ( cmd, userStatus ) =
+                    getCmdAndUserStatusForTryLogin backendUrl user model.login
+            in
+                ( model, cmd, userStatus )
+
+
+{-| Try to fetch the user from GitHub only if it was not asked yet.
+In case we are still loading, error or a succesful fetch we don't want to repeat
+it.
+-}
+getCmdAndUserStatusForTryLogin : BackendUrl -> WebData User -> String -> ( Cmd Msg, WebData User )
+getCmdAndUserStatusForTryLogin backendUrl user login =
+    case user of
+        NotAsked ->
+            if isEmpty login then
+                -- login was not asked, however it is empty.
+                ( Cmd.none, NotAsked )
+            else
+                -- Fetch the login from GitHub, and indicate we are
+                -- in the middle of "Loading".
+                ( fetchFromGitHub backendUrl login, Loading )
+
+        _ ->
+            -- We are not in "NotAsked" state, so return the existing
+            -- value
+            ( Cmd.none, user )
+
+
+{-| Determine if the user status should change after setting a new name.
+When there is a valid name change, status should change to NotAsked.
+However if for example a user just tried to add a space to the name, so after
+triming it's actually the same. Thus, we avoid changing the user status to
+prevent from re-fetching a possibly wrong name.
+For example, if the user status would have been Failure, the existing name is
+"foo" and user tried to pass "foo " (notice the trailing space), then in fact no
+change should happen.
+-}
+getUserStatusFromNameChange : WebData User -> String -> String -> WebData User
+getUserStatusFromNameChange user currentName newName =
+    if currentName == newName then
+        user
+    else
+        NotAsked
+
+
+{-| Get data from GitHub.
+-}
+fetchFromGitHub : BackendUrl -> String -> Cmd Msg
+fetchFromGitHub backendUrl login =
+    let
         url =
-          backendUrl ++ "/api/login-token"
-
-        credentials : String
-        credentials = encodeCredentials(model.loginForm.name, model.loginForm.pass)
-      in
-        if model.status == Pages.Login.Model.Fetching || model.status == Pages.Login.Model.Fetched
-          then
-            (model, Effects.none)
-          else
-            ( { model | status = Pages.Login.Model.Fetching }
-            , Effects.batch
-              [ Task.succeed (SetUserMessage Pages.Login.Model.None) |> Effects.task
-              , getJson url credentials
-              ]
-            )
-
-    SetAccessToken token ->
-      ( { model
-        | accessToken = token
-        -- This is a good time also to hide the password.
-        , loginForm = Pages.Login.Model.LoginForm model.loginForm.name ""
-        }
-      , Effects.none
-      )
-
-    SetUserMessage userMessage ->
-      ( { model | userMessage = userMessage }
-      , Effects.none
-      )
-
-    UpdateAccessTokenFromServer result ->
-      case result of
-        Ok token ->
-          ( { model | status = Pages.Login.Model.Fetched }
-          , Task.succeed (SetAccessToken token) |> Effects.task
-          )
-        Err err ->
-          let
-            message =
-              getErrorMessageFromHttpResponse err
-          in
-            ( { model | status = Pages.Login.Model.HttpError err }
-            , Task.succeed (SetUserMessage <| Pages.Login.Model.Error message) |> Effects.task
-            )
-
-    UpdateAccessTokenFromStorage result ->
-      case result of
-        Ok token ->
-          ( model
-          , Task.succeed (SetAccessToken token) |> Effects.task
-          )
-        Err err ->
-          -- There was no access token in the storage, so show the login form
-          ( { model | hasAccessTokenInStorage = False }
-          , Effects.none
-          )
-
-
-getInputFromStorage : Effects Action
-getInputFromStorage =
-  Storage.getItem "access_token" JD.string
-    |> Task.toResult
-    |> Task.map UpdateAccessTokenFromStorage
-    |> Effects.task
-
-
--- EFFECTS
-
-encodeCredentials : (String, String) -> String
-encodeCredentials (name, pass) =
-  let
-     base64 = Base64.encode(name ++ ":" ++ pass)
-  in
-    case base64 of
-     Ok result -> result
-     Err err -> ""
-
-getJson : String -> String -> Effects Action
-getJson url credentials =
-  Http.send Http.defaultSettings
-    { verb = "GET"
-    , headers = [("Authorization", "Basic " ++ credentials)]
-    , url = url
-    , body = Http.empty
-    }
-    |> Http.fromJson decodeAccessToken
-    |> Task.toResult
-    |> Task.map UpdateAccessTokenFromServer
-    |> Effects.task
-
-
-decodeAccessToken : JD.Decoder AccessToken
-decodeAccessToken =
-  JD.at ["access_token"] <| JD.string
+            backendUrl ++ "/users/" ++ login
+    in
+        Task.perform FetchFail FetchSucceed (Http.get decodeFromGithub url)

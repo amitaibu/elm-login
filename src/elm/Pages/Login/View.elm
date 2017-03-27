@@ -1,134 +1,58 @@
-module Pages.Login.View where
+module Pages.Login.View exposing (view)
 
-import Pages.Login.Model exposing (initialModel, Model)
-import Pages.Login.Update exposing (Action)
-
-import Config.Model exposing (BackendConfig)
-import Html exposing (a, button, div, i, input, h2, hr, span, text, Html)
-import Html.Attributes exposing (action, class, disabled, id, hidden, href, placeholder, required, size, style, type', value)
-import Html.Events exposing (on, onClick, onSubmit, targetValue)
-import String exposing (isEmpty)
-
-type alias ViewContext =
-  { backendConfig : BackendConfig
-  }
-
-view : ViewContext -> Signal.Address Action -> Model -> Html
-view context address model =
-  let
-    modelForm =
-      model.loginForm
-
-    isFormEmpty =
-      String.isEmpty modelForm.name || String.isEmpty modelForm.pass
-
-    isFetchStatus =
-      model.status == Pages.Login.Model.Fetching || model.status == Pages.Login.Model.Fetched
-
-    githubClientId =
-      (.backendConfig >> .githubClientId) context
-
-    githubUrl =
-      "https://github.com/login/oauth/authorize?client_id=" ++ githubClientId ++ "&scope=user:email"
+import RemoteData exposing (RemoteData(..), WebData)
+import Html exposing (..)
+import Html.Attributes exposing (..)
+import Html.Events exposing (onClick, onInput, onSubmit)
+import User.Model exposing (..)
+import Pages.Login.Model exposing (..)
+import Pages.Login.Update exposing (..)
 
 
-    githubLogin =
-      div
-      [ class "btn btn-lg btn-primary btn-block"]
-      [ a
-        [ href githubUrl]
-        [ i [ class "fa fa-github", style [("margin-right", "10px")] ] []
-        , span [] [ text "Login with GitHub" ]
-        ]
-      ]
+view : WebData User -> Model -> Html Msg
+view user model =
+    let
+        spinner =
+            i [ class "notched circle loading icon" ] []
 
-    loginForm =
-      Html.form
-        [ onSubmit address Pages.Login.Update.SubmitForm
-        , action "javascript:void(0);"
-        , class "form-signin"
-        -- Don't show the form while checking for the access token from the
-        -- storage.
-        , hidden model.hasAccessTokenInStorage
-        ]
+        ( isLoading, isError ) =
+            case user of
+                Loading ->
+                    ( True, False )
 
-        -- Form title
-        [ h2 [] [ text "Please login" ]
-        -- UserName
-        , githubLogin
-        , div
-          [ style [("margin-bottom", "20px"), ("margin-top", "20px"), ("text-align", "center")] ]
-          [ text "OR" ]
-        , div
-            [ class "input-group" ]
-            [ span
-                [ class "input-group-addon" ]
-                [ i [ class "glyphicon glyphicon-user" ] [] ]
-                , input
+                Failure _ ->
+                    ( False, True )
+
+                _ ->
+                    ( False, False )
+
+        inputClasses =
+            classList
+                [ ( "ui action input", True )
+                , ( "error", isError )
+                ]
+    in
+        Html.form
+            [ onSubmit TryLogin
+            , action "javascript:void(0);"
+            , class "ui stacked segment"
+            ]
+            [ div [ inputClasses ]
+                [ input
                     [ type' "text"
-                    , class "form-control"
-                    , placeholder "Name"
-                    , value model.loginForm.name
-                    , on "input" targetValue (Signal.message address << Pages.Login.Update.UpdateName)
-                    , size 40
-                    , required True
-                    , disabled (isFetchStatus)
+                    , placeholder "Github name"
+                    , onInput SetLogin
+                    , value model.login
                     ]
                     []
-           ]
-        -- Password
-        , div
-          [ class "input-group"]
-          [ span
-              [ class "input-group-addon" ]
-              [ i [ class "fa fa-lock fa-lg" ] [] ]
-          , input
-              [ type' "password"
-              , class "form-control"
-              , placeholder "Password"
-              , value modelForm.pass
-              , on "input" targetValue (Signal.message address << Pages.Login.Update.UpdatePass)
-              , size 40
-              , required True
-              , disabled (isFetchStatus)
-              ]
-              []
-           ]
-
-        -- Submit button
-        , button
-            [ onClick address Pages.Login.Update.SubmitForm
-            , class "btn btn-lg btn-primary btn-block"
-            , disabled (isFetchStatus || isFormEmpty)
+                  -- Submit button
+                , button
+                    [ onClick TryLogin
+                    , disabled (isLoading || isError)
+                    , class "ui primary button"
+                    ]
+                    [ span [ hidden <| not isLoading ] [ spinner ]
+                    , span [ hidden isLoading ] [ text "Login" ]
+                    ]
+                ]
             ]
-            [ span [ hidden <| not isFetchStatus] [ spinner ]
-            , span [ hidden isFetchStatus ] [ text "Login" ] ]
-            ]
-
-    spinner =
-      i [ class "fa fa-spinner fa-spin" ] []
-
-    userMessage =
-      case model.userMessage of
-        Pages.Login.Model.None ->
-          div [] []
-        Pages.Login.Model.Error message ->
-          div [ style [("text-align", "center")]] [ text message ]
-
-  in
-    div [ id "login-page" ] [
-      hr [] []
-      , div
-          [ class "container" ]
-          [ userMessage
-          , div
-              [ class "wrapper" ]
-              [ loginForm
-              , div
-                  [ class "text-center"
-                  , hidden (not (model.status == Pages.Login.Model.Fetching) && not model.hasAccessTokenInStorage) ]
-                  [ text "Loading ..." ]
-              ]
-            ]
-            , hr [] []
-          ]

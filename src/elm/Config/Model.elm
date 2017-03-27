@@ -1,28 +1,11 @@
-module Config.Model where
+module Config.Model exposing (..)
 
-type alias BackendConfig =
-  { backendUrl : String
-  , githubClientId : String
-  , name : String
-  -- Url information
-  , hostname : String
-  }
 
-initialBackendConfig : BackendConfig
-initialBackendConfig =
-  { backendUrl = ""
-  , githubClientId = ""
-  , name = ""
-  , hostname = ""
-  }
+type alias BackendUrl =
+    String
+
 
 type alias Model =
-  { backendConfig : BackendConfig
-  , error : Bool
-  }
-
-initialModel : Model
-initialModel =
-  { backendConfig = initialBackendConfig
-  , error = False
-  }
+    { backendUrl : BackendUrl
+    , name : String
+    }
