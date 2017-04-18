@@ -76,6 +76,7 @@ update context action model =
           case act of
             EventCompanyFilter.Update.SelectCompany maybeCompanyId ->
               maybeCompanyId
+            EventCompanyFilter.Update.ResetCounter -> Nothing
 
       in
         ( { model | eventCompanyFilter = childModel }
@@ -186,6 +187,7 @@ update context action model =
         ( { model | leaflet = childModel }
         , Effects.batch
           [ Task.succeed (GetData maybeCompanyId) |> Effects.task
+          , Task.succeed (ChildEventCompanyFilterAction <| EventCompanyFilter.Update.ResetCounter) |> Effects.task -- resetting the counter on page init
           , Task.succeed (ChildEventCompanyFilterAction <| EventCompanyFilter.Update.SelectCompany maybeCompanyId) |> Effects.task
           ]
         )

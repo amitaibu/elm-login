@@ -29,8 +29,15 @@
   .companies {
     margin: 10px 0;
     padding: 4px;
-    width: 100%;
+    width: 90%;
     border-radius: 3px;
+    color:$blue;
+    background: white;
+  }
+
+  .selectionCounter {
+    padding: 3px;
+    width: 10%;
     color:$blue;
     background: white;
   }
