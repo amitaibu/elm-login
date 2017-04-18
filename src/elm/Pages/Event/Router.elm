@@ -8,7 +8,7 @@ delta2update : Model -> Model -> Maybe HashUpdate
 delta2update previous current =
   let
     url =
-      case current.eventCompanyFilter of
+      case current.eventCompanyFilter.state of
         Just companyId -> [ toString (companyId) ]
         Nothing -> []
   in
