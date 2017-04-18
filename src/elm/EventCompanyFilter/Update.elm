@@ -34,4 +34,4 @@ update companies action model =
             Nothing ->
               Nothing
       in
-        eventCompanyFilter
+        { model | state = eventCompanyFilter, changes = model.changes + 1 }

@@ -20,10 +20,13 @@ view companies address model =
         [ i [ class "fa fa-briefcase" ] []
         , text <| " " ++ "Companies"
         ]
-    , companyListForSelect address companies model
+    ,  span
+        [ class "changeCount pull-right" ]
+        [ text (toString model.changes) ]
+    , companyListForSelect address companies model.state
     ]
 
-companyListForSelect : Signal.Address Action -> List Company.Model -> Model -> Html
+companyListForSelect : Signal.Address Action -> List Company.Model -> Maybe number -> Html
 companyListForSelect address companies eventCompanyFilter  =
   let
     selectedText =
