@@ -17,11 +17,14 @@ update : List Company.Model -> Action -> Model -> Model
 update companies action model =
   case action of
     SelectCompany maybeCompanyId ->
+
       let
+        counter = model.counter
         isValidCompany val =
           companies
             |> List.filter (\company -> company.id == val)
             |> List.length
+
 
 
         eventCompanyFilter =
@@ -29,9 +32,10 @@ update companies action model =
             Just val ->
               -- Make sure the given company ID is a valid one.
               if ((isValidCompany val) > 0)
-                then Just val
-                else Nothing
+                --then Just val
+                then { model | companyid = Just val, counter = counter + 1 }
+                else { model | companyid = Nothing }
             Nothing ->
-              Nothing
+              { model | companyid = Nothing }
       in
         eventCompanyFilter
