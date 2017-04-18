@@ -8,6 +8,7 @@ import Event.Decoder exposing (decode)
 import Event.Model exposing (Event)
 import EventAuthorFilter.Update exposing (Action)
 import EventCompanyFilter.Update exposing (Action)
+import Counter.Update exposing (Action)
 import EventList.Update exposing (Action)
 import EventList.Utils exposing (filterEventsByString)
 import Http exposing (Error)
@@ -37,6 +38,7 @@ type Action
   -- Child actions
   | ChildEventAuthorFilterAction EventAuthorFilter.Update.Action
   | ChildEventCompanyFilterAction EventCompanyFilter.Update.Action
+  | ChildEventCompanyCounterAction Counter.Update.Action
   | ChildEventListAction EventList.Update.Action
   | ChildLeafletAction Leaflet.Update.Action
 
@@ -80,6 +82,15 @@ update context action model =
       in
         ( { model | eventCompanyFilter = childModel }
         , Task.succeed (GetData maybeCompanyId) |> Effects.task
+        )
+
+    ChildEventCompanyCounterAction act ->
+      let
+        updateCounter = Counter.Update.update act model.companyCounter
+
+      in
+        ( { model | companyCounter = updateCounter }
+        , Effects.none
         )
 
     ChildEventListAction act ->
