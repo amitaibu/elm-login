@@ -11,6 +11,9 @@ import String exposing (toInt)
 
 type alias Model = EventCompanyFilter.Model
 
+count : Int
+count = 0
+
 view : List Company.Model -> Signal.Address Action -> Model -> Html
 view companies address model =
   div
@@ -21,10 +24,12 @@ view companies address model =
         , text <| " " ++ "Companies"
         ]
     , companyListForSelect address companies model
+    , div [class "badge"] [ text (toString (count)) ]
     ]
 
 companyListForSelect : Signal.Address Action -> List Company.Model -> Model -> Html
 companyListForSelect address companies eventCompanyFilter  =
+
   let
     selectedText =
       case eventCompanyFilter of
@@ -41,7 +46,6 @@ companyListForSelect address companies eventCompanyFilter  =
               Just val
             Err _ ->
               Nothing
-
 
     -- Add an "All companies" option
     companies' =
@@ -61,6 +65,7 @@ companyListForSelect address companies eventCompanyFilter  =
     select
       [ class "companies"
       , value selectedText
-      , on "change" targetValue (\str -> Signal.message address <| EventCompanyFilter.Update.SelectCompany <| textToMaybe str)
+    --  , onClick address EventCompanyFilter.Update.Increase
+      , on "change" targetValue ( \str -> Signal.message address <| EventCompanyFilter.Update.SelectCompany <| textToMaybe str)
       ]
       (List.map getOption companies')
