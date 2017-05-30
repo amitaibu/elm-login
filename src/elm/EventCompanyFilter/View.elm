@@ -21,8 +21,10 @@ view companies address model =
         , text <| " " ++ "Companies"
         ]
     , companyListForSelect address companies model
+    , span
+        [ class "badge" ]
+        [ text "1" ]
     ]
-
 companyListForSelect : Signal.Address Action -> List Company.Model -> Model -> Html
 companyListForSelect address companies eventCompanyFilter  =
   let
