@@ -32,6 +32,7 @@ update companies action model =
                 then { model | counter = model.counter + 1 }
                 else { model | counter = model.counter + 1 }
             Nothing ->
+              -- Exclude counting for 'All companies'.
                 { model | counter = model.counter }
       in
         eventCompanyFilter
